@@ -1,0 +1,20 @@
+[
+    {
+        "id": "school-1",
+        "name": "Greenwood High",
+        "address": "123 Maple Ave, Springfield",
+        "contact_email": "admin@greenwood.edu",
+        "logo_url": "https://via.placeholder.com/150",
+        "total_xp": 15000,
+        "student_count": 120
+    },
+    {
+        "id": "school-2",
+        "name": "Tech Academy",
+        "address": "456 Silicon Valley, CA",
+        "contact_email": "info@techacademy.org",
+        "logo_url": "https://via.placeholder.com/150",
+        "total_xp": 22000,
+        "student_count": 85
+    }
+]

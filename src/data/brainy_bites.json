@@ -1,0 +1,16 @@
+[
+    {
+        "id": 1,
+        "title": "How do Black Holes work?",
+        "type": "video",
+        "url": "https://www.youtube.com/embed/R7n71pm0K04",
+        "description": "Dive into the mystery of black holes."
+    },
+    {
+        "id": 2,
+        "title": "The Science of Rainbows",
+        "type": "article",
+        "content": "Rainbows are formed when sunlight is scattered from raindrops into the eyes of an observer...",
+        "description": "Learn how light refraction creates colors."
+    }
+]

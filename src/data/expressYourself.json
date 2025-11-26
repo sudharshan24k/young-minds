@@ -1,0 +1,74 @@
+{
+    "intro": {
+        "title": "Express Yourself",
+        "subtitle": "Welcome to Young Minds @ Edura, an online world where children’s imagination takes center stage!",
+        "description": "We bring together young storytellers, poets, and budding writers — giving them the space, prompts, and recognition they deserve."
+    },
+    "tabs": [
+        {
+            "id": "begin",
+            "label": "Begin Small"
+        },
+        {
+            "id": "spark",
+            "label": "Add a Little Spark"
+        },
+        {
+            "id": "finish",
+            "label": "Touch the Finish Line"
+        },
+        {
+            "id": "celebrate",
+            "label": "Celebrate Your Achievement"
+        }
+    ],
+    "content": {
+        "begin": {
+            "title": "How we make creativity come alive?",
+            "desc": "Children can write stories, poems, essays, or even adapt their favorite classics or movies in their own words.",
+            "icon": "PenTool",
+            "color": "text-blue-500",
+            "bg": "bg-blue-100",
+            "points": [
+                "Every month, we compile top entries into a beautifully edited book with its own ISBN.",
+                "Available as both an eBook and print-on-demand copy on Amazon.",
+                "Each child’s work is showcased on our website, giving them real recognition as young authors."
+            ]
+        },
+        "spark": {
+            "title": "Need a little spark to get started?",
+            "desc": "Our platform offers writing prompts and themes to spark creativity.",
+            "icon": "Sparkles",
+            "color": "text-yellow-500",
+            "bg": "bg-yellow-100",
+            "points": [
+                "Mini PowerPoint lessons and writing guides to help kids build stories step by step.",
+                "Editing support to refine their work before publication.",
+                "Collection of sample stories and poems written by children for inspiration."
+            ]
+        },
+        "finish": {
+            "title": "Finish your story, claim your glory",
+            "desc": "Upload your masterpiece: submit your writing in any format: text, PDF, Word doc, or even pictures of the drawings.",
+            "icon": "Flag",
+            "color": "text-purple-500",
+            "bg": "bg-purple-100",
+            "points": [
+                "Exhibit your talent on video: share storytelling, poetry recitals, or readings of your own work in any format: MP4, AVI, MOV (Max 50MB)."
+            ],
+            "action": "Submit Your Work"
+        },
+        "celebrate": {
+            "title": "What you achieve?",
+            "desc": "Top 10 entries get published: each month, the best works are selected for publishing in our quarterly eBook and given special mention on the website.",
+            "icon": "Award",
+            "color": "text-pink-500",
+            "bg": "bg-pink-100",
+            "points": [
+                "Be a YouTube Star: winning videos are featured on our official YouTube channel, giving children their own spotlight.",
+                "Participation matters: all participants get e-certificates and top two winners receive Amazon vouchers every month.",
+                "Get your work published in Young Minds @ Edura: Every 3 months, we release a curated anthology of selected works, complete with ISBN, available on Amazon and proudly showcased on our website."
+            ]
+        }
+    }
+}

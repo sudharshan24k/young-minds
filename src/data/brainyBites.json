@@ -1,0 +1,71 @@
+{
+    "intro": {
+        "headline": "Turning curiosity into creativity — one session at a time. Small workshops, big creations…",
+        "subheadline": "Our workshops are fun-sized, hands-on sessions designed to spark curiosity and help kids discover new interests, build confidence, and learn beyond the classroom — all while having a great time!",
+        "details": "Our workshops have a small group size for personal attention, engaging activities, certificates of participation for every child, and a safe, online space to learn, laugh, and grow."
+    },
+    "workshops": [
+        {
+            "id": "writing",
+            "title": "Creative Writing Workshops",
+            "icon": "BookOpen",
+            "content": "Learn to turn ideas into stories, poems, or essays. Explore characters, imagination, and the joy of storytelling!"
+        },
+        {
+            "id": "math",
+            "title": "Math Adventures",
+            "icon": "Calculator",
+            "content": "Crack puzzles, solve fun challenges, and discover how math can be magical and exciting."
+        },
+        {
+            "id": "science",
+            "title": "Mini Science Experiments",
+            "icon": "FlaskConical",
+            "content": "Watch, learn, and try cool hands-on experiments with easy explanations you can understand and repeat at home."
+        },
+        {
+            "id": "cooking",
+            "title": "Little Chefs’ Corner",
+            "icon": "Utensils",
+            "content": "Fun cooking activities where kids learn simple recipes, kitchen safety, and the joy of creating something delicious!"
+        },
+        {
+            "id": "reading",
+            "title": "Monthly Reading Recommendations",
+            "icon": "BookOpen",
+            "content": "Kids can read hand-picked books and get ready for a workshop with their reviews, favorite character from the book, and why they loved the book or why not."
+        },
+        {
+            "id": "craft",
+            "title": "Craft & DIY Creations",
+            "icon": "Scissors",
+            "content": "Make amazing crafts, decorations, and art projects using everyday materials — because creativity can start anywhere!"
+        },
+        {
+            "id": "speaking",
+            "title": "Speak Up! (Public Speaking & Debating)",
+            "icon": "Mic",
+            "content": "Build confidence, learn to express your ideas, and become a voice that shines — from storytelling to debates!"
+        }
+    ],
+    "howItWorks": [
+        {
+            "id": "groups",
+            "title": "Small Groups",
+            "icon": "Info",
+            "content": "We host small, interactive workshops on Google Meet, with about 10–12 kids per group for a friendly and focused experience."
+        },
+        {
+            "id": "mentors",
+            "title": "Expert Mentors",
+            "icon": "Info",
+            "content": "Each session is led by an enthusiastic mentor who guides children step by step."
+        },
+        {
+            "id": "updates",
+            "title": "Parent Updates",
+            "icon": "Info",
+            "content": "Parents receive details in advance — including workshop time, materials needed, and the Meet link."
+        }
+    ]
+}

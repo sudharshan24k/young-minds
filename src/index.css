@@ -1,7 +1,103 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* basic resets */
-html, body, #root { height: 100%; }
-body { @apply bg-white text-gray-800 font-body; }
+@theme {
+  --font-sans: 'Outfit', sans-serif;
+  --font-heading: 'Fredoka', sans-serif;
+
+  --color-primary: #FF6B6B;
+  --color-secondary: #4ECDC4;
+  --color-accent: #FFE66D;
+  --color-background: #F7F9FC;
+  --color-surface: #FFFFFF;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-spin-slow: spin 8s linear infinite;
+  --animate-blob: blob 7s infinite;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+/* Custom Utilities using @apply */
+@layer components {
+  .btn-primary {
+    @apply px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-bold shadow-lg hover:shadow-purple-500/30 transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 flex items-center gap-2 cursor-pointer font-heading tracking-wide;
+  }
+
+  .btn-secondary {
+    @apply px-8 py-4 bg-white text-purple-600 border-2 border-purple-100 rounded-full font-bold hover:bg-purple-50 hover:border-purple-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-300 cursor-pointer font-heading tracking-wide;
+  }
+
+  .btn-ghost {
+    @apply px-4 py-2 text-gray-600 font-medium hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors cursor-pointer font-sans;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent;
+  }
+
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-lg border border-white/50 shadow-xl rounded-3xl;
+  }
+
+  .glass-panel-hover {
+    @apply hover:bg-white/80 transition-all duration-300 hover:shadow-2xl hover:border-white/80;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f0f4f8;
+  color: #2D3748;
+  overflow-x: hidden;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(255, 107, 107, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(78, 205, 196, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(255, 230, 109, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(160, 100, 255, 0.05) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}

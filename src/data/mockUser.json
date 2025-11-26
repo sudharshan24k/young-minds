@@ -1,0 +1,21 @@
+{
+    "user": {
+        "id": "mock-user-id",
+        "email": "student@youngminds.com",
+        "user_metadata": {
+            "full_name": "Alex Student"
+        }
+    },
+    "profile": {
+        "id": "mock-user-id",
+        "role": "student",
+        "school_id": "school-1",
+        "xp": 1250,
+        "level": 5,
+        "streak_count": 3,
+        "badges": [
+            "Early Bird",
+            "Math Whiz"
+        ]
+    }
+}

@@ -1,0 +1,76 @@
+{
+    "hero": {
+        "welcome": "Welcome to Young Minds @ Edura",
+        "headline": "Fuel your world of",
+        "headlineHighlight": "Endless Imagination",
+        "subheadline": "Do you have a head full of stories, doodles, poems, or big ideas? At Young Minds @ Edura, your imagination has no limits!",
+        "description": "It’s a sparkle zone made just for kids who love to write, draw, explore, and create — and a wonderland of ideas for parents to celebrate every milestone.",
+        "ctaPrimary": "Start Your Journey",
+        "ctaSecondary": "Explore Modules"
+    },
+    "whyJoin": {
+        "title": "Why Join Young Minds @ Edura?",
+        "description1": "Because every child deserves to be celebrated. We understand how much parents value appreciation and recognition for their children’s creativity — especially those between 5-12 years.",
+        "description2": "Schools often miss opportunities to nurture imagination, so we created a platform where kids can:",
+        "features": [
+            {
+                "icon": "Rocket",
+                "title": "Build Confidence",
+                "desc": "Build confidence through creative expression.",
+                "color": "bg-blue-100 text-blue-600"
+            },
+            {
+                "icon": "Trophy",
+                "title": "Gain Recognition",
+                "desc": "Gain recognition for your talents.",
+                "color": "bg-yellow-100 text-yellow-600"
+            },
+            {
+                "icon": "Lightbulb",
+                "title": "Think Beyond",
+                "desc": "Learn to think, imagine, and express — beyond the classroom.",
+                "color": "bg-purple-100 text-purple-600"
+            },
+            {
+                "icon": "Sparkles",
+                "title": "Celebrate Originality",
+                "desc": "Be rewarded and celebrated for originality.",
+                "color": "bg-pink-100 text-pink-600"
+            }
+        ]
+    },
+    "mission": {
+        "title": "Our Mission",
+        "description": "To spark a love for reading, writing, and creating in every child — helping them imagine, explore, and grow. At the same time, we give parents the joy of seeing their child’s work celebrated, shared, and proudly showcased in print or online."
+    },
+    "bubbles": {
+        "title": "Choose Your Adventure",
+        "subtitle": "Select a bubble to start exploring!",
+        "items": [
+            {
+                "id": "express",
+                "icon": "Palette",
+                "title": "Express Yourself",
+                "description": "Upload writing works like stories, poems, and more.",
+                "color": "pink",
+                "path": "/express"
+            },
+            {
+                "id": "challenge",
+                "icon": "Zap",
+                "title": "Challenge Yourself",
+                "description": "Participate in monthly writing, science, and art competitions.",
+                "color": "yellow",
+                "path": "/challenge"
+            },
+            {
+                "id": "brainy",
+                "icon": "Brain",
+                "title": "Brainy Bites",
+                "description": "Join workshops for creative writing, math, science, and more.",
+                "color": "blue",
+                "path": "/brainy"
+            }
+        ]
+    }
+}

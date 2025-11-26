@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@layer components {
+    .card-glass {
+        @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl rounded-3xl;
+    }
+
+    .card-hover {
+        @apply hover:shadow-2xl hover:-translate-y-1 transition-all duration-300;
+    }
+}

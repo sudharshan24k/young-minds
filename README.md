@@ -1,73 +1,71 @@
-# React + TypeScript + Vite
+# Young Minds @ Edura - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modular, scalable, and production-ready children's creative portal built with React, Vite, and TailwindCSS.
 
-Currently, two official plugins are available:
+## 🚀 Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Prerequisites
+- Node.js (v18 or higher)
+- npm
 
-## React Compiler
+### Installation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Clone the repository (if applicable) or navigate to the project folder.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-## Expanding the ESLint configuration
+### Running Locally
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Start the development server:
+```bash
+npm run dev
+```
+The app will be available at `http://localhost:5173`.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Building for Production
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Build the project for deployment:
+```bash
+npm run build
+```
+Preview the production build:
+```bash
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📂 Project Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── assets/              # Static assets (images, icons)
+├── components/
+│   ├── layout/          # Layout components (Header, Footer)
+│   └── ui/              # Reusable UI components (Buttons, Cards, Modals)
+├── pages/               # Main route pages
+│   ├── Home.jsx
+│   ├── ExpressYourself.jsx
+│   ├── ChallengeYourself.jsx
+│   ├── BrainyBites.jsx
+│   └── Enroll.jsx
+├── App.jsx              # Main application component with routing
+├── main.jsx             # Entry point
+└── index.css            # Global styles and Tailwind setup
+```
+
+## 🛠 Technologies Used
+
+- **React**: UI Library
+- **Vite**: Build tool
+- **TailwindCSS**: Utility-first CSS framework
+- **Framer Motion**: Animations
+- **React Router**: Client-side routing
+- **Lucide React**: Icons
+
+## 🔮 Future Roadmap (Backend Integration)
+
+- **Authentication**: Add user login/signup (Firebase/Auth0).
+- **Database**: Store user submissions and progress (PostgreSQL/MongoDB).
+- **API**: Create endpoints for fetching workshops and challenges.
+- **Payments**: Integrate Stripe/Razorpay for enrollment fees.

@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+@layer components {
+    .footer-container {
+        @apply container mx-auto px-4;
+    }
+}

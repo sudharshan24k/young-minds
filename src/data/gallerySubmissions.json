@@ -1,0 +1,122 @@
+[
+    {
+        "id": "1",
+        "title": "Sunset Dreams",
+        "participantName": "Emma K.",
+        "category": "art",
+        "description": "I painted this sunset because it reminds me of peace and happiness. I used watercolors to blend the colors together.",
+        "imageUrl": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80",
+        "votes": 42,
+        "createdAt": "2024-01-15"
+    },
+    {
+        "id": "2",
+        "title": "My Robot Friend",
+        "participantName": "Alex M.",
+        "category": "art",
+        "description": "This is my dream robot that helps kids with homework and makes learning fun!",
+        "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&q=80",
+        "votes": 38,
+        "createdAt": "2024-01-16"
+    },
+    {
+        "id": "3",
+        "title": "The Magic Forest",
+        "participantName": "Sophia L.",
+        "category": "writing",
+        "description": "A short story about a girl who discovers a magical forest where animals can talk and trees sing songs.",
+        "imageUrl": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",
+        "votes": 56,
+        "createdAt": "2024-01-14"
+    },
+    {
+        "id": "4",
+        "title": "How Plants Grow",
+        "participantName": "Noah T.",
+        "category": "stem",
+        "description": "My science experiment showing how different amounts of water affect plant growth over 2 weeks.",
+        "imageUrl": "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=800&q=80",
+        "votes": 31,
+        "createdAt": "2024-01-17"
+    },
+    {
+        "id": "5",
+        "title": "Stop Motion Adventure",
+        "participantName": "Lily P.",
+        "category": "video",
+        "description": "A 2-minute stop motion animation about a toy's journey around my house. Took me 3 days to make!",
+        "imageUrl": "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&q=80",
+        "votes": 67,
+        "createdAt": "2024-01-13"
+    },
+    {
+        "id": "6",
+        "title": "Underwater World",
+        "participantName": "Ethan R.",
+        "category": "art",
+        "description": "I drew all my favorite sea creatures using colored pencils. The octopus was the hardest part!",
+        "imageUrl": "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80",
+        "votes": 45,
+        "createdAt": "2024-01-18"
+    },
+    {
+        "id": "7",
+        "title": "The Lost Puppy",
+        "participantName": "Mia H.",
+        "category": "writing",
+        "description": "A heartwarming tale about a puppy who gets lost but finds his way home with help from kind strangers.",
+        "imageUrl": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80",
+        "votes": 52,
+        "createdAt": "2024-01-12"
+    },
+    {
+        "id": "8",
+        "title": "Volcano Eruption Model",
+        "participantName": "James W.",
+        "category": "stem",
+        "description": "I built a working volcano model and explained the chemical reaction that makes it erupt!",
+        "imageUrl": "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80",
+        "votes": 29,
+        "createdAt": "2024-01-19"
+    },
+    {
+        "id": "9",
+        "title": "My Day in Drawings",
+        "participantName": "Olivia C.",
+        "category": "art",
+        "description": "A comic strip showing everything I do from morning to night. Drawing breakfast was fun!",
+        "imageUrl": "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=800&q=80",
+        "votes": 40,
+        "createdAt": "2024-01-11"
+    },
+    {
+        "id": "10",
+        "title": "Cooking Tutorial",
+        "participantName": "Lucas D.",
+        "category": "video",
+        "description": "Teaching other kids how to make their own pizza! It's easier than you think and so yummy.",
+        "imageUrl": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80",
+        "votes": 61,
+        "createdAt": "2024-01-10"
+    },
+    {
+        "id": "11",
+        "title": "Space Explorer",
+        "participantName": "Ava B.",
+        "category": "writing",
+        "description": "My poem about traveling to different planets and meeting friendly aliens who love Earth music.",
+        "imageUrl": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&q=80",
+        "votes": 48,
+        "createdAt": "2024-01-09"
+    },
+    {
+        "id": "12",
+        "title": "Rainbow Bridge",
+        "participantName": "Mason J.",
+        "category": "art",
+        "description": "An acrylic painting of a rainbow bridge over a river. I love how the colors reflect in the water!",
+        "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80",
+        "votes": 35,
+        "createdAt": "2024-01-20"
+    }
+]
