@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, User, ArrowRight, AlertCircle, Phone } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { z } from 'zod';
 
 const SignUp = () => {
     const [formData, setFormData] = useState({
@@ -16,19 +14,7 @@ const SignUp = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { signUp } = useAuth();
-    const [zodErrors, setZodErrors] = useState({});
     const navigate = useNavigate();
-
-    const signupSchema = z.object({
-        fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-        email: z.string().email('Invalid email address'),
-        phone: z.string().optional(),
-        password: z.string().min(6, 'Password must be at least 6 characters'),
-        confirmPassword: z.string()
-    }).refine((data) => data.password === data.confirmPassword, {
-        message: "Passwords don't match",
-        path: ["confirmPassword"],
-    });
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -36,23 +22,16 @@ const SignUp = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); // Clear general errors
-        setZodErrors({}); // Clear Zod errors
+        setError('');
 
-        // First, handle cross-field validation for password match
+        // Validate passwords match
         if (formData.password !== formData.confirmPassword) {
             return setError('Passwords do not match');
         }
 
-        // Zod Validation
-        const result = signupSchema.safeParse(formData);
-        if (!result.success) {
-            const formattedErrors = {};
-            result.error.issues.forEach((issue) => {
-                formattedErrors[issue.path[0]] = issue.message;
-            });
-            setZodErrors(formattedErrors);
-            return; // Stop if Zod validation fails
+        // Validate password length
+        if (formData.password.length < 6) {
+            return setError('Password must be at least 6 characters');
         }
 
         setLoading(true);
@@ -65,118 +44,321 @@ const SignUp = () => {
 
             if (error) throw error;
 
-            // Redirect or show success message
-            // For now, redirect to home, but ideally verify email page
+            // Redirect to home
             navigate('/');
         } catch (err) {
-            setError(err.message);
+            setError(err.message || 'Signup failed. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center p-4">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md relative overflow-hidden"
-            >
-                {/* Decorative Elements */}
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-500 to-purple-500" />
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-pink-100 rounded-full opacity-50 blur-2xl" />
-                <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-100 rounded-full opacity-50 blur-2xl" />
+        <div style={{
+            minHeight: '100vh',
+            background: 'linear-gradient(180deg, #faf5ff 0%, #ffffff 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem'
+        }}>
+            <div style={{
+                background: 'white',
+                borderRadius: '1rem',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+                padding: '2rem',
+                width: '100%',
+                maxWidth: '28rem',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                {/* Decorative top bar */}
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '0.5rem',
+                    background: 'linear-gradient(90deg, #ec4899 0%, #8b5cf6 100%)'
+                }} />
 
-                <div className="relative z-10">
-                    <div className="text-center mb-8">
-                        <h2 className="text-3xl font-bold text-gray-800 mb-2">Join Young Minds</h2>
-                        <p className="text-gray-600">Create an account to start your journey</p>
+                {/* Decorative blobs */}
+                <div style={{
+                    position: 'absolute',
+                    top: '-2.5rem',
+                    right: '-2.5rem',
+                    width: '10rem',
+                    height: '10rem',
+                    background: '#fce7f3',
+                    borderRadius: '9999px',
+                    opacity: 0.5,
+                    filter: 'blur(40px)'
+                }} />
+                <div style={{
+                    position: 'absolute',
+                    bottom: '-2.5rem',
+                    left: '-2.5rem',
+                    width: '10rem',
+                    height: '10rem',
+                    background: '#e9d5ff',
+                    borderRadius: '9999px',
+                    opacity: 0.5,
+                    filter: 'blur(40px)'
+                }} />
+
+                <div style={{ position: 'relative', zIndex: 10 }}>
+                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                        <h2 style={{
+                            fontSize: '1.875rem',
+                            fontWeight: 'bold',
+                            color: '#1f2937',
+                            marginBottom: '0.5rem'
+                        }}>Join Young Minds</h2>
+                        <p style={{ color: '#6b7280' }}>Create an account to start your journey</p>
                     </div>
 
                     {error && (
-                        <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-6 flex items-center gap-2 text-sm">
-                            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                        <div style={{
+                            background: '#fef2f2',
+                            color: '#dc2626',
+                            padding: '0.75rem',
+                            borderRadius: '0.5rem',
+                            marginBottom: '1.5rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            fontSize: '0.875rem'
+                        }}>
+                            <AlertCircle style={{ width: '1rem', height: '1rem', flexShrink: 0 }} />
                             {error}
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div>
-                            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <label style={{
+                                display: 'block',
+                                fontSize: '0.875rem',
+                                fontWeight: '500',
+                                color: '#374151',
+                                marginBottom: '0.25rem'
+                            }}>Full Name</label>
+                            <div style={{ position: 'relative' }}>
+                                <User style={{
+                                    position: 'absolute',
+                                    left: '0.75rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    width: '1.25rem',
+                                    height: '1.25rem',
+                                    color: '#9ca3af'
+                                }} />
                                 <input
-                                    id="fullName"
                                     name="fullName"
                                     type="text"
                                     required
                                     value={formData.fullName}
                                     onChange={handleChange}
-                                    className={`appearance-none block w-full px-3 py-2 border ${zodErrors.fullName ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm pl-10`}
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.5rem 0.5rem 0.5rem 2.5rem',
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '0.75rem',
+                                        fontSize: '0.875rem',
+                                        outline: 'none',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = '#8b5cf6';
+                                        e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = '#e5e7eb';
+                                        e.target.style.boxShadow = 'none';
+                                    }}
                                     placeholder="John Doe"
                                 />
                             </div>
-                            {zodErrors.fullName && <p className="mt-1 text-xs text-red-600">{zodErrors.fullName}</p>}
                         </div>
 
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <label style={{
+                                display: 'block',
+                                fontSize: '0.875rem',
+                                fontWeight: '500',
+                                color: '#374151',
+                                marginBottom: '0.25rem'
+                            }}>Email Address</label>
+                            <div style={{ position: 'relative' }}>
+                                <Mail style={{
+                                    position: 'absolute',
+                                    left: '0.75rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    width: '1.25rem',
+                                    height: '1.25rem',
+                                    color: '#9ca3af'
+                                }} />
                                 <input
                                     type="email"
                                     name="email"
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.5rem 0.5rem 0.5rem 2.5rem',
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '0.75rem',
+                                        fontSize: '0.875rem',
+                                        outline: 'none',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = '#8b5cf6';
+                                        e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = '#e5e7eb';
+                                        e.target.style.boxShadow = 'none';
+                                    }}
                                     placeholder="parent@example.com"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                            <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <label style={{
+                                display: 'block',
+                                fontSize: '0.875rem',
+                                fontWeight: '500',
+                                color: '#374151',
+                                marginBottom: '0.25rem'
+                            }}>Phone Number</label>
+                            <div style={{ position: 'relative' }}>
+                                <Phone style={{
+                                    position: 'absolute',
+                                    left: '0.75rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    width: '1.25rem',
+                                    height: '1.25rem',
+                                    color: '#9ca3af'
+                                }} />
                                 <input
                                     type="tel"
                                     name="phone"
                                     value={formData.phone}
                                     onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.5rem 0.5rem 0.5rem 2.5rem',
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '0.75rem',
+                                        fontSize: '0.875rem',
+                                        outline: 'none',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = '#8b5cf6';
+                                        e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = '#e5e7eb';
+                                        e.target.style.boxShadow = 'none';
+                                    }}
                                     placeholder="+1 234 567 8900"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <label style={{
+                                display: 'block',
+                                fontSize: '0.875rem',
+                                fontWeight: '500',
+                                color: '#374151',
+                                marginBottom: '0.25rem'
+                            }}>Password</label>
+                            <div style={{ position: 'relative' }}>
+                                <Lock style={{
+                                    position: 'absolute',
+                                    left: '0.75rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    width: '1.25rem',
+                                    height: '1.25rem',
+                                    color: '#9ca3af'
+                                }} />
                                 <input
                                     type="password"
                                     name="password"
                                     required
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.5rem 0.5rem 0.5rem 2.5rem',
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '0.75rem',
+                                        fontSize: '0.875rem',
+                                        outline: 'none',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = '#8b5cf6';
+                                        e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = '#e5e7eb';
+                                        e.target.style.boxShadow = 'none';
+                                    }}
                                     placeholder="••••••••"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <label style={{
+                                display: 'block',
+                                fontSize: '0.875rem',
+                                fontWeight: '500',
+                                color: '#374151',
+                                marginBottom: '0.25rem'
+                            }}>Confirm Password</label>
+                            <div style={{ position: 'relative' }}>
+                                <Lock style={{
+                                    position: 'absolute',
+                                    left: '0.75rem',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    width: '1.25rem',
+                                    height: '1.25rem',
+                                    color: '#9ca3af'
+                                }} />
                                 <input
                                     type="password"
                                     name="confirmPassword"
                                     required
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.5rem 0.5rem 0.5rem 2.5rem',
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '0.75rem',
+                                        fontSize: '0.875rem',
+                                        outline: 'none',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = '#8b5cf6';
+                                        e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = '#e5e7eb';
+                                        e.target.style.boxShadow = 'none';
+                                    }}
                                     placeholder="••••••••"
                                 />
                             </div>
@@ -185,21 +367,59 @@ const SignUp = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-gradient-to-r from-pink-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-[1.02] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 group mt-6"
+                            style={{
+                                width: '100%',
+                                background: loading ? '#9ca3af' : 'linear-gradient(90deg, #ec4899 0%, #8b5cf6 100%)',
+                                color: 'white',
+                                padding: '0.75rem',
+                                borderRadius: '0.75rem',
+                                fontWeight: '600',
+                                marginTop: '0.5rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.5rem',
+                                border: 'none',
+                                cursor: loading ? 'not-allowed' : 'pointer',
+                                transition: 'all 0.2s',
+                                opacity: loading ? 0.7 : 1
+                            }}
+                            onMouseEnter={(e) => {
+                                if (!loading) {
+                                    e.currentTarget.style.transform = 'scale(1.02)';
+                                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.2)';
+                                }
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'scale(1)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
                         >
                             {loading ? 'Creating Account...' : 'Sign Up'}
-                            {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
+                            {!loading && <ArrowRight style={{ width: '1rem', height: '1rem' }} />}
                         </button>
                     </form>
 
-                    <div className="mt-6 text-center text-sm text-gray-600">
+                    <div style={{
+                        marginTop: '1.5rem',
+                        textAlign: 'center',
+                        fontSize: '0.875rem',
+                        color: '#6b7280'
+                    }}>
                         Already have an account?{' '}
-                        <Link to="/login" className="text-purple-600 font-semibold hover:text-purple-700 hover:underline">
+                        <Link to="/login" style={{
+                            color: '#8b5cf6',
+                            fontWeight: '600',
+                            textDecoration: 'none'
+                        }}
+                            onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
+                            onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
+                        >
                             Log In
                         </Link>
                     </div>
                 </div>
-            </motion.div>
+            </div>
         </div>
     );
 };

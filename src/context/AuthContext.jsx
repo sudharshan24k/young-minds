@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import mockUser from '../data/mockUser.json';
+import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext({});
 
@@ -11,47 +11,113 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Simulate checking for existing session
-        const storedUser = localStorage.getItem('mock_user');
-        if (storedUser) {
-            setUser(mockUser.user);
-            setProfile(mockUser.profile);
-        }
-        setLoading(false);
+        // Get initial session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUser(session?.user ?? null);
+            if (session?.user) {
+                fetchProfile(session.user.id);
+            } else {
+                setLoading(false);
+            }
+        });
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+            if (session?.user) {
+                fetchProfile(session.user.id);
+            } else {
+                setProfile(null);
+                setLoading(false);
+            }
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
-    // This signUp function was malformed and is now removed as per the instruction's implied change.
-    // The instruction focuses on signIn, but the malformed code before signIn was likely part of a signUp.
-    // Since no correct signUp is provided, it's removed to ensure syntactical correctness.
+    const fetchProfile = async (userId) => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (error) throw error;
+            setProfile(data);
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const signUp = async (email, password, options) => {
-        // Placeholder for a mock signUp if needed later
-        console.log('Mock signUp called with:', email, password, options);
-        return { data: { user: mockUser.user }, error: null };
+        setLoading(true);
+        try {
+            // Sign up with Supabase Auth
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: options.full_name,
+                        phone_number: options.phone_number,
+                    }
+                }
+            });
+
+            if (error) throw error;
+
+            // Create profile in profiles table
+            if (data.user) {
+                const { error: profileError } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: data.user.id,
+                        full_name: options.full_name,
+                        phone_number: options.phone_number,
+                        role: 'student',
+                        points: 0,
+                        created_at: new Date().toISOString()
+                    });
+
+                if (profileError) {
+                    console.error('Error creating profile:', profileError);
+                }
+            }
+
+            setLoading(false);
+            return { data, error: null };
+        } catch (err) {
+            setLoading(false);
+            return { data: null, error: err };
+        }
     };
 
     const signIn = async (email, password) => {
         setLoading(true);
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 500));
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
 
-        if (email === 'student@youngminds.com' && password === 'password') {
-            setUser(mockUser.user);
-            setProfile(mockUser.profile);
-            localStorage.setItem('mock_user', 'true');
+            if (error) throw error;
+
             setLoading(false);
-            return { data: { user: mockUser.user }, error: null };
+            return { data, error: null };
+        } catch (err) {
+            setLoading(false);
+            return { data: null, error: err };
         }
-
-        setLoading(false);
-        return { data: null, error: { message: 'Invalid credentials' } };
     };
 
     const signOut = async () => {
-        // Simulate sign out
+        const { error } = await supabase.auth.signOut();
         setUser(null);
         setProfile(null);
-        localStorage.removeItem('mock_user');
-        return { error: null };
+        return { error };
     };
 
     const isAdmin = () => profile?.role === 'admin';
