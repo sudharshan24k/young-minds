@@ -15,6 +15,8 @@ export const AuthProvider = ({ children }) => {
                 const session = JSON.parse(devSession);
                 setUser(session.user);
                 setLoading(false);
+                // If we have a local admin session, we don't need to check Supabase auth
+                // because we are bypassing it for the admin portal mock login.
                 return;
             } catch (e) {
                 localStorage.removeItem('admin_session');
@@ -23,12 +25,16 @@ export const AuthProvider = ({ children }) => {
 
         // Check active sessions and subscribe to auth changes
         supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
+            if (!localStorage.getItem('admin_session')) {
+                setUser(session?.user ?? null);
+            }
             setLoading(false);
         });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
+            if (!localStorage.getItem('admin_session')) {
+                setUser(session?.user ?? null);
+            }
             setLoading(false);
         });
 
@@ -58,9 +64,20 @@ export const AuthProvider = ({ children }) => {
         loading
     };
 
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-sm font-medium text-purple-300">Loading Admin Portal...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <AuthContext.Provider value={value}>
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 };

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Star, Loader2 } from 'lucide-react';
 import Tabs from '../components/ui/Tabs';
@@ -11,6 +12,7 @@ import expressData from '../data/expressYourself.json';
 import { getIcon } from '../utils/iconMapper';
 
 const ExpressYourself = () => {
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('begin');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [galleryItems, setGalleryItems] = useState([]);
@@ -61,51 +63,66 @@ const ExpressYourself = () => {
     return (
         <div className="min-h-screen py-12">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
-                        {expressData.intro.title}
-                    </h1>
-                    <p className="text-xl text-gray-600 mb-6 font-medium">
-                        {expressData.intro.subtitle}
-                    </p>
-                    <p className="text-lg text-gray-500 max-w-3xl mx-auto">
-                        {expressData.intro.description}
-                    </p>
-                </div>
+                {/* Header Section - Simplified for logged in users */}
+                {!user ? (
+                    <div className="text-center mb-12">
+                        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+                            {expressData.intro.title}
+                        </h1>
+                        <p className="text-xl text-gray-600 mb-6 font-medium">
+                            {expressData.intro.subtitle}
+                        </p>
+                        <p className="text-lg text-gray-500 max-w-3xl mx-auto">
+                            {expressData.intro.description}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="mb-8 flex justify-between items-end">
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-800 mb-2">Express Yourself</h1>
+                            <p className="text-gray-600">Share your creativity with the community.</p>
+                        </div>
+                        <ShinyButton onClick={() => setIsModalOpen(true)} icon={Star} className="hidden md:flex">
+                            Submit Entry
+                        </ShinyButton>
+                    </div>
+                )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
-                    {/* Sidebar Roadmap */}
-                    <div className="lg:col-span-3">
-                        <Card className="h-full p-6">
-                            <h3 className="font-bold text-gray-800 mb-6">Your Journey</h3>
-                            <div className="space-y-0 relative">
-                                {/* Vertical Line */}
-                                <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-gray-100" />
+                    {/* Sidebar Roadmap - Hide for logged in users to give more space to content */}
+                    {!user && (
+                        <div className="lg:col-span-3">
+                            <Card className="h-full p-6">
+                                <h3 className="font-bold text-gray-800 mb-6">Your Journey</h3>
+                                <div className="space-y-0 relative">
+                                    {/* Vertical Line */}
+                                    <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-gray-100" />
 
-                                {tabs.map((tab, index) => {
-                                    const isActive = activeTab === tab.id;
-                                    const isPast = tabs.findIndex(t => t.id === activeTab) > index;
+                                    {tabs.map((tab, index) => {
+                                        const isActive = activeTab === tab.id;
+                                        const isPast = tabs.findIndex(t => t.id === activeTab) > index;
 
-                                    return (
-                                        <div
-                                            key={tab.id}
-                                            onClick={() => setActiveTab(tab.id)}
-                                            className={`relative pl-10 py-4 cursor-pointer group transition-all ${isActive ? 'scale-105' : 'opacity-70 hover:opacity-100'}`}
-                                        >
-                                            <div className={`absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 transition-colors z-10 ${isActive || isPast ? 'bg-purple-500 border-purple-500' : 'bg-white border-gray-300'
-                                                }`} />
-                                            <span className={`font-medium ${isActive ? 'text-purple-600' : 'text-gray-600'}`}>
-                                                {tab.label}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </Card>
-                    </div>
+                                        return (
+                                            <div
+                                                key={tab.id}
+                                                onClick={() => setActiveTab(tab.id)}
+                                                className={`relative pl-10 py-4 cursor-pointer group transition-all ${isActive ? 'scale-105' : 'opacity-70 hover:opacity-100'}`}
+                                            >
+                                                <div className={`absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 transition-colors z-10 ${isActive || isPast ? 'bg-purple-500 border-purple-500' : 'bg-white border-gray-300'
+                                                    }`} />
+                                                <span className={`font-medium ${isActive ? 'text-purple-600' : 'text-gray-600'}`}>
+                                                    {tab.label}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </Card>
+                        </div>
+                    )}
 
                     {/* Main Content */}
-                    <div className="lg:col-span-9">
+                    <div className={user ? "lg:col-span-12" : "lg:col-span-9"}>
                         <div className="mb-8">
                             <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
                         </div>
@@ -217,11 +234,19 @@ const ExpressYourself = () => {
 };
 
 const SubmissionForm = ({ onClose }) => {
+    const { user, profile } = useAuth();
     const [formData, setFormData] = useState({
         participantName: '',
         description: '',
         reflection: ''
     });
+
+    useEffect(() => {
+        if (profile?.full_name) {
+            setFormData(prev => ({ ...prev, participantName: profile.full_name }));
+        }
+    }, [profile]);
+
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null);
@@ -237,6 +262,12 @@ const SubmissionForm = ({ onClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!user) {
+            alert('Please log in to submit an entry.');
+            return;
+        }
+
         if (!file) {
             alert('Please select a file to upload.');
             return;
@@ -265,22 +296,25 @@ const SubmissionForm = ({ onClose }) => {
                 .from('submissions')
                 .insert([
                     {
+                        user_id: user?.id, // Link to logged-in user
                         category: 'express_yourself',
                         participant_name: formData.participantName,
                         description: formData.description,
                         reflection: formData.reflection,
                         file_url: publicUrl,
-                        votes: 0
+                        votes: 0,
+                        status: 'pending' // Default status
                     }
                 ]);
 
             if (dbError) throw dbError;
 
             setStatus('success');
-            setTimeout(() => {
-                onClose();
-                setStatus(null);
-            }, 2000);
+            // Remove auto-close to let user see the link
+            // setTimeout(() => {
+            //     onClose();
+            //     setStatus(null);
+            // }, 2000);
 
         } catch (error) {
             console.error('Error submitting:', error);
@@ -297,7 +331,19 @@ const SubmissionForm = ({ onClose }) => {
                     <Star className="text-green-500 fill-current" size={32} />
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Submission Received!</h3>
-                <p className="text-gray-600">Your work has been submitted successfully.</p>
+                <p className="text-gray-600 mb-6">Your work has been submitted successfully.</p>
+
+                <div className="flex flex-col gap-3">
+                    <a href="/profile" className="text-purple-600 font-medium hover:underline">
+                        View in My Profile
+                    </a>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-500 text-sm hover:text-gray-700"
+                    >
+                        Close
+                    </button>
+                </div>
             </div>
         );
     }

@@ -25,6 +25,8 @@ const Profile = () => {
     const [skillsLoading, setSkillsLoading] = useState(true);
     const [badges, setBadges] = useState([]);
     const [badgesLoading, setBadgesLoading] = useState(true);
+    const [invoices, setInvoices] = useState([]);
+    const [invoicesLoading, setInvoicesLoading] = useState(true);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -41,6 +43,7 @@ const Profile = () => {
             fetchSubmissions();
             fetchSkills();
             fetchBadges();
+            fetchInvoices();
         }
     }, [user, profile, loading, navigate]);
 
@@ -111,6 +114,23 @@ const Profile = () => {
             console.error('Error fetching skills:', error);
         } finally {
             setSkillsLoading(false);
+        }
+    };
+
+    const fetchInvoices = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('invoices')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            setInvoices(data || []);
+        } catch (error) {
+            console.error('Error fetching invoices:', error);
+        } finally {
+            setInvoicesLoading(false);
         }
     };
 
@@ -419,8 +439,71 @@ const Profile = () => {
                         </div>
                     )}
                 </motion.div>
-            </div>
-        </div>
+
+                {/* Payment History Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="mt-8 bg-white rounded-2xl shadow-lg overflow-hidden p-8"
+                >
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Payment History</h2>
+
+                    {invoicesLoading ? (
+                        <div className="flex justify-center py-12">
+                            <Loader className="w-8 h-8 animate-spin text-purple-600" />
+                        </div>
+                    ) : invoices.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="border-b border-gray-100 text-gray-500 text-sm">
+                                        <th className="pb-3 font-medium">Date</th>
+                                        <th className="pb-3 font-medium">Invoice #</th>
+                                        <th className="pb-3 font-medium">Event/Activity</th>
+                                        <th className="pb-3 font-medium">Amount</th>
+                                        <th className="pb-3 font-medium">Status</th>
+                                        <th className="pb-3 font-medium text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-sm">
+                                    {invoices.map((invoice) => (
+                                        <tr key={invoice.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                                            <td className="py-4 text-gray-600">
+                                                {new Date(invoice.created_at).toLocaleDateString()}
+                                            </td>
+                                            <td className="py-4 font-medium text-gray-800">
+                                                {invoice.invoice_number}
+                                            </td>
+                                            <td className="py-4 text-gray-600">
+                                                {invoice.details?.activity || 'Enrollment'}
+                                            </td>
+                                            <td className="py-4 font-medium text-gray-800">
+                                                {invoice.currency} {invoice.amount.toFixed(2)}
+                                            </td>
+                                            <td className="py-4">
+                                                <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium capitalize">
+                                                    {invoice.status}
+                                                </span>
+                                            </td>
+                                            <td className="py-4 text-right">
+                                                <button className="text-purple-600 hover:text-purple-800 font-medium text-xs">
+                                                    Download
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                            <p className="text-gray-500 mb-2">No payment history found.</p>
+                        </div>
+                    )}
+                </motion.div>
+            </div >
+        </div >
     );
 };
 

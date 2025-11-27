@@ -51,8 +51,12 @@ const Layout = () => {
                                 } `
                             }
                         >
-                            <item.icon size={20} className={({ isActive }) => isActive ? 'text-white' : 'text-slate-400 group-hover:text-white transition-colors'} />
-                            {item.label}
+                            {({ isActive }) => (
+                                <>
+                                    <item.icon size={20} className={isActive ? 'text-white' : 'text-slate-400 group-hover:text-white transition-colors'} />
+                                    {item.label}
+                                </>
+                            )}
                         </NavLink>
                     ))}
                 </nav>

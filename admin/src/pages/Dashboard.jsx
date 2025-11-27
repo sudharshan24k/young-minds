@@ -3,42 +3,17 @@ import { supabase } from '../lib/supabase';
 import { Users, FileText, Clock, TrendingUp, CheckCircle, AlertCircle } from 'lucide-react';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
-    <div style={{
-        background: 'white',
-        padding: '1.5rem',
-        borderRadius: '1rem',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        border: '1px solid #f1f5f9',
-        transition: 'box-shadow 0.2s ease'
-    }}
-        onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)'}
-        onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'}
-    >
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem' }}>
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 transition-shadow hover:shadow-md">
+        <div className="flex items-start justify-between mb-4">
             <div>
-                <p style={{ color: '#64748b', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>{title}</p>
-                <h3 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1e293b' }}>{value}</h3>
+                <p className="text-slate-500 text-sm font-medium mb-1">{title}</p>
+                <h3 className="text-3xl font-bold text-slate-900">{value}</h3>
             </div>
-            <div style={{
-                padding: '0.75rem',
-                borderRadius: '0.75rem',
-                background: `${color}10`
-            }}>
-                <Icon style={{ color: color.replace('bg-', '#') }} size={24} />
+            <div className="p-3 rounded-xl" style={{ backgroundColor: `${color}10` }}>
+                <Icon style={{ color }} size={24} />
             </div>
         </div>
-        <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.25rem',
-            fontSize: '0.75rem',
-            fontWeight: '500',
-            color: '#16a34a',
-            background: '#f0fdf4',
-            width: 'fit-content',
-            padding: '0.25rem 0.5rem',
-            borderRadius: '0.5rem'
-        }}>
+        <div className="flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 w-fit px-2 py-1 rounded-lg">
             <TrendingUp size={14} />
             <span>+12% from last month</span>
         </div>
@@ -80,17 +55,12 @@ const Dashboard = () => {
 
     return (
         <div>
-            <div style={{ marginBottom: '2rem' }}>
-                <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1e293b' }}>Dashboard Overview</h1>
-                <p style={{ color: '#64748b', marginTop: '0.25rem' }}>Welcome back, Admin. Here's what's happening today.</p>
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-slate-900">Dashboard Overview</h1>
+                <p className="text-slate-500 mt-1">Welcome back, Admin. Here's what's happening today.</p>
             </div>
 
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                gap: '1.5rem',
-                marginBottom: '2rem'
-            }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCard
                     title="Total Users"
                     value={stats.users}
@@ -117,113 +87,44 @@ const Dashboard = () => {
                 />
             </div>
 
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '2rem'
-            }}>
-                <div style={{
-                    background: 'white',
-                    padding: '2rem',
-                    borderRadius: '1rem',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                    border: '1px solid #f1f5f9'
-                }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1e293b', marginBottom: '1.5rem' }}>Recent Activity</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 className="text-xl font-bold text-slate-900 mb-6">Recent Activity</h3>
+                    <div className="flex flex-col gap-4">
                         {[1, 2, 3].map((i) => (
-                            <div key={i} style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '1rem',
-                                padding: '1rem',
-                                borderRadius: '0.75rem',
-                                border: '1px solid transparent',
-                                transition: 'all 0.2s ease'
-                            }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.background = '#f8fafc';
-                                    e.currentTarget.style.borderColor = '#e2e8f0';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.background = 'transparent';
-                                    e.currentTarget.style.borderColor = 'transparent';
-                                }}
-                            >
-                                <div style={{
-                                    width: '2.5rem',
-                                    height: '2.5rem',
-                                    borderRadius: '9999px',
-                                    background: '#dbeafe',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: '#3b82f6',
-                                    fontWeight: 'bold'
-                                }}>
+                            <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-transparent hover:bg-slate-50 hover:border-slate-200 transition-all">
+                                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
                                     U{i}
                                 </div>
                                 <div>
-                                    <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#1e293b' }}>New user registration</p>
-                                    <p style={{ fontSize: '0.75rem', color: '#64748b' }}>2 minutes ago</p>
+                                    <p className="text-sm font-medium text-slate-900">New user registration</p>
+                                    <p className="text-xs text-slate-500">2 minutes ago</p>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div style={{
-                    background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
-                    padding: '2rem',
-                    borderRadius: '1rem',
-                    boxShadow: '0 10px 15px -3px rgba(139,92,246,0.3)',
-                    color: 'white',
-                    position: 'relative',
-                    overflow: 'hidden'
-                }}>
-                    <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        right: 0,
-                        padding: '2rem',
-                        opacity: 0.1
-                    }}>
+                <div className="bg-gradient-to-br from-purple-600 to-indigo-600 p-8 rounded-2xl shadow-lg text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-10">
                         <TrendingUp size={100} />
                     </div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem', position: 'relative', zIndex: 10 }}>System Status</h3>
-                    <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '2rem', position: 'relative', zIndex: 10 }}>All systems are running smoothly.</p>
+                    <h3 className="text-xl font-bold mb-2 relative z-10">System Status</h3>
+                    <p className="text-purple-100 mb-8 relative z-10">All systems are running smoothly.</p>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', zIndex: 10 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.9)' }}>Database</span>
-                            <span style={{
-                                padding: '0.25rem 0.5rem',
-                                background: 'rgba(74,222,128,0.2)',
-                                color: '#86efac',
-                                borderRadius: '0.25rem',
-                                fontSize: '0.75rem',
-                                fontWeight: 'bold'
-                            }}>ONLINE</span>
+                    <div className="flex flex-col gap-4 relative z-10">
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm text-purple-50">Database</span>
+                            <span className="px-2 py-1 bg-green-500/20 text-green-300 rounded text-xs font-bold">ONLINE</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.9)' }}>API Latency</span>
-                            <span style={{ fontSize: '0.875rem', fontWeight: 'bold' }}>24ms</span>
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm text-purple-50">API Latency</span>
+                            <span className="text-sm font-bold">24ms</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.9)' }}>Storage</span>
-                            <div style={{
-                                width: '8rem',
-                                height: '0.5rem',
-                                background: 'rgba(139,92,246,0.5)',
-                                borderRadius: '9999px',
-                                overflow: 'hidden'
-                            }}>
-                                <div style={{
-                                    height: '100%',
-                                    width: '45%',
-                                    background: 'rgba(216,180,254,1)',
-                                    borderRadius: '9999px'
-                                }} />
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm text-purple-50">Storage</span>
+                            <div className="w-32 h-2 bg-purple-900/50 rounded-full overflow-hidden">
+                                <div className="h-full w-[45%] bg-purple-200 rounded-full" />
                             </div>
                         </div>
                     </div>

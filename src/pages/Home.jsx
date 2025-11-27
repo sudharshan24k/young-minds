@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { ArrowRight, Star, Heart, Zap, Shield, Users, Rocket } from 'lucide-react';
+import { ArrowRight, Star, Heart, Zap, Shield, Users, Rocket, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import BubbleIcon from '../components/ui/BubbleIcon';
@@ -15,6 +16,7 @@ import { getIcon } from '../utils/iconMapper';
 
 const Home = () => {
     const navigate = useNavigate();
+    const { user, profile } = useAuth();
 
     const features = homeData.whyJoin.features.map(feature => ({
         ...feature,
@@ -25,6 +27,93 @@ const Home = () => {
         ...bubble,
         icon: getIcon(bubble.icon)
     }));
+
+    if (user) {
+        return (
+            <div className="min-h-screen bg-gray-50 pt-24 pb-12 px-4">
+                <SEO title="Dashboard" description="Your Young Minds Dashboard" />
+                <div className="container mx-auto max-w-6xl">
+                    <div className="mb-10">
+                        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+                            Welcome back, <span className="text-purple-600">{profile?.full_name || 'Creator'}</span>! 👋
+                        </h1>
+                        <p className="text-gray-600 text-lg">Ready to explore, create, and challenge yourself today?</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                        {/* Express Yourself Card */}
+                        <div
+                            onClick={() => navigate('/express')}
+                            className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-purple-200 transition-all cursor-pointer group"
+                        >
+                            <div className="w-14 h-14 bg-pink-100 rounded-2xl flex items-center justify-center mb-6 text-pink-600 group-hover:scale-110 transition-transform">
+                                <Heart size={32} />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800 mb-2">Express Yourself</h3>
+                            <p className="text-gray-500 mb-6">Share your creativity with the world. Upload your latest masterpiece.</p>
+                            <div className="flex items-center text-pink-600 font-semibold group-hover:gap-2 transition-all">
+                                Start Creating <ArrowRight size={18} className="ml-1" />
+                            </div>
+                        </div>
+
+                        {/* Challenge Yourself Card */}
+                        <div
+                            onClick={() => navigate('/challenge')}
+                            className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer group"
+                        >
+                            <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 text-blue-600 group-hover:scale-110 transition-transform">
+                                <Trophy size={32} />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800 mb-2">Challenge Yourself</h3>
+                            <p className="text-gray-500 mb-6">Participate in monthly competitions and win exciting rewards.</p>
+                            <div className="flex items-center text-blue-600 font-semibold group-hover:gap-2 transition-all">
+                                Join Competition <ArrowRight size={18} className="ml-1" />
+                            </div>
+                        </div>
+
+                        {/* Enroll Card */}
+                        <div
+                            onClick={() => navigate('/enroll')}
+                            className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-green-200 transition-all cursor-pointer group"
+                        >
+                            <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mb-6 text-green-600 group-hover:scale-110 transition-transform">
+                                <Rocket size={32} />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800 mb-2">New Enrollment</h3>
+                            <p className="text-gray-500 mb-6">Enroll in new courses or register another child for activities.</p>
+                            <div className="flex items-center text-green-600 font-semibold group-hover:gap-2 transition-all">
+                                Enroll Now <ArrowRight size={18} className="ml-1" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Quick Stats / Recent Activity Placeholder */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-gray-800">Your Activity</h2>
+                            <button onClick={() => navigate('/profile')} className="text-purple-600 font-medium hover:underline">
+                                View Full Profile
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="bg-purple-50 rounded-xl p-6">
+                                <div className="text-3xl font-bold text-purple-600 mb-1">{profile?.level || 1}</div>
+                                <div className="text-gray-600 font-medium">Current Level</div>
+                            </div>
+                            <div className="bg-pink-50 rounded-xl p-6">
+                                <div className="text-3xl font-bold text-pink-600 mb-1">{profile?.xp || 0}</div>
+                                <div className="text-gray-600 font-medium">Total XP Earned</div>
+                            </div>
+                            <div className="bg-yellow-50 rounded-xl p-6">
+                                <div className="text-3xl font-bold text-yellow-600 mb-1">{profile?.streak_count || 0} 🔥</div>
+                                <div className="text-gray-600 font-medium">Day Streak</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-white">

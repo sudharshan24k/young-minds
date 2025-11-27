@@ -69,21 +69,24 @@ export const AuthProvider = ({ children }) => {
 
             if (error) throw error;
 
-            // Create profile in profiles table
+            // Update profile with phone number (trigger already created basic profile)
             if (data.user) {
+                // Give the trigger a moment to create the profile
+                await new Promise(resolve => setTimeout(resolve, 500));
+
                 const { error: profileError } = await supabase
                     .from('profiles')
-                    .insert({
-                        id: data.user.id,
+                    .update({
                         full_name: options.full_name,
                         phone_number: options.phone_number,
                         role: 'student',
                         points: 0,
-                        created_at: new Date().toISOString()
-                    });
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', data.user.id);
 
                 if (profileError) {
-                    console.error('Error creating profile:', profileError);
+                    console.error('Error updating profile:', profileError);
                 }
             }
 

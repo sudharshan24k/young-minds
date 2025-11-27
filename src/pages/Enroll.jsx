@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Star, Shield, Zap, ArrowRight, Loader2, MessageCircle, Mail } from 'lucide-react';
+import { Check, Star, Shield, Zap, ArrowRight, Loader2, MessageCircle, Mail, CreditCard, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import ShinyButton from '../components/ui/ShinyButton';
+import Modal from '../components/ui/Modal';
 import '../styles/pages/Enroll.css';
 import { supabase } from '../lib/supabase';
 import enrollData from '../data/enrollSteps.json';
@@ -23,14 +24,14 @@ const Enroll = () => {
     });
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null); // 'success', 'error'
+    const [showPayment, setShowPayment] = useState(false);
+    const [paymentProcessing, setPaymentProcessing] = useState(false);
 
     useEffect(() => {
         if (user) {
             setFormData(prev => ({
                 ...prev,
                 parentContact: user.email || '',
-                // Pre-fill phone if available in profile, though we don't have it in formData structure yet explicitly as 'phone'
-                // If we wanted to pre-fill more, we could.
             }));
         }
     }, [user, profile]);
@@ -40,10 +41,8 @@ const Enroll = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleFormSubmit = (e) => {
         e.preventDefault();
-        setLoading(true);
-        setStatus(null);
 
         // Input Validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -53,17 +52,26 @@ const Enroll = () => {
 
         if (!isEmail && !isPhone) {
             alert('Please enter a valid email address or phone number.');
-            setLoading(false);
             return;
         }
 
         if (formData.childAge < 3 || formData.childAge > 18) {
             alert('Please enter a valid age between 3 and 18.');
-            setLoading(false);
             return;
         }
 
+        // Show Payment Modal instead of direct submission
+        setShowPayment(true);
+    };
+
+    const processPayment = async () => {
+        setPaymentProcessing(true);
+
         try {
+            // 1. Simulate Payment Gateway Delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // 2. Create Enrollment Record
             const enrollmentData = {
                 child_name: formData.childName,
                 child_age: parseInt(formData.childAge),
@@ -71,20 +79,49 @@ const Enroll = () => {
                 city: formData.city,
                 parent_contact: formData.parentContact,
                 activity_type: formData.activity,
-                status: 'pending'
+                status: 'paid', // Mark as paid immediately
+                parent_id: user?.id || null
             };
 
-            if (user) {
-                enrollmentData.parent_id = user.id;
+            const { data: enrollment, error: enrollError } = await supabase
+                .from('enrollments')
+                .insert([enrollmentData])
+                .select()
+                .single();
+
+            if (enrollError) throw enrollError;
+
+            // 3. Generate Invoice
+            if (user && enrollment) {
+                const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+                const invoiceData = {
+                    user_id: user.id,
+                    enrollment_id: enrollment.id,
+                    amount: 0.00, // Zero payment as requested
+                    currency: 'INR',
+                    status: 'paid',
+                    invoice_number: invoiceNumber,
+                    details: {
+                        child_name: formData.childName,
+                        activity: formData.activity,
+                        parent_contact: formData.parentContact,
+                        date: new Date().toISOString()
+                    }
+                };
+
+                const { error: invoiceError } = await supabase
+                    .from('invoices')
+                    .insert([invoiceData]);
+
+                if (invoiceError) {
+                    console.error('Error creating invoice:', invoiceError);
+                    // Continue anyway as enrollment succeeded
+                }
             }
 
-            const { error } = await supabase
-                .from('enrollments')
-                .insert([enrollmentData]);
-
-            if (error) throw error;
-
             setStatus('success');
+            setShowPayment(false);
+
             setFormData({
                 childName: '',
                 childAge: '',
@@ -102,10 +139,11 @@ const Enroll = () => {
             }
 
         } catch (error) {
-            console.error('Error enrolling:', error);
+            console.error('Error processing payment/enrollment:', error);
             setStatus('error');
+            setShowPayment(false);
         } finally {
-            setLoading(false);
+            setPaymentProcessing(false);
         }
     };
 
@@ -162,7 +200,7 @@ const Enroll = () => {
                                             </p>
 
                                             {step.isForm && (
-                                                <form onSubmit={handleSubmit} className="bg-orange-50/50 p-6 rounded-xl border border-orange-100 space-y-4">
+                                                <form onSubmit={handleFormSubmit} className="bg-orange-50/50 p-6 rounded-xl border border-orange-100 space-y-4">
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         <div>
                                                             <label className="block text-sm font-medium text-gray-700 mb-1">Child's Name</label>
@@ -244,7 +282,7 @@ const Enroll = () => {
                                                         disabled={loading}
                                                         className="w-full bg-gradient-to-r from-orange-500 to-pink-600"
                                                     >
-                                                        {loading ? <Loader2 className="animate-spin" /> : 'Submit Registration'}
+                                                        Proceed to Payment
                                                     </ShinyButton>
 
                                                     {status === 'success' && (
@@ -281,6 +319,89 @@ const Enroll = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Payment Modal */}
+            <Modal isOpen={showPayment} onClose={() => !paymentProcessing && setShowPayment(false)} title="Secure Payment">
+                <div className="p-4">
+                    <div className="bg-gray-50 p-4 rounded-xl mb-6 border border-gray-200">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-gray-600">Event</span>
+                            <span className="font-semibold text-gray-800">{formData.activity}</span>
+                        </div>
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-gray-600">Student</span>
+                            <span className="font-semibold text-gray-800">{formData.childName}</span>
+                        </div>
+                        <div className="border-t border-gray-200 my-2 pt-2 flex justify-between items-center text-lg">
+                            <span className="font-bold text-gray-800">Total</span>
+                            <span className="font-bold text-green-600">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4 mb-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+                            <div className="relative">
+                                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="0000 0000 0000 0000"
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                                    disabled
+                                    value="**** **** **** 4242"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Expiry</label>
+                                <input
+                                    type="text"
+                                    placeholder="MM/YY"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                                    disabled
+                                    value="12/25"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">CVC</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                                    <input
+                                        type="text"
+                                        placeholder="123"
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                                        disabled
+                                        value="***"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ShinyButton
+                        onClick={processPayment}
+                        className="w-full justify-center"
+                        disabled={paymentProcessing}
+                    >
+                        {paymentProcessing ? (
+                            <>
+                                <Loader2 className="animate-spin mr-2" size={18} />
+                                Processing Payment...
+                            </>
+                        ) : (
+                            <>
+                                Pay ₹0.00 & Enroll
+                                <ArrowRight className="ml-2" size={18} />
+                            </>
+                        )}
+                    </ShinyButton>
+
+                    <p className="text-center text-xs text-gray-400 mt-4 flex items-center justify-center gap-1">
+                        <Lock size={12} /> Secure 256-bit SSL Encrypted Payment
+                    </p>
+                </div>
+            </Modal>
         </div>
     );
 };
