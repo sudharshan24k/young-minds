@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight, Star, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ShinyButton from '../ui/ShinyButton';
 import '../../styles/components/Header.css';
@@ -22,15 +22,97 @@ const Header = () => {
         { name: 'Challenge Yourself', path: '/challenge' },
         { name: 'Brainy Bites', path: '/brainy' },
         { name: 'Gallery', path: '/gallery' },
+        { name: 'Hall of Fame', path: '/winners' },
         { name: 'Enroll', path: '/enroll' },
     ];
 
     return (
-        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-white/50">
-            <div className="header-container">
-                <Link to="/" className="flex items-center gap-2 group">
-                    <div className="w-10 h-10 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">
-                        YM
+        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-white/50 relative overflow-hidden">
+            {/* Floating Decorative Shapes */}
+            <motion.div
+                animate={{
+                    y: [0, -10, 0],
+                    rotate: [0, 5, 0]
+                }}
+                transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+                className="absolute top-2 left-[15%] w-8 h-8 bg-yellow-300 rounded-full opacity-40"
+            />
+            <motion.div
+                animate={{
+                    y: [0, 10, 0],
+                    rotate: [0, -5, 0]
+                }}
+                transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 0.5
+                }}
+                className="absolute top-4 right-[20%] w-6 h-6 bg-pink-300 rounded-full opacity-40"
+            />
+            <motion.div
+                animate={{
+                    scale: [1, 1.2, 1],
+                    rotate: [0, 180, 360]
+                }}
+                transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: "linear"
+                }}
+                className="absolute top-3 right-[10%] text-purple-300 opacity-50"
+            >
+                <Star size={16} />
+            </motion.div>
+            <motion.div
+                animate={{
+                    y: [0, -8, 0],
+                    opacity: [0.3, 0.6, 0.3]
+                }}
+                transition={{
+                    duration: 2.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+                className="absolute top-2 left-[40%] text-orange-300"
+            >
+                <Sparkles size={14} />
+            </motion.div>
+
+            <div className="header-container relative z-10">
+                <Link to="/" className="flex items-center gap-2 group relative">
+                    {/* Sparkle effect on logo hover */}
+                    <motion.div
+                        className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        animate={{
+                            scale: [0.8, 1.2, 0.8],
+                            rotate: [0, 180, 360]
+                        }}
+                        transition={{
+                            duration: 1.5,
+                            repeat: Infinity
+                        }}
+                    >
+                        <Sparkles size={16} className="text-yellow-400" />
+                    </motion.div>
+
+                    <div className="w-10 h-10 bg-gradient-to-br from-pink-400 via-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 relative overflow-hidden">
+                        <motion.div
+                            className="absolute inset-0 bg-white/20"
+                            animate={{
+                                rotate: [0, 360]
+                            }}
+                            transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                        />
+                        <span className="relative z-10">YM</span>
                     </div>
                     <div>
                         <h1 className="text-xl font-bold text-gradient">
@@ -49,16 +131,19 @@ const Header = () => {
                             className="nav-link group relative"
                         >
                             {link.name}
-                            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-500 transition-all duration-300 group-hover:w-full" />
+                            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 transition-all duration-300 group-hover:w-full" />
                         </Link>
                     ))}
 
                     {user ? (
                         <div className="flex items-center gap-4">
                             <Link to="/profile" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-purple-600 transition-colors">
-                                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold">
+                                <motion.div
+                                    className="w-8 h-8 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center text-purple-600 font-bold border-2 border-purple-200"
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                >
                                     {user.email[0].toUpperCase()}
-                                </div>
+                                </motion.div>
                                 <span className="hidden lg:inline">{user.email}</span>
                             </Link>
                             <ShinyButton
@@ -80,12 +165,13 @@ const Header = () => {
                 </nav>
 
                 {/* Mobile Menu Button */}
-                <button
-                    className="md:hidden p-2 text-gray-600"
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    className="md:hidden p-2 text-gray-600 hover:bg-purple-50 rounded-lg transition-colors"
                     onClick={() => setIsOpen(!isOpen)}
                 >
                     {isOpen ? <X size={24} /> : <Menu size={24} />}
-                </button>
+                </motion.button>
             </div>
 
             {/* Mobile Navigation */}
@@ -95,18 +181,24 @@ const Header = () => {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden bg-white border-t border-gray-100 overflow-hidden"
+                        className="md:hidden bg-gradient-to-b from-white to-purple-50/30 border-t border-gray-100 overflow-hidden"
                     >
                         <nav className="flex flex-col p-4 gap-4">
-                            {navLinks.map((link) => (
-                                <Link
+                            {navLinks.map((link, index) => (
+                                <motion.div
                                     key={link.name}
-                                    to={link.path}
-                                    onClick={() => setIsOpen(false)}
-                                    className="btn-ghost w-full text-left"
+                                    initial={{ x: -20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: index * 0.05 }}
                                 >
-                                    {link.name}
-                                </Link>
+                                    <Link
+                                        to={link.path}
+                                        onClick={() => setIsOpen(false)}
+                                        className="btn-ghost w-full text-left hover:bg-purple-50"
+                                    >
+                                        {link.name}
+                                    </Link>
+                                </motion.div>
                             ))}
                             {user ? (
                                 <button
@@ -114,7 +206,7 @@ const Header = () => {
                                         handleLogout();
                                         setIsOpen(false);
                                     }}
-                                    className="btn-ghost w-full text-left text-red-500"
+                                    className="btn-ghost w-full text-left text-red-500 hover:bg-red-50"
                                 >
                                     Logout
                                 </button>
@@ -124,7 +216,7 @@ const Header = () => {
                                         navigate('/login');
                                         setIsOpen(false);
                                     }}
-                                    className="btn-ghost w-full text-left text-purple-600 font-semibold"
+                                    className="btn-ghost w-full text-left text-purple-600 font-semibold hover:bg-purple-50"
                                 >
                                     Log In
                                 </button>

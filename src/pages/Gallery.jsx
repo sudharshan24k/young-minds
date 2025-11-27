@@ -15,7 +15,7 @@ const Gallery = () => {
     // Fetch approved submissions from Supabase
     const { data: submissions, loading, error, refetch } = useSupabaseQuery('submissions', {
         select: '*',
-        filter: { status: 'approved' },
+        filter: { is_public: true },
         order: { column: 'created_at', ascending: false }
     });
 

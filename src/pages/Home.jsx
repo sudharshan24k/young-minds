@@ -122,95 +122,356 @@ const Home = () => {
                 description="Young Minds is the ultimate creative platform for kids to learn, create, and share."
             />
 
-            {/* Hero Section */}
-            <section className="relative pt-20 pb-32 overflow-hidden">
-                {/* Floating Background Elements */}
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-                    <div className="absolute top-20 left-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-                    <div className="absolute top-40 right-20 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
-                    <div className="absolute -bottom-8 left-1/3 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+            {/* Hero Section - GRAND & STYLISH */}
+            <section className="relative pt-32 pb-40 overflow-hidden">
+                {/* Decorative Background with Images */}
+                <div className="absolute inset-0 -z-10">
+                    {/* Base gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50" />
+
+                    {/* Decorative Creative Tools - Top Right */}
+                    <motion.div
+                        className="absolute -top-20 -right-20 w-[500px] h-[500px] opacity-20"
+                        animate={{
+                            rotate: [0, 10, -10, 0],
+                            scale: [1, 1.05, 1]
+                        }}
+                        transition={{
+                            duration: 20,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                    >
+                        <img
+                            src="/src/assets/images/decorative/creative_tools.png"
+                            alt=""
+                            className="w-full h-full object-contain"
+                        />
+                    </motion.div>
+
+                    {/* Decorative Paint Splash - Bottom Left */}
+                    <motion.div
+                        className="absolute -bottom-32 -left-32 w-[500px] h-[500px] opacity-25"
+                        animate={{
+                            rotate: [0, -15, 0],
+                            scale: [1, 1.05, 1]
+                        }}
+                        transition={{
+                            duration: 8,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                    >
+                        <img
+                            src="/src/assets/images/decorative/paint_splash.png"
+                            alt=""
+                            className="w-full h-full object-contain"
+                        />
+                    </motion.div>
+
+                    {/* Pattern overlay */}
+                    <div
+                        className="absolute inset-0 opacity-5"
+                        style={{
+                            backgroundImage: 'url(/src/assets/images/patterns/playful_shapes.png)',
+                            backgroundRepeat: 'repeat',
+                            backgroundSize: '200px 200px'
+                        }}
+                    />
+
+                    {/* Animated Gradient Orbs */}
+                    <motion.div
+                        className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-pink-400/20 to-purple-400/20 rounded-full blur-3xl"
+                        animate={{
+                            x: [0, 100, 0],
+                            y: [0, -50, 0],
+                            scale: [1, 1.2, 1]
+                        }}
+                        transition={{
+                            duration: 20,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                    />
+                    <motion.div
+                        className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl"
+                        animate={{
+                            x: [0, -80, 0],
+                            y: [0, 60, 0],
+                            scale: [1, 1.15, 1]
+                        }}
+                        transition={{
+                            duration: 18,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 2
+                        }}
+                    />
                 </div>
 
-                <div className="container-main text-center relative z-10">
-                    <FadeIn delay={0.2}>
-                        <div className="inline-flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm mb-6 border border-white/50">
-                            <StarIcon size={16} />
-                            <span className="text-sm font-bold text-purple-600 tracking-wide">{homeData.hero.welcome}</span>
-                            <StarIcon size={16} />
-                        </div>
+                <div className="container-main relative z-10">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        {/* Left Content */}
+                        <FadeIn delay={0.2}>
+                            <div>
+                                {/* Badge */}
+                                <motion.div
+                                    className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-6 py-3 rounded-full shadow-lg mb-8 border border-purple-100"
+                                    whileHover={{ scale: 1.05 }}
+                                >
+                                    <StarIcon size={20} className="text-yellow-500" />
+                                    <span className="text-sm font-bold text-purple-600 tracking-wide uppercase">
+                                        {homeData.hero.welcome}
+                                    </span>
+                                    <StarIcon size={20} className="text-yellow-500" />
+                                </motion.div>
 
-                        <h1 className="text-6xl md:text-8xl font-black mb-6 leading-tight text-gray-800 tracking-tight drop-shadow-sm">
-                            {homeData.hero.headline} <br />
-                            <span className="text-gradient">
-                                {homeData.hero.headlineHighlight}
-                            </span>
-                        </h1>
+                                {/* Main Heading */}
+                                <h1 className="text-6xl md:text-7xl lg:text-8xl font-black mb-8 leading-[1.1] text-gray-900 tracking-tight">
+                                    {homeData.hero.headline} <br />
+                                    <span className="relative inline-block">
+                                        <span className="text-gradient">
+                                            {homeData.hero.headlineHighlight}
+                                        </span>
+                                        {/* Decorative underline */}
+                                        <motion.div
+                                            className="absolute -bottom-2 left-0 right-0 h-4 bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 rounded-full opacity-40"
+                                            animate={{
+                                                scaleX: [0.8, 1, 0.8]
+                                            }}
+                                            transition={{
+                                                duration: 3,
+                                                repeat: Infinity,
+                                                ease: "easeInOut"
+                                            }}
+                                        />
+                                    </span>
+                                </h1>
 
-                        <p className="text-xl md:text-2xl text-gray-600 mb-6 max-w-3xl mx-auto leading-relaxed font-medium">
-                            {homeData.hero.subheadline}
-                        </p>
-                        <p className="text-lg text-gray-500 mb-10 max-w-3xl mx-auto leading-relaxed">
-                            {homeData.hero.description}
-                        </p>
+                                {/* Subheadline */}
+                                <p className="text-2xl md:text-3xl text-gray-700 mb-6 font-semibold leading-relaxed">
+                                    {homeData.hero.subheadline}
+                                </p>
 
-                        <div className="flex flex-wrap justify-center gap-6">
-                            <ShinyButton
-                                onClick={() => navigate('/enroll')}
-                                className="text-lg px-8 py-4"
-                                icon={Rocket}
-                            >
-                                {homeData.hero.ctaPrimary}
-                            </ShinyButton>
-                            <button
-                                onClick={() => document.getElementById('missions').scrollIntoView({ behavior: 'smooth' })}
-                                className="btn-secondary text-lg px-8 py-4"
-                            >
-                                {homeData.hero.ctaSecondary}
-                            </button>
-                        </div>
-                    </FadeIn>
+                                {/* Description */}
+                                <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed max-w-xl">
+                                    {homeData.hero.description}
+                                </p>
+
+                                {/* CTAs */}
+                                <div className="flex flex-wrap gap-6">
+                                    <ShinyButton
+                                        onClick={() => navigate('/enroll')}
+                                        className="text-xl px-10 py-5 shadow-2xl shadow-purple-500/30"
+                                        icon={Rocket}
+                                    >
+                                        {homeData.hero.ctaPrimary}
+                                    </ShinyButton>
+                                    <motion.button
+                                        onClick={() => document.getElementById('missions').scrollIntoView({ behavior: 'smooth' })}
+                                        className="text-xl px-10 py-5 bg-white/80 backdrop-blur-md text-gray-800 border-2 border-gray-200 rounded-full font-bold shadow-lg hover:shadow-xl hover:border-purple-300 transition-all duration-300"
+                                        whileHover={{ scale: 1.05, y: -2 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        {homeData.hero.ctaSecondary}
+                                    </motion.button>
+                                </div>
+
+                                {/* Trust indicators */}
+                                <div className="mt-12 flex items-center gap-8 text-sm text-gray-600">
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex -space-x-2">
+                                            <div className="w-8 h-8 rounded-full bg-pink-400 border-2 border-white" />
+                                            <div className="w-8 h-8 rounded-full bg-purple-400 border-2 border-white" />
+                                            <div className="w-8 h-8 rounded-full bg-blue-400 border-2 border-white" />
+                                        </div>
+                                        <span className="font-semibold">1000+ Happy Kids</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                        <span className="ml-2 font-semibold">5.0 Rating</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </FadeIn>
+
+                        {/* Right Image */}
+                        <FadeIn delay={0.4}>
+                            <div className="relative">
+                                {/* Main Hero Image */}
+                                <motion.div
+                                    className="relative z-10 rounded-3xl overflow-hidden shadow-2xl"
+                                    animate={{
+                                        y: [0, -20, 0]
+                                    }}
+                                    transition={{
+                                        duration: 6,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                >
+                                    <img
+                                        src="/src/assets/images/hero/happy_kids_creating.png"
+                                        alt="Happy kids creating art and learning"
+                                        className="w-full h-auto"
+                                    />
+                                </motion.div>
+
+                                {/* Floating trophy illustration */}
+                                <motion.div
+                                    className="absolute -top-12 -right-12 w-28 h-28"
+                                    animate={{
+                                        rotate: [0, 15, -15, 0],
+                                        y: [0, -10, 0]
+                                    }}
+                                    transition={{
+                                        duration: 6,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                >
+                                    <img
+                                        src="/src/assets/images/illustrations/trophy.png"
+                                        alt=""
+                                        className="w-full h-full object-contain drop-shadow-xl"
+                                    />
+                                </motion.div>
+
+                                {/* Decorative glow effects */}
+                                <div className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-yellow-300 to-orange-300 rounded-full blur-3xl opacity-30" />
+                                <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-gradient-to-br from-purple-300 to-pink-300 rounded-full blur-3xl opacity-30" />
+                            </div>
+                        </FadeIn>
+                    </div>
                 </div>
             </section>
 
-            {/* Why Join Section */}
-            <section className="section-padding bg-white/50 backdrop-blur-sm">
-                <div className="container-main">
+            {/* Why Join Section - PREMIUM STYLING */}
+            <section className="section-padding relative overflow-hidden">
+                {/* Decorative background elements */}
+                <div className="absolute inset-0 bg-gradient-to-b from-white via-purple-50/30 to-white -z-10" />
+                <motion.div
+                    className="absolute top-20 right-10 w-64 h-64 opacity-20"
+                    animate={{
+                        rotate: [0, 15, -15, 0],
+                        scale: [1, 1.1, 1]
+                    }}
+                    transition={{
+                        duration: 12,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                >
+                    <img
+                        src="/src/assets/images/illustrations/brain_lightbulb.png"
+                        alt=""
+                        className="w-full h-full object-contain"
+                    />
+                </motion.div>
+
+                <div className="container-main relative z-10">
                     <FadeIn>
-                        <div className="text-center mb-16">
-                            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">{homeData.whyJoin.title}</h2>
-                            <p className="text-xl text-gray-500 max-w-3xl mx-auto mb-8">
+                        <div className="text-center mb-20">
+                            <motion.div
+                                className="inline-block mb-4"
+                                animate={{
+                                    y: [0, -10, 0]
+                                }}
+                                transition={{
+                                    duration: 3,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                            >
+                                <span className="text-6xl">✨</span>
+                            </motion.div>
+                            <h2 className="text-5xl md:text-6xl font-black text-gray-900 mb-6">
+                                {homeData.whyJoin.title}
+                            </h2>
+                            <p className="text-2xl text-gray-700 max-w-3xl mx-auto mb-6 font-semibold leading-relaxed">
                                 {homeData.whyJoin.description1}
                             </p>
-                            <p className="text-lg text-gray-500 max-w-3xl mx-auto">
+                            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                                 {homeData.whyJoin.description2}
                             </p>
                         </div>
                     </FadeIn>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
                         {features.map((feature, index) => (
                             <FadeIn
                                 key={index}
-                                delay={index * 0.2}
+                                delay={index * 0.15}
                             >
-                                <Card className="h-full flex flex-col items-center text-center p-8 border-2 border-transparent hover:border-purple-100">
-                                    <div className={`w-20 h-20 ${feature.color} rounded-3xl flex items-center justify-center mb-6 rotate-3 group-hover:rotate-6 transition-transform shadow-inner`}>
-                                        <feature.icon size={40} />
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-gray-800 mb-3">{feature.title}</h3>
-                                    <p className="text-gray-500 leading-relaxed font-medium">{feature.desc}</p>
-                                </Card>
+                                <motion.div
+                                    className="group relative h-full"
+                                    whileHover={{ y: -8 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    {/* Card */}
+                                    <Card className="h-full flex flex-col items-center text-center p-8 border-2 border-transparent hover:border-purple-200 bg-white/80 backdrop-blur-sm relative overflow-hidden">
+                                        {/* Decorative gradient on hover */}
+                                        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/0 to-pink-50/0 group-hover:from-purple-50 group-hover:to-pink-50 transition-all duration-500 -z-10" />
+
+                                        {/* Icon */}
+                                        <motion.div
+                                            className={`w-24 h-24 ${feature.color} rounded-3xl flex items-center justify-center mb-6 shadow-lg relative overflow-hidden`}
+                                            whileHover={{ rotate: [0, -5, 5, 0], scale: 1.1 }}
+                                            transition={{ duration: 0.5 }}
+                                        >
+                                            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
+                                            <feature.icon size={48} className="relative z-10" />
+                                        </motion.div>
+
+                                        <h3 className="text-2xl font-bold text-gray-900 mb-4">{feature.title}</h3>
+                                        <p className="text-gray-600 leading-relaxed font-medium">{feature.desc}</p>
+
+                                        {/* Decorative corner accent */}
+                                        <div className="absolute top-4 right-4 w-16 h-16 bg-gradient-to-br from-purple-200/20 to-pink-200/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500" />
+                                    </Card>
+                                </motion.div>
                             </FadeIn>
                         ))}
                     </div>
 
                     <FadeIn>
-                        <div className="text-center max-w-4xl mx-auto bg-white/80 p-8 rounded-3xl shadow-sm border border-purple-50">
-                            <h3 className="text-2xl font-bold text-purple-600 mb-4">{homeData.mission.title}</h3>
-                            <p className="text-lg text-gray-600 leading-relaxed">
-                                {homeData.mission.description}
-                            </p>
-                        </div>
+                        <motion.div
+                            className="relative max-w-5xl mx-auto"
+                            whileHover={{ scale: 1.02 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            {/* Decorative glow */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-purple-200 via-pink-200 to-blue-200 rounded-3xl blur-2xl opacity-30 -z-10" />
+
+                            <div className="bg-white/90 backdrop-blur-md p-12 rounded-3xl shadow-2xl border-2 border-purple-100 relative overflow-hidden">
+                                {/* Decorative pattern */}
+                                <div
+                                    className="absolute inset-0 opacity-5"
+                                    style={{
+                                        backgroundImage: 'url(/src/assets/images/patterns/playful_shapes.png)',
+                                        backgroundRepeat: 'repeat',
+                                        backgroundSize: '150px 150px'
+                                    }}
+                                />
+
+                                <div className="relative z-10">
+                                    <div className="flex items-center justify-center gap-3 mb-6">
+                                        <Heart className="w-8 h-8 text-pink-500 fill-current" />
+                                        <h3 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600">
+                                            {homeData.mission.title}
+                                        </h3>
+                                        <Heart className="w-8 h-8 text-pink-500 fill-current" />
+                                    </div>
+                                    <p className="text-xl text-gray-700 leading-relaxed font-medium">
+                                        {homeData.mission.description}
+                                    </p>
+                                </div>
+                            </div>
+                        </motion.div>
                     </FadeIn>
                 </div>
             </section>

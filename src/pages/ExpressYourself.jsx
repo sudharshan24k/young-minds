@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Star, Loader2 } from 'lucide-react';
+import { ArrowRight, Star, Loader2, Calendar, DollarSign } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Tabs from '../components/ui/Tabs';
 import Card from '../components/ui/Card';
 import Modal from '../components/ui/Modal';
@@ -11,12 +12,16 @@ import { supabase } from '../lib/supabase';
 import expressData from '../data/expressYourself.json';
 import { getIcon } from '../utils/iconMapper';
 
+import EventOfTheMonth from '../components/EventOfTheMonth';
+
 const ExpressYourself = () => {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('begin');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [galleryItems, setGalleryItems] = useState([]);
     const [loadingGallery, setLoadingGallery] = useState(true);
+    // Removed local activeEvents state as it's handled by EventOfTheMonth
 
     const tabs = expressData.tabs;
 
@@ -61,8 +66,28 @@ const ExpressYourself = () => {
     };
 
     return (
-        <div className="min-h-screen py-12">
-            <div className="container mx-auto px-4">
+        <div className="min-h-screen py-12 relative">
+            {/* Small decorative image - doesn't take much space */}
+            <motion.div
+                className="absolute top-10 right-10 w-24 h-24 opacity-20 pointer-events-none hidden md:block"
+                animate={{
+                    rotate: [0, 10, -10, 0],
+                    y: [0, -10, 0]
+                }}
+                transition={{
+                    duration: 8,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+            >
+                <img
+                    src="/src/assets/images/illustrations/art_palette.png"
+                    alt=""
+                    className="w-full h-full object-contain"
+                />
+            </motion.div>
+
+            <div className="container mx-auto px-4 relative z-10">
                 {/* Header Section - Simplified for logged in users */}
                 {!user ? (
                     <div className="text-center mb-12">
@@ -87,6 +112,11 @@ const ExpressYourself = () => {
                         </ShinyButton>
                     </div>
                 )}
+
+                {/* Event of the Month Section */}
+                <div className="mb-16">
+                    <EventOfTheMonth category="express" />
+                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
                     {/* Sidebar Roadmap - Hide for logged in users to give more space to content */}
@@ -220,6 +250,8 @@ const ExpressYourself = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Active Events Section - Replaced by EventOfTheMonth */}
 
                 <Modal
                     isOpen={isModalOpen}

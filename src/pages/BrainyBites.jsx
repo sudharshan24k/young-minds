@@ -55,6 +55,26 @@ const BrainyBites = () => {
         <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-green-50 py-12 relative overflow-hidden">
             {/* Background Decorations */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                {/* Small decorative brain lightbulb - top left */}
+                <motion.div
+                    className="absolute top-20 left-10 w-20 h-20 opacity-25 hidden lg:block"
+                    animate={{
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{
+                        duration: 6,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                >
+                    <img
+                        src="/src/assets/images/illustrations/brain_lightbulb.png"
+                        alt=""
+                        className="w-full h-full object-contain"
+                    />
+                </motion.div>
+
                 <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 50, repeat: Infinity, ease: "linear" }}

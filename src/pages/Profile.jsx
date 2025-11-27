@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { User, Phone, Mail, Save, Loader } from 'lucide-react';
+import { User, Phone, Mail, Save, Loader, School, MapPin } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 import Leaderboard from '../components/Leaderboard';
@@ -13,9 +13,13 @@ const Profile = () => {
     const [formData, setFormData] = useState({
         full_name: '',
         phone_number: '',
+        school_name: '',
+        city: ''
     });
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState(null);
+    const [uploadingPicture, setUploadingPicture] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState(null);
 
     const [enrollments, setEnrollments] = useState([]);
     const [enrollmentsLoading, setEnrollmentsLoading] = useState(true);
@@ -36,6 +40,8 @@ const Profile = () => {
             setFormData({
                 full_name: profile.full_name || '',
                 phone_number: profile.phone_number || '',
+                school_name: profile.school_name || '',
+                city: profile.city || ''
             });
         }
         if (user) {
@@ -143,6 +149,8 @@ const Profile = () => {
                 .update({
                     full_name: formData.full_name,
                     phone_number: formData.phone_number,
+                    school_name: formData.school_name,
+                    city: formData.city,
                     updated_at: new Date(),
                 })
                 .eq('id', user.id);
@@ -154,6 +162,72 @@ const Profile = () => {
             setMessage({ type: 'error', text: error.message });
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleProfilePictureUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            setMessage({ type: 'error', text: 'Please upload an image file' });
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            setMessage({ type: 'error', text: 'Image size must be less than 5MB' });
+            return;
+        }
+
+        setUploadingPicture(true);
+        setMessage(null);
+
+        try {
+            // Create preview
+            const objectUrl = URL.createObjectURL(file);
+            setPreviewUrl(objectUrl);
+
+            // Upload to Supabase Storage
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${user.id}/avatar.${fileExt}`;
+
+            // Delete old picture if exists
+            if (profile?.profile_picture_url) {
+                const oldParts = profile.profile_picture_url.split('/');
+                const oldFileName = oldParts[oldParts.length - 1];
+                await supabase.storage
+                    .from('profile-pictures')
+                    .remove([`${user.id}/${oldFileName}`]);
+            }
+
+            const { error: uploadError } = await supabase.storage
+                .from('profile-pictures')
+                .upload(fileName, file, { upsert: true });
+
+            if (uploadError) throw uploadError;
+
+            // Get public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('profile-pictures')
+                .getPublicUrl(fileName);
+
+            // Update profile with new picture URL
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ profile_picture_url: publicUrl })
+                .eq('id', user.id);
+
+            if (updateError) throw updateError;
+
+            setMessage({ type: 'success', text: 'Profile picture updated successfully!' });
+        } catch (error) {
+            console.error('Error uploading profile picture:', error);
+            setMessage({ type: 'error', text: 'Failed to upload profile picture' });
+            setPreviewUrl(null);
+        } finally {
+            setUploadingPicture(false);
         }
     };
 
@@ -174,25 +248,59 @@ const Profile = () => {
                     className="bg-white rounded-2xl shadow-lg overflow-hidden"
                 >
                     <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-10 text-white relative overflow-hidden">
-                        <div className="relative z-10 flex justify-between items-start">
-                            <div>
-                                <h1 className="text-3xl font-bold">Gamification Stats</h1>
-                                <p className="opacity-90 mt-2">Your progress and achievements</p>
-                            </div>
-                            <div className="flex gap-4 text-center">
-                                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 min-w-[80px]">
-                                    <div className="text-2xl font-bold">{profile?.level || 1}</div>
-                                    <div className="text-xs opacity-80 uppercase tracking-wider">Level</div>
-                                </div>
-                                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 min-w-[80px]">
-                                    <div className="text-2xl font-bold">{profile?.xp || 0}</div>
-                                    <div className="text-xs opacity-80 uppercase tracking-wider">XP</div>
-                                </div>
-                                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 min-w-[80px]">
-                                    <div className="text-2xl font-bold flex items-center justify-center gap-1">
-                                        {profile?.streak_count || 0} <span className="text-lg">🔥</span>
+                        <div className="relative z-10">
+                            <div className="flex justify-between items-start mb-6">
+                                {/* Profile Picture Section */}
+                                <div className="flex items-center gap-6">
+                                    <div className="relative">
+                                        <div className="w-24 h-24 rounded-full overflow-hidden bg-white/20 flex items-center justify-center text-4xl font-bold border-4 border-white/30">
+                                            {(previewUrl || profile?.profile_picture_url) ? (
+                                                <img
+                                                    src={previewUrl || profile.profile_picture_url}
+                                                    alt="Profile"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                profile?.full_name?.charAt(0) || '?'
+                                            )}
+                                        </div>
+                                        <label className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:scale-110 transition-transform">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleProfilePictureUpload}
+                                                className="hidden"
+                                                disabled={uploadingPicture}
+                                            />
+                                            {uploadingPicture ? (
+                                                <Loader className="w-4 h-4 text-purple-600 animate-spin" />
+                                            ) : (
+                                                <User className="w-4 h-4 text-purple-600" />
+                                            )}
+                                        </label>
                                     </div>
-                                    <div className="text-xs opacity-80 uppercase tracking-wider">Streak</div>
+                                    <div>
+                                        <h1 className="text-3xl font-bold">Gamification Stats</h1>
+                                        <p className="opacity-90 mt-2">Your progress and achievements</p>
+                                    </div>
+                                </div>
+
+                                {/* Stats */}
+                                <div className="flex gap-4 text-center">
+                                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 min-w-[80px]">
+                                        <div className="text-2xl font-bold">{profile?.level || 1}</div>
+                                        <div className="text-xs opacity-80 uppercase tracking-wider">Level</div>
+                                    </div>
+                                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 min-w-[80px]">
+                                        <div className="text-2xl font-bold">{profile?.xp || 0}</div>
+                                        <div className="text-xs opacity-80 uppercase tracking-wider">XP</div>
+                                    </div>
+                                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 min-w-[80px]">
+                                        <div className="text-2xl font-bold flex items-center justify-center gap-1">
+                                            {profile?.streak_count || 0} <span className="text-lg">🔥</span>
+                                        </div>
+                                        <div className="text-xs opacity-80 uppercase tracking-wider">Streak</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -246,6 +354,36 @@ const Profile = () => {
                                             onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
                                             className="bg-transparent w-full outline-none disabled:text-gray-500"
                                             placeholder="Enter phone number"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">School Name</label>
+                                    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${isEditing ? 'bg-white border-purple-200 focus-within:ring-2 focus-within:ring-purple-100' : 'bg-gray-50 border-gray-200'}`}>
+                                        <School className={`w-5 h-5 ${isEditing ? 'text-purple-500' : 'text-gray-400'}`} />
+                                        <input
+                                            type="text"
+                                            disabled={!isEditing}
+                                            value={formData.school_name}
+                                            onChange={(e) => setFormData({ ...formData, school_name: e.target.value })}
+                                            className="bg-transparent w-full outline-none disabled:text-gray-500"
+                                            placeholder="Enter school name"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">City / Location</label>
+                                    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${isEditing ? 'bg-white border-purple-200 focus-within:ring-2 focus-within:ring-purple-100' : 'bg-gray-50 border-gray-200'}`}>
+                                        <MapPin className={`w-5 h-5 ${isEditing ? 'text-purple-500' : 'text-gray-400'}`} />
+                                        <input
+                                            type="text"
+                                            disabled={!isEditing}
+                                            value={formData.city}
+                                            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                            className="bg-transparent w-full outline-none disabled:text-gray-500"
+                                            placeholder="Enter city"
                                         />
                                     </div>
                                 </div>

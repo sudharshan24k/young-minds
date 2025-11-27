@@ -31,8 +31,28 @@ const ChallengeYourself = () => {
     }));
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 py-12 overflow-hidden">
-            <div className="container mx-auto px-4 text-center">
+        <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 py-12 overflow-hidden relative">
+            {/* Small decorative trophy - top right */}
+            <motion.div
+                className="absolute top-10 right-10 w-24 h-24 opacity-20 pointer-events-none hidden md:block z-10"
+                animate={{
+                    rotate: [0, -10, 10, 0],
+                    y: [0, -15, 0]
+                }}
+                transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+            >
+                <img
+                    src="/src/assets/images/illustrations/trophy.png"
+                    alt=""
+                    className="w-full h-full object-contain"
+                />
+            </motion.div>
+
+            <div className="container mx-auto px-4 text-center relative z-10">
                 {!user ? (
                     <>
                         <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
