@@ -8,8 +8,12 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { signIn, loginAsAdmin } = useAuth();
+    const { signIn } = useAuth();
     const navigate = useNavigate();
+
+    React.useEffect(() => {
+        navigate('/');
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,20 +21,12 @@ const Login = () => {
         setError(null);
 
         try {
-            // Hardcoded credentials as requested
-            if (email === 'admin' && password === 'admin') {
-                console.log('Admin credentials matched');
-                loginAsAdmin();
-                navigate('/');
-                return;
-            } else {
-                // Fallback to Supabase or show error
-                // For this task, we prioritize the hardcoded check, but if it fails:
-                throw new Error('Invalid credentials');
-            }
+            const { error } = await signIn({ email, password });
+            if (error) throw error;
+            navigate('/');
         } catch (error) {
             console.error('Login error:', error);
-            setError('Invalid username or password.');
+            setError(error.message || 'Invalid username or password.');
         } finally {
             setLoading(false);
         }

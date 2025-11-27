@@ -8,58 +8,23 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check for hardcoded session first (development)
-        const devSession = localStorage.getItem('admin_session');
-        if (devSession) {
-            try {
-                const session = JSON.parse(devSession);
-                setUser(session.user);
-                setLoading(false);
-                // If we have a local admin session, we don't need to check Supabase auth
-                // because we are bypassing it for the admin portal mock login.
-                return;
-            } catch (e) {
-                localStorage.removeItem('admin_session');
-            }
-        }
-
-        // Check active sessions and subscribe to auth changes
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (!localStorage.getItem('admin_session')) {
-                setUser(session?.user ?? null);
-            }
-            setLoading(false);
-        });
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            if (!localStorage.getItem('admin_session')) {
-                setUser(session?.user ?? null);
-            }
-            setLoading(false);
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
-
-    const loginAsAdmin = () => {
-        const adminUser = { email: 'admin@youngminds.edura', id: 'admin-superuser', role: 'admin' };
-        localStorage.setItem('admin_session', JSON.stringify({
-            user: adminUser,
-            timestamp: Date.now()
-        }));
-        setUser(adminUser);
+        // Bypass authentication as requested
+        const fakeUser = {
+            id: 'admin-bypass',
+            email: 'admin@youngminds.com',
+            role: 'admin',
+            user_metadata: { full_name: 'Admin User' }
+        };
+        setUser(fakeUser);
         setLoading(false);
-    };
+    }, []);
 
     const value = {
         signUp: (data) => supabase.auth.signUp(data),
         signIn: (data) => supabase.auth.signInWithPassword(data),
         signOut: () => {
-            localStorage.removeItem('admin_session');
-            setUser(null);
-            return supabase.auth.signOut();
+            window.location.reload();
         },
-        loginAsAdmin,
         user,
         loading
     };

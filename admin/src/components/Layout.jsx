@@ -16,6 +16,7 @@ const Layout = () => {
     const navItems = [
         { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/enrollments', icon: FileText, label: 'Enrollments' },
+        { path: '/submissions', icon: FileText, label: 'Submissions' },
         { path: '/users', label: 'Users', icon: Users },
         { path: '/events', label: 'Events', icon: Calendar },
         { path: '/resources', label: 'Resources', icon: BookOpen },

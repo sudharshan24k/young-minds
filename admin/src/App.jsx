@@ -9,12 +9,13 @@ import Users from './pages/Users';
 import Events from './pages/Events';
 import Resources from './pages/Resources';
 import Gallery from './pages/Gallery';
+import Submissions from './pages/Submissions';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  if (!user) return <Navigate to="/login" />;
+  // if (!user) return <Navigate to="/login" />; // Auth disabled
 
   return children;
 };
@@ -32,6 +33,7 @@ const App = () => {
           }>
             <Route index element={<Dashboard />} />
             <Route path="enrollments" element={<Enrollments />} />
+            <Route path="submissions" element={<Submissions />} />
             <Route path="users" element={<Users />} />
             <Route path="events" element={<Events />} />
             <Route path="resources" element={<Resources />} />
