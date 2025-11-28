@@ -9,7 +9,9 @@ import Users from './pages/Users';
 import Events from './pages/Events';
 import Resources from './pages/Resources';
 import Gallery from './pages/Gallery';
+
 import Submissions from './pages/Submissions';
+import AnalyticsDashboard from './pages/AnalyticsDashboard';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -38,6 +40,7 @@ const App = () => {
             <Route path="events" element={<Events />} />
             <Route path="resources" element={<Resources />} />
             <Route path="gallery" element={<Gallery />} />
+            <Route path="analytics" element={<AnalyticsDashboard />} />
           </Route>
         </Routes>
       </BrowserRouter>

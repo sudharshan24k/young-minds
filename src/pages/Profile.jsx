@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { User, Phone, Mail, Save, Loader, School, MapPin } from 'lucide-react';
+import { User, Phone, Mail, Save, Loader, School, MapPin, Palette, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 import Leaderboard from '../components/Leaderboard';
@@ -14,12 +14,17 @@ const Profile = () => {
         full_name: '',
         phone_number: '',
         school_name: '',
-        city: ''
+        city: '',
+        bio: '',
+        theme_color: 'purple',
+        avatar_preset: ''
     });
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState(null);
     const [uploadingPicture, setUploadingPicture] = useState(false);
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+    const [showThemePicker, setShowThemePicker] = useState(false);
 
     const [enrollments, setEnrollments] = useState([]);
     const [enrollmentsLoading, setEnrollmentsLoading] = useState(true);
@@ -41,7 +46,10 @@ const Profile = () => {
                 full_name: profile.full_name || '',
                 phone_number: profile.phone_number || '',
                 school_name: profile.school_name || '',
-                city: profile.city || ''
+                city: profile.city || '',
+                bio: profile.bio || '',
+                theme_color: profile.theme_color || 'purple',
+                avatar_preset: profile.avatar_preset || ''
             });
         }
         if (user) {
@@ -151,6 +159,9 @@ const Profile = () => {
                     phone_number: formData.phone_number,
                     school_name: formData.school_name,
                     city: formData.city,
+                    bio: formData.bio,
+                    theme_color: formData.theme_color,
+                    avatar_preset: formData.avatar_preset,
                     updated_at: new Date(),
                 })
                 .eq('id', user.id);
@@ -231,6 +242,30 @@ const Profile = () => {
         }
     };
 
+    // Customization constants and helpers
+    const avatarPresets = ['🦊', '🚀', '🎨', '🎮', '🦄', '🌟', '🎭', '🎪', '🎯', '🎸', '🎹', '⚡'];
+
+    const themeColors = [
+        { name: 'purple', gradient: 'from-purple-600 to-pink-600', bg: 'bg-purple-600' },
+        { name: 'blue', gradient: 'from-blue-600 to-cyan-600', bg: 'bg-blue-600' },
+        { name: 'pink', gradient: 'from-pink-600 to-rose-600', bg: 'bg-pink-600' },
+        { name: 'orange', gradient: 'from-orange-600 to-yellow-600', bg: 'bg-orange-600' },
+        { name: 'green', gradient: 'from-green-600 to-emerald-600', bg: 'bg-green-600' },
+        { name: 'indigo', gradient: 'from-indigo-600 to-purple-600', bg: 'bg-indigo-600' }
+    ];
+
+    const handleAvatarSelect = (avatar) => {
+        setFormData({ ...formData, avatar_preset: avatar });
+        setShowAvatarPicker(false);
+    };
+
+    const handleThemeSelect = (theme) => {
+        setFormData({ ...formData, theme_color: theme });
+        setShowThemePicker(false);
+    };
+
+    const getCurrentTheme = () => themeColors.find(t => t.name === formData.theme_color) || themeColors[0];
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -247,14 +282,16 @@ const Profile = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="bg-white rounded-2xl shadow-lg overflow-hidden"
                 >
-                    <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-10 text-white relative overflow-hidden">
+                    <div className={`bg-gradient-to-r ${getCurrentTheme().gradient} px-8 py-10 text-white relative overflow-hidden`}>
                         <div className="relative z-10">
                             <div className="flex justify-between items-start mb-6">
                                 {/* Profile Picture Section */}
                                 <div className="flex items-center gap-6">
                                     <div className="relative">
                                         <div className="w-24 h-24 rounded-full overflow-hidden bg-white/20 flex items-center justify-center text-4xl font-bold border-4 border-white/30">
-                                            {(previewUrl || profile?.profile_picture_url) ? (
+                                            {formData.avatar_preset ? (
+                                                <span className="text-5xl">{formData.avatar_preset}</span>
+                                            ) : (previewUrl || profile?.profile_picture_url) ? (
                                                 <img
                                                     src={previewUrl || profile.profile_picture_url}
                                                     alt="Profile"
@@ -389,6 +426,86 @@ const Profile = () => {
                                 </div>
                             </div>
 
+                            {/* Bio Section */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">About Me</label>
+                                <textarea
+                                    disabled={!isEditing}
+                                    value={formData.bio}
+                                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                                    rows={3}
+                                    className={`w-full p-3 rounded-xl border transition-colors resize-none ${isEditing ? 'bg-white border-purple-200 focus:ring-2 focus:ring-purple-100' : 'bg-gray-50 border-gray-200 text-gray-500'}`}
+                                    placeholder="Tell us about yourself..."
+                                />
+                            </div>
+
+                            {/* Avatar & Theme Customization */}
+                            {isEditing && (
+                                <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                                    {/* Avatar Preset Selector */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Choose Avatar</label>
+                                        <div className="relative">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowAvatarPicker(!showAvatarPicker)}
+                                                className="w-full flex items-center gap-3 p-3 rounded-xl border border-purple-200 bg-white hover:bg-purple-50 transition-colors"
+                                            >
+                                                <Sparkles className="w-5 h-5 text-purple-600" />
+                                                <span className="text-sm text-gray-700">
+                                                    {formData.avatar_preset || 'Select an avatar'}
+                                                </span>
+                                            </button>
+                                            {showAvatarPicker && (
+                                                <div className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-20 grid grid-cols-6 gap-2">
+                                                    {avatarPresets.map((avatar, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            type="button"
+                                                            onClick={() => handleAvatarSelect(avatar)}
+                                                            className="text-3xl hover:scale-125 transition-transform p-2 rounded-lg hover:bg-purple-50"
+                                                        >
+                                                            {avatar}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Theme Color Picker */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Profile Theme</label>
+                                        <div className="relative">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowThemePicker(!showThemePicker)}
+                                                className="w-full flex items-center gap-3 p-3 rounded-xl border border-purple-200 bg-white hover:bg-purple-50 transition-colors"
+                                            >
+                                                <Palette className="w-5 h-5 text-purple-600" />
+                                                <span className="text-sm text-gray-700 capitalize">{formData.theme_color}</span>
+                                                <div className={`ml-auto w-8 h-8 rounded-full ${getCurrentTheme().bg}`}></div>
+                                            </button>
+                                            {showThemePicker && (
+                                                <div className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-20 grid grid-cols-3 gap-3">
+                                                    {themeColors.map((theme) => (
+                                                        <button
+                                                            key={theme.name}
+                                                            type="button"
+                                                            onClick={() => handleThemeSelect(theme.name)}
+                                                            className="group"
+                                                        >
+                                                            <div className={`w-full aspect-square rounded-lg bg-gradient-to-br ${theme.gradient} hover:scale-110 transition-transform ${formData.theme_color === theme.name ? 'ring-2 ring-offset-2 ring-gray-900' : ''}`}></div>
+                                                            <p className="text-xs text-gray-600 mt-1 capitalize text-center">{theme.name}</p>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="pt-6 border-t border-gray-100 flex justify-end gap-4">
                                 {isEditing ? (
                                     <>
@@ -472,6 +589,45 @@ const Profile = () => {
                             >
                                 Enroll a Child
                             </button>
+                        </div>
+                    )}
+                </motion.div>
+
+                {/* Badges Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="mt-8 bg-white rounded-2xl shadow-lg overflow-hidden p-8"
+                >
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">My Badges</h2>
+
+                    {badgesLoading ? (
+                        <div className="flex justify-center py-12">
+                            <Loader className="w-8 h-8 animate-spin text-purple-600" />
+                        </div>
+                    ) : badges.length > 0 ? (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {badges.map((userBadge) => (
+                                <div key={userBadge.id} className="flex flex-col items-center text-center p-4 rounded-xl bg-purple-50 border border-purple-100">
+                                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm mb-3">
+                                        {/* Simple icon mapping based on name/icon field */}
+                                        {userBadge.badges?.icon === 'Star' && '⭐'}
+                                        {userBadge.badges?.icon === 'Trophy' && '🏆'}
+                                        {userBadge.badges?.icon === 'Zap' && '⚡'}
+                                        {userBadge.badges?.icon === 'Clock' && '⏰'}
+                                        {userBadge.badges?.icon === 'Heart' && '❤️'}
+                                        {!['Star', 'Trophy', 'Zap', 'Clock', 'Heart'].includes(userBadge.badges?.icon) && '🏅'}
+                                    </div>
+                                    <h3 className="font-bold text-gray-800 text-sm">{userBadge.badges?.name}</h3>
+                                    <p className="text-xs text-gray-500 mt-1">{userBadge.badges?.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                            <p className="text-gray-500 mb-2">No badges earned yet.</p>
+                            <p className="text-sm text-gray-400">Keep participating to unlock achievements!</p>
                         </div>
                     )}
                 </motion.div>

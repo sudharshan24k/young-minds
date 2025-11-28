@@ -1,41 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Calendar, Clock, ArrowRight, Sparkles, Trophy, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
+import useFetchWithCache from '../hooks/useFetchWithCache';
 
 const EventOfTheMonth = ({ category }) => {
     const navigate = useNavigate();
-    const [event, setEvent] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetchActiveEvent();
-    }, [category]);
 
     const fetchActiveEvent = async () => {
-        try {
-            const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split('T')[0];
 
-            // Fetch the active event for this category
-            // Priority: Active (currently running) -> Upcoming (closest start date)
-            const { data, error } = await supabase
-                .from('events')
-                .select('*')
-                .eq('activity_category', category)
-                .or(`status.eq.active,status.eq.draft`) // Fetch active and draft (upcoming)
-                .gte('end_date', today) // Ensure it hasn't ended
-                .order('start_date', { ascending: true }) // Get the soonest one
-                .limit(1);
+        // Fetch the active event for this category
+        // Priority: Active (currently running) -> Upcoming (closest start date)
+        const { data, error } = await supabase
+            .from('events')
+            .select('*')
+            .eq('activity_category', category)
+            .or(`status.eq.active,status.eq.draft`) // Fetch active and draft (upcoming)
+            .gte('end_date', today) // Ensure it hasn't ended
+            .order('start_date', { ascending: true }) // Get the soonest one
+            .limit(1);
 
-            if (error) throw error;
-            setEvent(data && data.length > 0 ? data[0] : null);
-        } catch (error) {
-            console.error('Error fetching event of the month:', error);
-        } finally {
-            setLoading(false);
-        }
+        if (error) throw error;
+        return data && data.length > 0 ? data[0] : null;
     };
+
+    const { data: event, loading } = useFetchWithCache(
+        `event-of-month-${category}`,
+        fetchActiveEvent,
+        [category]
+    );
 
     const getCategoryStyles = () => {
         switch (category) {

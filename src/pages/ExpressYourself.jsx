@@ -11,6 +11,7 @@ import '../styles/pages/ExpressYourself.css';
 import { supabase } from '../lib/supabase';
 import expressData from '../data/expressYourself.json';
 import { getIcon } from '../utils/iconMapper';
+import useFetchWithCache from '../hooks/useFetchWithCache';
 
 import EventOfTheMonth from '../components/EventOfTheMonth';
 
@@ -19,9 +20,7 @@ const ExpressYourself = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('begin');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [galleryItems, setGalleryItems] = useState([]);
-    const [loadingGallery, setLoadingGallery] = useState(true);
-    // Removed local activeEvents state as it's handled by EventOfTheMonth
+    // Removed local galleryItems state as it's handled by useFetchWithCache
 
     const tabs = expressData.tabs;
 
@@ -37,27 +36,23 @@ const ExpressYourself = () => {
     const activeContent = content[activeTab];
     const ActiveIcon = activeContent.icon;
 
-    useEffect(() => {
-        fetchGallery();
-    }, []);
-
     const fetchGallery = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('submissions')
-                .select('*')
-                .eq('status', 'approved')
-                .order('created_at', { ascending: false })
-                .limit(6); // Show top 6 recent approved submissions
+        const { data, error } = await supabase
+            .from('submissions')
+            .select('*')
+            .eq('status', 'approved')
+            .order('created_at', { ascending: false })
+            .limit(6); // Show top 6 recent approved submissions
 
-            if (error) throw error;
-            setGalleryItems(data || []);
-        } catch (error) {
-            console.error('Error fetching gallery:', error);
-        } finally {
-            setLoadingGallery(false);
-        }
+        if (error) throw error;
+        return data || [];
     };
+
+    const { data: galleryItems, loading: loadingGallery } = useFetchWithCache(
+        'gallery-express-approved',
+        fetchGallery,
+        []
+    );
 
     const handleAction = () => {
         if (activeTab === 'finish') {
@@ -222,7 +217,7 @@ const ExpressYourself = () => {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {galleryItems.length > 0 ? galleryItems.map((item) => (
+                            {galleryItems && galleryItems.length > 0 ? galleryItems.map((item) => (
                                 <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                                     <div className="aspect-video bg-gray-100 relative">
                                         {item.file_url ? (

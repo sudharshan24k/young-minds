@@ -1,33 +1,48 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+
+// Layout & Context (Keep static for immediate load)
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import BackgroundDecorations from './components/BackgroundDecorations';
-import Home from './pages/Home';
-import ExpressYourself from './pages/ExpressYourself';
-import ChallengeYourself from './pages/ChallengeYourself';
-import BrainyBites from './pages/BrainyBites';
-import Enroll from './pages/Enroll';
-import Gallery from './pages/Gallery';
-import Winners from './pages/Winners';
-import Events from './pages/Events';
-import FAQ from './pages/FAQ';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
-import ContactUs from './pages/ContactUs';
-
 import { AuthProvider } from './context/AuthContext';
-import Login from './pages/Login';
-import SignUp from './pages/SignUp';
-
-import Profile from './pages/Profile';
-import SchoolRegistration from './pages/SchoolRegistration';
-import SchoolDashboard from './pages/SchoolDashboard';
-import SchoolProfile from './pages/SchoolProfile';
-import SchoolLeaderboard from './pages/SchoolLeaderboard';
 import ProtectedRoute from './components/ProtectedRoute';
-import AdminApp from '../admin/src/App';
+
+// Lazy Load Pages
+const Home = lazy(() => import('./pages/Home'));
+const ExpressYourself = lazy(() => import('./pages/ExpressYourself'));
+const ChallengeYourself = lazy(() => import('./pages/ChallengeYourself'));
+const BrainyBites = lazy(() => import('./pages/BrainyBites'));
+const Enroll = lazy(() => import('./pages/Enroll'));
+const Gallery = lazy(() => import('./pages/Gallery'));
+const Winners = lazy(() => import('./pages/Winners'));
+const Events = lazy(() => import('./pages/Events'));
+const FAQ = lazy(() => import('./pages/FAQ'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const ContactUs = lazy(() => import('./pages/ContactUs'));
+const Login = lazy(() => import('./pages/Login'));
+const SignUp = lazy(() => import('./pages/SignUp'));
+const Profile = lazy(() => import('./pages/Profile'));
+const MySubmissions = lazy(() => import('./pages/MySubmissions'));
+const SchoolRegistration = lazy(() => import('./pages/SchoolRegistration'));
+const SchoolDashboard = lazy(() => import('./pages/SchoolDashboard'));
+const SchoolProfile = lazy(() => import('./pages/SchoolProfile'));
+const SchoolLeaderboard = lazy(() => import('./pages/SchoolLeaderboard'));
+const SearchResults = lazy(() => import('./pages/SearchResults'));
+const EventCalendar = lazy(() => import('./pages/EventCalendar'));
+
+// Admin App (Lazy load the entire admin section)
+const AdminApp = lazy(() => import('../admin/src/App'));
+
+// Loading Fallback
+const PageLoader = () => (
+  <div className="min-h-[60vh] flex items-center justify-center">
+    <Loader2 className="w-10 h-10 text-purple-600 animate-spin" />
+  </div>
+);
 
 function App() {
   const location = useLocation();
@@ -38,48 +53,53 @@ function App() {
         <BackgroundDecorations />
         <Header />
         <main className="flex-grow relative z-10">
-          <AnimatePresence mode="wait">
-            <Routes location={location} key={location.pathname}>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/school-registration" element={<SchoolRegistration />} />
-              <Route
-                path="/school-dashboard"
-                element={
-                  <ProtectedRoute allowedRoles={['school_admin', 'teacher']}>
-                    <SchoolDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/school/:schoolId" element={<SchoolProfile />} />
-              <Route path="/school-leaderboard" element={<SchoolLeaderboard />} />
+          <Suspense fallback={<PageLoader />}>
+            <AnimatePresence mode="wait">
+              <Routes location={location} key={location.pathname}>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/my-submissions" element={<MySubmissions />} />
+                <Route path="/search" element={<SearchResults />} />
+                <Route path="/calendar" element={<EventCalendar />} />
+                <Route path="/school-registration" element={<SchoolRegistration />} />
+                <Route
+                  path="/school-dashboard"
+                  element={
+                    <ProtectedRoute allowedRoles={['school_admin', 'teacher']}>
+                      <SchoolDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/school/:schoolId" element={<SchoolProfile />} />
+                <Route path="/school-leaderboard" element={<SchoolLeaderboard />} />
 
-              {/* Admin Routes */}
-              <Route
-                path="/admin/*"
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminApp />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Admin Routes */}
+                <Route
+                  path="/admin/*"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <AdminApp />
+                    </ProtectedRoute>
+                  }
+                />
 
-              <Route path="/express" element={<ExpressYourself />} />
-              <Route path="/challenge" element={<ChallengeYourself />} />
-              <Route path="/brainy" element={<BrainyBites />} />
-              <Route path="/enroll" element={<Enroll />} />
-              <Route path="/gallery" element={<Gallery />} />
-              <Route path="/winners" element={<Winners />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/terms" element={<TermsOfService />} />
-              <Route path="/contact" element={<ContactUs />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </AnimatePresence>
+                <Route path="/express" element={<ExpressYourself />} />
+                <Route path="/challenge" element={<ChallengeYourself />} />
+                <Route path="/brainy" element={<BrainyBites />} />
+                <Route path="/enroll" element={<Enroll />} />
+                <Route path="/gallery" element={<Gallery />} />
+                <Route path="/winners" element={<Winners />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/contact" element={<ContactUs />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </AnimatePresence>
+          </Suspense>
         </main>
         <Footer />
       </div>
