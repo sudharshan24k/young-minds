@@ -301,10 +301,10 @@ const Home = () => {
 
                         {/* Right Image */}
                         <FadeIn delay={0.4}>
-                            <div className="relative">
+                            <div className="relative flex items-center justify-center">
                                 {/* Main Hero Image */}
                                 <motion.div
-                                    className="relative z-10 rounded-3xl overflow-hidden shadow-2xl"
+                                    className="relative z-10 rounded-3xl overflow-hidden shadow-2xl w-full aspect-[4/3] bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100"
                                     animate={{
                                         y: [0, -20, 0]
                                     }}
@@ -317,13 +317,17 @@ const Home = () => {
                                     <img
                                         src="/src/assets/images/hero/happy_kids_creating.png"
                                         alt="Happy kids creating art and learning"
-                                        className="w-full h-auto"
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            // Hide image if it fails to load, show gradient background instead
+                                            e.target.style.display = 'none';
+                                        }}
                                     />
                                 </motion.div>
 
                                 {/* Floating trophy illustration */}
                                 <motion.div
-                                    className="absolute -top-12 -right-12 w-28 h-28"
+                                    className="absolute -top-8 -right-8 w-20 h-20 md:w-28 md:h-28"
                                     animate={{
                                         rotate: [0, 15, -15, 0],
                                         y: [0, -10, 0]
@@ -334,11 +338,9 @@ const Home = () => {
                                         ease: "easeInOut"
                                     }}
                                 >
-                                    <img
-                                        src="/src/assets/images/illustrations/trophy.png"
-                                        alt=""
-                                        className="w-full h-full object-contain drop-shadow-xl"
-                                    />
+                                    <div className="w-full h-full bg-yellow-400 rounded-full flex items-center justify-center shadow-xl">
+                                        <Trophy size={48} className="text-white" />
+                                    </div>
                                 </motion.div>
 
                                 {/* Decorative glow effects */}

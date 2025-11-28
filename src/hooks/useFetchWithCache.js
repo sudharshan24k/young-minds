@@ -46,15 +46,17 @@ const useFetchWithCache = (key, fetchFunction, dependencies = [], ttl = 5 * 60 *
             }
 
             try {
+                console.log(`Fetching data for key "${key}"...`);
                 const result = await fetchFunction();
 
                 // Update cache
-                globalCache[key] = {
-                    data: result,
-                    timestamp: Date.now()
-                };
-
+                // The instruction moves the cache update inside the isMounted check and changes `globalCache` to `cache`.
+                // I will keep `globalCache` as it's the defined global variable and move it inside the `isMounted.current` check.
                 if (isMounted.current) {
+                    globalCache[key] = {
+                        data: result,
+                        timestamp: Date.now()
+                    };
                     setData(result);
                     setError(null);
                 }
@@ -64,6 +66,7 @@ const useFetchWithCache = (key, fetchFunction, dependencies = [], ttl = 5 * 60 *
                     setError(err);
                 }
             } finally {
+                console.log(`Finished fetching for key "${key}". Loading: false`);
                 if (isMounted.current) {
                     setLoading(false);
                 }

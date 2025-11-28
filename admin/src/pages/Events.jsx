@@ -1,30 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Loader2, Plus, Calendar as CalendarIcon, Trash2, Edit2, X } from 'lucide-react';
+import { Loader2, Plus, Calendar as CalendarIcon, Trash2, Eye, DollarSign } from 'lucide-react';
 
 const Events = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [isEditing, setIsEditing] = useState(false);
-    const [currentEvent, setCurrentEvent] = useState(null);
+    const [showForm, setShowForm] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
-        type: 'competition',
-        date: '',
-        description: '',
-        icon: '',
-        color: '',
-        formats: '',
-        skills: '',
-        theme: '',
-        image_url: '',
-        pricing: 0,
-        guidelines: '',
+        activity_category: 'challenge',
         start_date: '',
         end_date: '',
-        activity_category: 'express',
-        status: 'active',
-        month_year: ''
+        pricing: 0,
+        description: ''
     });
 
     useEffect(() => {
@@ -36,7 +24,7 @@ const Events = () => {
             const { data, error } = await supabase
                 .from('events')
                 .select('*')
-                .order('date', { ascending: true });
+                .order('start_date', { ascending: false });
 
             if (error) throw error;
             setEvents(data || []);
@@ -50,7 +38,12 @@ const Events = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validate dates
+        // Validation
+        if (!formData.title || !formData.start_date || !formData.end_date) {
+            alert('Please fill all required fields');
+            return;
+        }
+
         if (new Date(formData.end_date) < new Date(formData.start_date)) {
             alert('End date must be after start date');
             return;
@@ -58,40 +51,35 @@ const Events = () => {
 
         try {
             // Auto-calculate month_year from start_date
-            const monthYear = formData.start_date ?
-                new Date(formData.start_date).toISOString().substring(0, 7) : '';
+            const monthYear = new Date(formData.start_date).toISOString().substring(0, 7);
 
-            // Auto-assign color based on category
-            const categoryColors = {
-                'express': 'bg-pink-500',
-                'challenge': 'bg-blue-500',
-                'brainy': 'bg-orange-500',
-                'general': 'bg-purple-500'
-            };
-            const color = categoryColors[formData.activity_category] || 'bg-purple-500';
+            // Determine if event is currently active
+            const today = new Date().toISOString().split('T')[0];
+            const isActive = formData.start_date <= today && formData.end_date >= today ? 'active' : 'upcoming';
 
             const eventData = {
-                ...formData,
-                color: color,
-                date: formData.start_date, // Ensure date is set to start_date
+                title: formData.title,
+                activity_category: formData.activity_category,
+                start_date: formData.start_date,
+                end_date: formData.end_date,
                 pricing: Number(formData.pricing),
-                skills: formData.skills ? formData.skills.split(',').map(s => s.trim()) : [],
-                month_year: monthYear
+                description: formData.description,
+                month_year: monthYear,
+                status: isActive,
+                date: formData.start_date, // For compatibility
+                type: 'event',
+                formats: 'All formats accepted',
+                theme: formData.title,
+                guidelines: formData.description
             };
 
-            if (currentEvent) {
-                const { error } = await supabase
-                    .from('events')
-                    .update(eventData)
-                    .eq('id', currentEvent.id);
-                if (error) throw error;
-            } else {
-                const { error } = await supabase
-                    .from('events')
-                    .insert([eventData]);
-                if (error) throw error;
-            }
+            const { error } = await supabase
+                .from('events')
+                .insert([eventData]);
 
+            if (error) throw error;
+
+            alert('Event created successfully!');
             fetchEvents();
             resetForm();
         } catch (error) {
@@ -100,8 +88,20 @@ const Events = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this event?')) return;
+    const resetForm = () => {
+        setFormData({
+            title: '',
+            activity_category: 'challenge',
+            start_date: '',
+            end_date: '',
+            pricing: 0,
+            description: ''
+        });
+        setShowForm(false);
+    };
+
+    const deleteEvent = async (id) => {
+        if (!confirm('Are you sure you want to delete this event?')) return;
 
         try {
             const { error } = await supabase
@@ -110,389 +110,241 @@ const Events = () => {
                 .eq('id', id);
 
             if (error) throw error;
-            setEvents(events.filter(e => e.id !== id));
+            fetchEvents();
         } catch (error) {
             console.error('Error deleting event:', error);
             alert('Failed to delete event');
         }
     };
 
-    const handleEdit = (event) => {
-        setCurrentEvent(event);
-        setFormData({
-            title: event.title,
-            type: event.type,
-            date: event.date,
-            description: event.description || '',
-            icon: event.icon || '',
-            color: event.color || '',
-            formats: event.formats || '',
-            skills: event.skills ? event.skills.join(', ') : '',
-            theme: event.theme || '',
-            image_url: event.image_url || '',
-            pricing: event.pricing || 0,
-            guidelines: event.guidelines || '',
-            start_date: event.start_date || '',
-            end_date: event.end_date || '',
-            activity_category: event.activity_category || 'express',
-            status: event.status || 'active',
-            month_year: event.month_year || ''
-        });
-        setIsEditing(true);
-    };
-
-    const resetForm = () => {
-        setIsEditing(false);
-        setCurrentEvent(null);
-        setFormData({
-            title: '',
-            type: 'competition',
-            date: '',
-            description: '',
-            icon: '',
-            color: '',
-            formats: '',
-            skills: '',
-            theme: '',
-            image_url: '',
-            pricing: 0,
-            guidelines: '',
-            start_date: '',
-            end_date: '',
-            activity_category: 'express',
-            status: 'active',
-            month_year: ''
-        });
-    };
-
-    const getStatusBadge = (status) => {
-        const badges = {
-            'active': 'bg-green-100 text-green-700',
-            'draft': 'bg-yellow-100 text-yellow-700',
-            'archived': 'bg-gray-100 text-gray-700'
+    const getCategoryLabel = (category) => {
+        const labels = {
+            challenge: { name: 'Challenge Yourself', color: 'bg-blue-500', icon: '🏆' },
+            express: { name: 'Express Yourself', color: 'bg-pink-500', icon: '🎨' },
+            brainy: { name: 'Brainy Bites', color: 'bg-green-500', icon: '🧠' }
         };
-        return badges[status] || badges.active;
+        return labels[category] || labels.challenge;
     };
 
-    const groupEventsByStatus = () => {
-        const grouped = {
-            active: [],
-            draft: [],
-            archived: []
-        };
-        events.forEach(event => {
-            const status = event.status || 'active';
-            if (grouped[status]) {
-                grouped[status].push(event);
-            } else {
-                grouped.active.push(event);
-            }
-        });
-        return grouped;
+    const isEventActive = (event) => {
+        const today = new Date().toISOString().split('T')[0];
+        return event.start_date <= today && event.end_date >= today;
     };
 
-    const groupedEvents = groupEventsByStatus();
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <Loader2 className="animate-spin text-blue-600" size={48} />
+            </div>
+        );
+    }
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-2xl font-bold text-gray-800">Event Management</h1>
+        <div className="p-6 max-w-7xl mx-auto">
+            {/* Header */}
+            <div className="mb-8 flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">Monthly Events</h1>
+                    <p className="text-gray-600 mt-1">Create and manage events for each category</p>
+                </div>
                 <button
-                    onClick={() => setIsEditing(true)}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-colors"
+                    onClick={() => setShowForm(!showForm)}
+                    className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2"
                 >
                     <Plus size={20} />
-                    Add Event
+                    {showForm ? 'Cancel' : 'Create Event'}
                 </button>
             </div>
 
-            {isEditing && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl p-8 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-gray-800">
-                                {currentEvent ? 'Edit Event' : 'New Event'}
-                            </h2>
-                            <button onClick={resetForm} className="text-gray-400 hover:text-gray-600">
-                                <X size={24} />
-                            </button>
+            {/* Simple Form */}
+            {showForm && (
+                <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border-2 border-blue-100">
+                    <h2 className="text-2xl font-bold mb-6 text-gray-800">Create New Event</h2>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Category */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Category *
+                            </label>
+                            <select
+                                value={formData.activity_category}
+                                onChange={(e) => setFormData({ ...formData, activity_category: e.target.value })}
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
+                                required
+                            >
+                                <option value="challenge">🏆 Challenge Yourself</option>
+                                <option value="express">🎨 Express Yourself</option>
+                                <option value="brainy">🧠 Brainy Bites</option>
+                            </select>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                                <input
-                                    type="text"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    required
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none"
-                                    placeholder="Event Name"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Theme</label>
-                                <input
-                                    type="text"
-                                    value={formData.theme || ''}
-                                    onChange={(e) => setFormData({ ...formData, theme: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none"
-                                    placeholder="e.g. Wildlife, Space"
-                                />
-                            </div>
+                        {/* Title */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Event Title *
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.title}
+                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                placeholder="e.g., December Art Challenge"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
+                                required
+                            />
+                        </div>
 
+                        {/* Dates */}
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Module Category</label>
-                                <select
-                                    value={formData.activity_category || 'express'}
-                                    onChange={(e) => setFormData({ ...formData, activity_category: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none"
-                                >
-                                    <option value="express">Express Yourself</option>
-                                    <option value="challenge">Challenge Yourself</option>
-                                    <option value="brainy">Brainy Bites</option>
-                                    <option value="general">General</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                                <select
-                                    value={formData.type}
-                                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none"
-                                >
-                                    <option value="competition">Competition</option>
-                                    <option value="workshop">Workshop</option>
-                                    <option value="general">General</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Start Date *
+                                </label>
                                 <input
                                     type="date"
-                                    value={formData.start_date || ''}
+                                    value={formData.start_date}
                                     onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
                                     required
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    End Date *
+                                </label>
                                 <input
                                     type="date"
-                                    value={formData.end_date || ''}
+                                    value={formData.end_date}
                                     onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
                                     required
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none"
                                 />
                             </div>
+                        </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                <select
-                                    value={formData.status || 'active'}
-                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none"
-                                >
-                                    <option value="draft">Draft (Not Started)</option>
-                                    <option value="active">Active (Currently Running)</option>
-                                    <option value="archived">Archived (Ended)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Pricing (₹)</label>
+                        {/* Price */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Participation Fee (₹)
+                            </label>
+                            <div className="relative">
+                                <DollarSign className="absolute left-3 top-3.5 text-gray-400" size={20} />
                                 <input
                                     type="number"
-                                    value={formData.pricing || 0}
+                                    value={formData.pricing}
                                     onChange={(e) => setFormData({ ...formData, pricing: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none"
+                                    placeholder="0"
                                     min="0"
+                                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
                                 />
                             </div>
+                            <p className="text-sm text-gray-500 mt-1">Enter 0 for free events</p>
+                        </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Icon Name</label>
-                                <input
-                                    type="text"
-                                    value={formData.icon || ''}
-                                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none"
-                                    placeholder="e.g. Trophy, Star"
-                                />
-                            </div>
-                            {/* Color Class input removed - auto-assigned */}
+                        {/* Description */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Description
+                            </label>
+                            <textarea
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                placeholder="Brief description of the event..."
+                                rows="4"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none text-lg resize-none"
+                            />
+                        </div>
 
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                                <input
-                                    type="text"
-                                    value={formData.image_url || ''}
-                                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none"
-                                    placeholder="https://..."
-                                />
-                            </div>
-
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea
-                                    value={formData.description || ''}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none resize-none h-20"
-                                    placeholder="Event details..."
-                                />
-                            </div>
-
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Guidelines</label>
-                                <textarea
-                                    value={formData.guidelines || ''}
-                                    onChange={(e) => setFormData({ ...formData, guidelines: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none resize-none h-20"
-                                    placeholder="Submission guidelines..."
-                                />
-                            </div>
-
-                            <div className="md:col-span-2 pt-4 flex gap-3">
-                                <button
-                                    type="button"
-                                    onClick={resetForm}
-                                    className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="flex-1 px-4 py-2 rounded-xl bg-purple-600 text-white hover:bg-purple-700"
-                                >
-                                    Save Event
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        {/* Submit */}
+                        <div className="flex gap-4">
+                            <button
+                                type="submit"
+                                className="flex-1 bg-blue-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition"
+                            >
+                                Create Event
+                            </button>
+                            <button
+                                type="button"
+                                onClick={resetForm}
+                                className="px-8 bg-gray-200 text-gray-700 py-4 rounded-lg font-bold hover:bg-gray-300 transition"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
                 </div>
             )}
 
-            <div className="space-y-8">
-                {loading ? (
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 flex justify-center">
-                        <Loader2 className="animate-spin text-purple-600" size={32} />
+            {/* Events List */}
+            <div className="grid grid-cols-1 gap-4">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">All Events ({events.length})</h2>
+
+                {events.length === 0 ? (
+                    <div className="text-center py-16 text-gray-500">
+                        <CalendarIcon size={64} className="mx-auto mb-4 opacity-30" />
+                        <p className="text-xl font-semibold">No events yet</p>
+                        <p>Create your first event to get started!</p>
                     </div>
                 ) : (
-                    <>
-                        {/* Active Events */}
-                        {groupedEvents.active.length > 0 && (
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div className="p-4 border-b border-gray-100 bg-green-50">
-                                    <h2 className="text-lg font-bold text-green-800">Active Events ({groupedEvents.active.length})</h2>
-                                </div>
-                                <div className="grid gap-4 p-6">
-                                    {groupedEvents.active.map((event) => (
-                                        <EventRow key={event.id} event={event} onEdit={handleEdit} onDelete={handleDelete} getStatusBadge={getStatusBadge} />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                    events.map((event) => {
+                        const categoryInfo = getCategoryLabel(event.activity_category);
+                        const active = isEventActive(event);
 
-                        {/* Draft Events */}
-                        {groupedEvents.draft.length > 0 && (
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div className="p-4 border-b border-gray-100 bg-yellow-50">
-                                    <h2 className="text-lg font-bold text-yellow-800">Draft Events ({groupedEvents.draft.length})</h2>
-                                </div>
-                                <div className="grid gap-4 p-6">
-                                    {groupedEvents.draft.map((event) => (
-                                        <EventRow key={event.id} event={event} onEdit={handleEdit} onDelete={handleDelete} getStatusBadge={getStatusBadge} />
-                                    ))}
+                        return (
+                            <div
+                                key={event.id}
+                                className={`bg-white rounded-lg shadow p-6 border-l-4 hover:shadow-lg transition ${active ? 'border-green-500 bg-green-50' : 'border-gray-300'
+                                    }`}
+                            >
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <span className={`${categoryInfo.color} text-white px-3 py-1 rounded-full text-sm font-bold`}>
+                                                {categoryInfo.icon} {categoryInfo.name}
+                                            </span>
+                                            {active && (
+                                                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                                                    LIVE
+                                                </span>
+                                            )}
+                                        </div>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h3>
+                                        <p className="text-gray-600 mb-3">{event.description || 'No description'}</p>
+                                        <div className="flex items-center gap-6 text-sm text-gray-600">
+                                            <span className="flex items-center gap-1">
+                                                <CalendarIcon size={16} />
+                                                {new Date(event.start_date).toLocaleDateString()} - {new Date(event.end_date).toLocaleDateString()}
+                                            </span>
+                                            <span className="font-bold text-lg text-green-600">
+                                                {event.pricing > 0 ? `₹${event.pricing}` : 'FREE'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <a
+                                            href={`http://localhost:5173/events`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                            title="View on website"
+                                        >
+                                            <Eye size={20} />
+                                        </a>
+                                        <button
+                                            onClick={() => deleteEvent(event.id)}
+                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                                            title="Delete event"
+                                        >
+                                            <Trash2 size={20} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        )}
-
-                        {/* Archived Events */}
-                        {groupedEvents.archived.length > 0 && (
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div className="p-4 border-b border-gray-100 bg-gray-50">
-                                    <h2 className="text-lg font-bold text-gray-800">Archived Events ({groupedEvents.archived.length})</h2>
-                                </div>
-                                <div className="grid gap-4 p-6">
-                                    {groupedEvents.archived.map((event) => (
-                                        <EventRow key={event.id} event={event} onEdit={handleEdit} onDelete={handleDelete} getStatusBadge={getStatusBadge} />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {events.length === 0 && (
-                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
-                                No events found. Create one to get started.
-                            </div>
-                        )}
-                    </>
+                        );
+                    })
                 )}
             </div>
         </div>
     );
 };
-
-// Event Row Component
-const EventRow = ({ event, onEdit, onDelete, getStatusBadge }) => (
-    <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-purple-100 hover:shadow-sm transition-all bg-gray-50/50">
-        <div className="flex items-center gap-4 flex-1">
-            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
-                <CalendarIcon size={24} />
-            </div>
-            <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-gray-800">{event.title}</h3>
-                    <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${getStatusBadge(event.status)}`}>
-                        {event.status || 'active'}
-                    </span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
-                    <span className="capitalize">{event.type}</span>
-                    {event.theme && (
-                        <>
-                            <span>•</span>
-                            <span className="text-purple-600 font-medium">{event.theme}</span>
-                        </>
-                    )}
-                    {event.activity_category && (
-                        <>
-                            <span>•</span>
-                            <span className="capitalize bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-xs font-medium">
-                                {event.activity_category === 'express' ? 'Express Yourself' :
-                                    event.activity_category === 'challenge' ? 'Challenge Yourself' :
-                                        event.activity_category === 'brainy' ? 'Brainy Bites' : event.activity_category}
-                            </span>
-                        </>
-                    )}
-                    <span>•</span>
-                    <span>{event.start_date ? `${new Date(event.start_date).toLocaleDateString()} - ${new Date(event.end_date).toLocaleDateString()}` : new Date(event.date).toLocaleDateString()}</span>
-                    {event.month_year && (
-                        <>
-                            <span>•</span>
-                            <span className="font-medium">{event.month_year}</span>
-                        </>
-                    )}
-                </div>
-            </div>
-        </div>
-        <div className="flex items-center gap-2">
-            <button
-                onClick={() => onEdit(event)}
-                className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-            >
-                <Edit2 size={18} />
-            </button>
-            <button
-                onClick={() => onDelete(event.id)}
-                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-            >
-                <Trash2 size={18} />
-            </button>
-        </div>
-    </div>
-);
 
 export default Events;

@@ -120,3 +120,16 @@ h5,
 h6 {
   font-family: var(--font-heading);
 }
+/* Shimmer animation for skeleton screens */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}

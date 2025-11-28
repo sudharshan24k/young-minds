@@ -35,7 +35,6 @@ const Header = () => {
         { name: 'Brainy Bites', path: '/brainy' },
         { name: 'Gallery', path: '/gallery' },
         { name: 'Hall of Fame', path: '/winners' },
-        { name: 'Calendar', path: '/calendar' },
         { name: 'Enroll', path: '/enroll' },
     ];
 

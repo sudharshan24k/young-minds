@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FadeIn from '../components/ui/FadeIn';
 
@@ -50,10 +50,33 @@ const FAQ = () => {
     ];
 
     return (
-        <div className="min-h-screen py-12">
-            <div className="container mx-auto px-4 max-w-4xl">
+        <div className="min-h-screen py-12 relative">
+            {/* Floating decorative question marks */}
+            <motion.div
+                className="absolute top-20 left-10 hidden lg:block"
+                animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
+                transition={{ duration: 4, repeat: Infinity }}
+            >
+                <HelpCircle size={60} className="text-purple-200" />
+            </motion.div>
+            <motion.div
+                className="absolute top-40 right-20 hidden lg:block"
+                animate={{ y: [0, 15, 0], rotate: [0, -5, 0] }}
+                transition={{ duration: 5, repeat: Infinity, delay: 1 }}
+            >
+                <HelpCircle size={80} className="text-pink-200" />
+            </motion.div>
+
+            <div className="container mx-auto px-4 max-w-4xl relative z-10">
                 <FadeIn>
                     <div className="text-center mb-12">
+                        <motion.div
+                            className="inline-block mb-4"
+                            animate={{ scale: [1, 1.1, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                        >
+                            <HelpCircle size={64} className="text-purple-600 mx-auto" />
+                        </motion.div>
                         <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                             Frequently Asked Questions
                         </h1>

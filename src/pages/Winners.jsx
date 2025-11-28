@@ -32,6 +32,17 @@ const Winners = () => {
         participation: Award
     };
 
+    // Set default to previous month
+    useEffect(() => {
+        const now = new Date();
+        const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const previousMonthName = months[previousMonth.getMonth()];
+        const previousYear = previousMonth.getFullYear();
+
+        setSelectedMonth(previousMonthName);
+        setSelectedYear(previousYear);
+    }, []);
+
     useEffect(() => {
         fetchWinners();
     }, [selectedMonth, selectedYear, selectedCategory]);
@@ -104,7 +115,39 @@ const Winners = () => {
             <div className="container mx-auto px-4">
                 {/* Header */}
                 <FadeIn>
-                    <div className="text-center mb-16">
+                    <div className="text-center mb-16 relative">
+                        {/* Floating decorative elements */}
+                        <motion.div
+                            className="absolute top-0 left-10 hidden lg:block"
+                            animate={{
+                                y: [0, -20, 0],
+                                rotate: [0, 10, 0]
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        >
+                            <Star size={40} className="text-yellow-400 fill-current opacity-20" />
+                        </motion.div>
+
+                        <motion.div
+                            className="absolute top-20 right-10 hidden lg:block"
+                            animate={{
+                                y: [0, 20, 0],
+                                rotate: [0, -10, 0]
+                            }}
+                            transition={{
+                                duration: 5,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: 1
+                            }}
+                        >
+                            <Medal size={50} className="text-pink-400 opacity-20" />
+                        </motion.div>
+
                         <motion.div
                             className="inline-block mb-6"
                             animate={{
@@ -123,11 +166,10 @@ const Winners = () => {
                             Hall of Fame
                         </h1>
                         <p className="text-2xl text-gray-700 mb-4 font-semibold">
-                            Celebrating Our Amazing Young Talents
+                            Celebrating Last Month's Amazing Talents
                         </p>
                         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                            Every month, we recognize the creativity, effort, and imagination of our young minds.
-                            Congratulations to all our winners and participants!
+                            Discover the creative stars from last month! Use the filters below to explore winners from previous months.
                         </p>
                     </div>
                 </FadeIn>

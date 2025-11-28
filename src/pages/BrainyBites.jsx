@@ -1,249 +1,121 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, Calculator, Beaker, BookOpen, ArrowRight, Play, CheckCircle, Star, Clock, Loader2 } from 'lucide-react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Accordion from '../components/ui/Accordion';
-import '../styles/pages/BrainyBites.css';
-import brainyBitesData from '../data/brainyBites.json';
-import bitesData from '../data/brainy_bites.json';
-import { getIcon } from '../utils/iconMapper';
+import { motion } from 'framer-motion';
+import { Brain, ArrowRight, Lightbulb, BookOpen, Rocket } from 'lucide-react';
+import FadeIn from '../components/ui/FadeIn';
 
 const BrainyBites = () => {
-    const [activeSection, setActiveSection] = useState('offer');
-    const [bites, setBites] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('all'); // 'all', 'video', 'article'
     const navigate = useNavigate();
 
-    useEffect(() => {
-        setBites(bitesData);
-        setLoading(false);
-    }, []);
-
-    const workshops = bites.map(item => ({
-        ...item,
-        icon: getIcon(item.icon),
-        // Map DB fields to Accordion props
-        content: item.type === 'video' ? (
-            <div className="space-y-4">
-                <p>{item.description}</p>
-                {item.url && (
-                    <div className="aspect-video rounded-xl overflow-hidden">
-                        <iframe
-                            src={item.url.replace('watch?v=', 'embed/')}
-                            title={item.title}
-                            className="w-full h-full"
-                            allowFullScreen
-                        />
-                    </div>
-                )}
-            </div>
-        ) : (
-            <div className="space-y-4">
-                <p>{item.description}</p>
-                <div dangerouslySetInnerHTML={{ __html: item.content }} />
-            </div>
-        )
-    }));
-
-    const howItWorks = brainyBitesData.howItWorks.map(item => ({
-        ...item,
-        icon: getIcon(item.icon)
-    }));
+    const features = [
+        { icon: '🎓', title: 'Interactive Workshops', description: 'Live sessions with experts' },
+        { icon: '🔬', title: 'Hands-on Learning', description: 'Practical experiments and activities' },
+        { icon: '💡', title: 'New Topics Monthly', description: 'Always something new to explore' },
+        { icon: '🌟', title: 'Q&A Sessions', description: 'Ask questions and get answers' }
+    ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-green-50 py-12 relative overflow-hidden">
-            {/* Background Decorations */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                {/* Small decorative brain lightbulb - top left */}
-                <motion.div
-                    className="absolute top-20 left-10 w-20 h-20 opacity-25 hidden lg:block"
-                    animate={{
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 5, -5, 0]
-                    }}
-                    transition={{
-                        duration: 6,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                    }}
-                >
-                    <img
-                        src="/src/assets/images/illustrations/brain_lightbulb.png"
-                        alt=""
-                        className="w-full h-full object-contain"
-                    />
-                </motion.div>
-
-                <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-                    className="absolute -top-20 -left-20 text-teal-100 opacity-50"
-                >
-                    <Brain size={300} />
-                </motion.div>
-                <motion.div
-                    animate={{ rotate: -360 }}
-                    transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-40 -right-20 text-green-100 opacity-50"
-                >
-                    <Beaker size={250} />
-                </motion.div>
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-t from-teal-100/30 to-transparent rounded-full blur-3xl" />
-            </div>
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-teal-50 to-cyan-50 py-12 relative overflow-hidden">
+            {/* Decorative floating elements */}
+            <motion.div
+                className="absolute top-20 left-10 opacity-20 hidden lg:block"
+                animate={{ y: [0, -20, 0] }}
+                transition={{ duration: 5, repeat: Infinity }}
+            >
+                <Brain size={80} className="text-green-400" />
+            </motion.div>
+            <motion.div
+                className="absolute bottom-20 right-10 opacity-20 hidden lg:block"
+                animate={{ y: [0, 20, 0] }}
+                transition={{ duration: 6, repeat: Infinity, delay: 1 }}
+            >
+                <Lightbulb size={60} className="text-teal-400" />
+            </motion.div>
 
             <div className="container mx-auto px-4 relative z-10">
-                {/* Hero Section */}
-                <div className="text-center mb-16">
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="inline-block mb-4 px-4 py-1.5 bg-teal-100 text-teal-700 rounded-full font-bold text-sm tracking-wide uppercase"
-                    >
-                        Explore & Learn
-                    </motion.div>
-                    <motion.h1
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-teal-600 via-green-500 to-teal-600 bg-clip-text text-transparent drop-shadow-sm"
-                    >
-                        Brainy Bites
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-2xl text-gray-700 mb-6 font-bold max-w-2xl mx-auto leading-relaxed"
-                    >
-                        {brainyBitesData.intro.headline}
-                    </motion.p>
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                        className="text-lg text-gray-500 max-w-3xl mx-auto mb-8 leading-relaxed"
-                    >
-                        {brainyBitesData.intro.subheadline}
-                    </motion.p>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="flex flex-wrap justify-center gap-4 text-sm font-medium text-gray-500"
-                    >
-                        <span className="flex items-center gap-1 bg-white px-3 py-1 rounded-lg shadow-sm border border-gray-100">
-                            <Clock size={16} className="text-teal-500" /> 5-10 min reads
-                        </span>
-                        <span className="flex items-center gap-1 bg-white px-3 py-1 rounded-lg shadow-sm border border-gray-100">
-                            <Play size={16} className="text-teal-500" /> Video tutorials
-                        </span>
-                        <span className="flex items-center gap-1 bg-white px-3 py-1 rounded-lg shadow-sm border border-gray-100">
-                            <BookOpen size={16} className="text-teal-500" /> Fun articles
-                        </span>
-                    </motion.div>
-                </div>
-
-                <div className="max-w-4xl mx-auto">
-                    {/* Toggle Buttons (Segmented Control) */}
-                    <div className="flex justify-center mb-12">
-                        <div className="bg-white p-1.5 rounded-full inline-flex relative shadow-lg border border-gray-100">
-                            {['offer', 'how'].map((tab) => (
-                                <button
-                                    key={tab}
-                                    onClick={() => setActiveSection(tab)}
-                                    className={`relative z-10 px-8 py-3 rounded-full font-bold text-lg transition-all duration-300 ${activeSection === tab ? 'text-teal-700' : 'text-gray-400 hover:text-gray-600'
-                                        } `}
-                                >
-                                    {activeSection === tab && (
-                                        <motion.div
-                                            layoutId="activeTab"
-                                            className="absolute inset-0 bg-teal-50 rounded-full shadow-inner border border-teal-100"
-                                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                        />
-                                    )}
-                                    <span className="relative z-10 flex items-center gap-2">
-                                        {tab === 'offer' ? <Star size={18} /> : <Beaker size={18} />}
-                                        {tab === 'offer' ? 'What We Offer' : 'How It Works'}
-                                    </span>
-                                </button>
-                            ))}
-                        </div>
+                {/* Header */}
+                <FadeIn>
+                    <div className="text-center mb-16">
+                        <motion.div
+                            className="inline-block mb-6"
+                            animate={{ scale: [1, 1.1, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                        >
+                            <Brain size={80} className="text-green-600" />
+                        </motion.div>
+                        <h1 className="text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-green-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                            Brainy Bites
+                        </h1>
+                        <p className="text-2xl text-gray-700 font-semibold mb-4">
+                            Quick, Fun, and Educational!
+                        </p>
+                        <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                            Brainy Bites offers bite-sized learning experiences through interactive workshops and sessions.
+                            Explore fascinating topics, learn new skills, and feed your curiosity every month!
+                        </p>
                     </div>
+                </FadeIn>
 
-                    {/* Content Area */}
-                    <div className="min-h-[400px]">
-                        <AnimatePresence mode="wait">
-                            {activeSection === 'offer' ? (
-                                <motion.div
-                                    key="offer"
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: 20 }}
-                                    transition={{ duration: 0.3 }}
-                                >
-                                    {loading ? (
-                                        <div className="flex flex-col items-center justify-center py-20">
-                                            <Loader2 className="animate-spin text-teal-500 mb-4" size={48} />
-                                            <p className="text-gray-400 font-medium">Loading bites...</p>
-                                        </div>
-                                    ) : (
-                                        <div className="grid gap-6">
-                                            {workshops.length > 0 ? (
-                                                <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/50">
-                                                    <Accordion items={workshops} />
-                                                </div>
-                                            ) : (
-                                                <div className="text-center py-16 bg-white rounded-3xl shadow-sm border border-dashed border-gray-200">
-                                                    <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                        <Brain className="text-gray-300" size={32} />
-                                                    </div>
-                                                    <p className="text-gray-500 font-medium">No content available yet. Check back soon!</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </motion.div>
-                            ) : (
-                                <motion.div
-                                    key="how"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    transition={{ duration: 0.3 }}
-                                >
-                                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/50">
-                                        <Accordion items={howItWorks} />
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                {/* Features Grid */}
+                <FadeIn delay={0.2}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                        {features.map((feature, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-green-100 hover:border-green-300"
+                            >
+                                <div className="text-4xl mb-3">{feature.icon}</div>
+                                <h3 className="text-xl font-bold text-gray-800 mb-2">{feature.title}</h3>
+                                <p className="text-gray-600 text-sm">{feature.description}</p>
+                            </motion.div>
+                        ))}
                     </div>
+                </FadeIn>
 
-                    {/* Enroll CTA */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="mt-20 text-center bg-gradient-to-br from-teal-600 to-green-600 rounded-3xl p-12 shadow-2xl relative overflow-hidden"
-                    >
-                        <div className="absolute top-0 right-0 p-8 opacity-10">
-                            <Brain size={150} />
-                        </div>
-                        <div className="relative z-10">
-                            <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Learning?</h2>
-                            <p className="text-teal-100 mb-8 max-w-xl mx-auto">Join thousands of other young minds and start your journey of discovery today!</p>
+                {/* Main CTA */}
+                <FadeIn delay={0.4}>
+                    <div className="max-w-4xl mx-auto bg-gradient-to-r from-green-500 via-teal-500 to-cyan-500 rounded-3xl p-1">
+                        <div className="bg-white rounded-3xl p-12 text-center">
+                            <Rocket size={64} className="text-green-600 mx-auto mb-4" />
+                            <h2 className="text-3xl md:text-4xl font-black text-gray-800 mb-4">
+                                Ready to Learn Something New?
+                            </h2>
+                            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                                Discover this month's Brainy Bites session and join us for an exciting learning adventure!
+                            </p>
                             <motion.button
+                                onClick={() => navigate('/events')}
+                                className="bg-gradient-to-r from-green-600 to-teal-600 text-white px-12 py-5 rounded-full text-xl font-bold hover:shadow-2xl transition-all inline-flex items-center gap-3 group"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                onClick={() => navigate('/enroll')}
-                                className="px-10 py-4 bg-white text-teal-700 rounded-full font-bold text-lg shadow-lg flex items-center gap-2 mx-auto hover:shadow-xl transition-all"
                             >
-                                Enroll Now <ArrowRight size={20} />
+                                View This Month's Session
+                                <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
                             </motion.button>
                         </div>
-                    </motion.div>
-                </div>
+                    </div>
+                </FadeIn>
+
+                {/* Benefits */}
+                <FadeIn delay={0.6}>
+                    <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="bg-green-50 p-6 rounded-2xl text-center border-2 border-green-100">
+                            <h3 className="font-bold text-green-700 mb-2">🕐 60-Minute Sessions</h3>
+                            <p className="text-gray-600 text-sm">Perfect duration for focused learning</p>
+                        </div>
+                        <div className="bg-teal-50 p-6 rounded-2xl text-center border-2 border-teal-100">
+                            <h3 className="font-bold text-teal-700 mb-2">👨‍🏫 Expert Instructors</h3>
+                            <p className="text-gray-600 text-sm">Learn from passionate educators</p>
+                        </div>
+                        <div className="bg-cyan-50 p-6 rounded-2xl text-center border-2 border-cyan-100">
+                            <h3 className="font-bold text-cyan-700 mb-2">📜 Certificates</h3>
+                            <p className="text-gray-600 text-sm">Earn certificates for participation</p>
+                        </div>
+                    </div>
+                </FadeIn>
             </div>
         </div>
     );

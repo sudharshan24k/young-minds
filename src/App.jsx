@@ -7,6 +7,7 @@ import { Loader2 } from 'lucide-react';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import BackgroundDecorations from './components/BackgroundDecorations';
+import ScrollToTop from './components/ScrollToTop';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -32,7 +33,6 @@ const SchoolDashboard = lazy(() => import('./pages/SchoolDashboard'));
 const SchoolProfile = lazy(() => import('./pages/SchoolProfile'));
 const SchoolLeaderboard = lazy(() => import('./pages/SchoolLeaderboard'));
 const SearchResults = lazy(() => import('./pages/SearchResults'));
-const EventCalendar = lazy(() => import('./pages/EventCalendar'));
 
 // Admin App (Lazy load the entire admin section)
 const AdminApp = lazy(() => import('../admin/src/App'));
@@ -62,7 +62,6 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/my-submissions" element={<MySubmissions />} />
                 <Route path="/search" element={<SearchResults />} />
-                <Route path="/calendar" element={<EventCalendar />} />
                 <Route path="/school-registration" element={<SchoolRegistration />} />
                 <Route
                   path="/school-dashboard"
@@ -102,6 +101,7 @@ function App() {
           </Suspense>
         </main>
         <Footer />
+        <ScrollToTop />
       </div>
     </AuthProvider>
   );

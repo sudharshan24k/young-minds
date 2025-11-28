@@ -4,6 +4,7 @@ import { X, Heart, Calendar, Tag, Loader2 } from 'lucide-react';
 import GalleryCard from '../components/ui/GalleryCard';
 import FadeIn from '../components/ui/FadeIn';
 import Modal from '../components/ui/Modal';
+import { SkeletonCardGrid } from '../components/ui/SkeletonComponents';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabase';
 
@@ -119,9 +120,7 @@ const Gallery = () => {
 
                 {/* Gallery Grid */}
                 {loading ? (
-                    <div className="flex justify-center items-center py-20">
-                        <Loader2 className="animate-spin text-purple-600" size={48} />
-                    </div>
+                    <SkeletonCardGrid count={6} showImage={true} />
                 ) : (
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
