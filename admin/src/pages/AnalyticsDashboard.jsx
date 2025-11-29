@@ -38,7 +38,7 @@ const AnalyticsDashboard = () => {
                 .order('created_at', { ascending: true });
 
             // Process signup data by date
-            const signupsByDate = profiles.reduce((acc, profile) => {
+            const signupsByDate = (profiles || []).reduce((acc, profile) => {
                 const date = new Date(profile.created_at).toLocaleDateString();
                 acc[date] = (acc[date] || 0) + 1;
                 return acc;
@@ -54,7 +54,7 @@ const AnalyticsDashboard = () => {
                 .from('submissions')
                 .select('category');
 
-            const categoryCounts = submissions.reduce((acc, sub) => {
+            const categoryCounts = (submissions || []).reduce((acc, sub) => {
                 const cat = sub.category || 'Uncategorized';
                 acc[cat] = (acc[cat] || 0) + 1;
                 return acc;
@@ -70,7 +70,7 @@ const AnalyticsDashboard = () => {
                 .from('profiles')
                 .select('school_name');
 
-            const schoolCounts = schoolProfiles.reduce((acc, p) => {
+            const schoolCounts = (schoolProfiles || []).reduce((acc, p) => {
                 if (p.school_name) {
                     acc[p.school_name] = (acc[p.school_name] || 0) + 1;
                 }

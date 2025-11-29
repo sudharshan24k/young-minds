@@ -33,6 +33,9 @@ const SchoolDashboard = lazy(() => import('./pages/SchoolDashboard'));
 const SchoolProfile = lazy(() => import('./pages/SchoolProfile'));
 const SchoolLeaderboard = lazy(() => import('./pages/SchoolLeaderboard'));
 const SearchResults = lazy(() => import('./pages/SearchResults'));
+const SubmitWork = lazy(() => import('./pages/SubmitWork'));
+const HallOfFame = lazy(() => import('./pages/HallOfFame'));
+const Certificates = lazy(() => import('./pages/Certificates'));
 
 // Admin App (Lazy load the entire admin section)
 const AdminApp = lazy(() => import('../admin/src/App'));
@@ -61,6 +64,7 @@ function App() {
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/my-submissions" element={<MySubmissions />} />
+                <Route path="/certificates" element={<Certificates />} />
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/school-registration" element={<SchoolRegistration />} />
                 <Route
@@ -90,7 +94,9 @@ function App() {
                 <Route path="/enroll" element={<Enroll />} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/winners" element={<Winners />} />
+                <Route path="/hall-of-fame" element={<HallOfFame />} />
                 <Route path="/events" element={<Events />} />
+                <Route path="/submit-work" element={<SubmitWork />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/terms" element={<TermsOfService />} />

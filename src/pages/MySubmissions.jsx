@@ -114,6 +114,7 @@ const MySubmissions = () => {
                                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
                                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
                                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Feedback</th>
                                         <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
                                     </tr>
                                 </thead>
@@ -154,6 +155,20 @@ const MySubmissions = () => {
                                             </td>
                                             <td className="px-6 py-4">
                                                 {getStatusBadge(submission.status)}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {submission.admin_feedback ? (
+                                                    <div className="max-w-xs">
+                                                        <p className="text-sm text-gray-600 italic">"{submission.admin_feedback}"</p>
+                                                        {submission.admin_grade && (
+                                                            <span className="text-xs font-bold text-purple-600 mt-1 block">
+                                                                Grade: {submission.admin_grade}/10
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-sm text-gray-400">-</span>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 {submission.file_url && (

@@ -6,6 +6,11 @@ const Enrollments = () => {
     const [enrollments, setEnrollments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filters, setFilters] = useState({
+        status: 'all',
+        activityType: 'all',
+        sortBy: 'newest'
+    });
 
     useEffect(() => {
         fetchEnrollments();
@@ -46,10 +51,36 @@ const Enrollments = () => {
         }
     };
 
-    const filteredEnrollments = enrollments.filter(enrollment =>
-        enrollment.child_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        enrollment.parent_contact.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredEnrollments = enrollments
+        .filter(enrollment => {
+            // Search filter
+            const matchesSearch = enrollment.child_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                enrollment.parent_contact.toLowerCase().includes(searchTerm.toLowerCase());
+
+            // Status filter
+            const matchesStatus = filters.status === 'all' || enrollment.status === filters.status;
+
+            // Activity type filter
+            const matchesActivity = filters.activityType === 'all' || enrollment.activity_type === filters.activityType;
+
+            return matchesSearch && matchesStatus && matchesActivity;
+        })
+        .sort((a, b) => {
+            const dateA = new Date(a.created_at);
+            const dateB = new Date(b.created_at);
+
+            switch (filters.sortBy) {
+                case 'oldest':
+                    return dateA - dateB;
+                case 'nameAZ':
+                    return a.child_name.localeCompare(b.child_name);
+                case 'nameZA':
+                    return b.child_name.localeCompare(a.child_name);
+                case 'newest':
+                default:
+                    return dateB - dateA;
+            }
+        });
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -64,15 +95,55 @@ const Enrollments = () => {
         <div>
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-2xl font-bold text-gray-800">Enrollments Management</h1>
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                    <input
-                        type="text"
-                        placeholder="Search enrollments..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 w-64"
-                    />
+                <div className="flex items-center gap-4">
+                    {/* Status Filter */}
+                    <select
+                        value={filters.status}
+                        onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                        className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="paid">Paid</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+
+                    {/* Activity Type Filter */}
+                    <select
+                        value={filters.activityType}
+                        onChange={(e) => setFilters({ ...filters, activityType: e.target.value })}
+                        className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                        <option value="all">All Activities</option>
+                        <option value="Express Yourself">Express Yourself</option>
+                        <option value="Brainy Bites">Brainy Bites</option>
+                        <option value="Challenge Yourself">Challenge Yourself</option>
+                    </select>
+
+                    {/* Sort Dropdown */}
+                    <select
+                        value={filters.sortBy}
+                        onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
+                        className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="nameAZ">Name (A-Z)</option>
+                        <option value="nameZA">Name (Z-A)</option>
+                    </select>
+
+                    {/* Search */}
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 w-64"
+                        />
+                    </div>
                 </div>
             </div>
 

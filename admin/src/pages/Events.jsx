@@ -6,12 +6,14 @@ const Events = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
+    const [editingEvent, setEditingEvent] = useState(null);
     const [formData, setFormData] = useState({
         title: '',
         activity_category: 'challenge',
         start_date: '',
         end_date: '',
         pricing: 0,
+        is_paid: false,
         description: ''
     });
 
@@ -62,7 +64,8 @@ const Events = () => {
                 activity_category: formData.activity_category,
                 start_date: formData.start_date,
                 end_date: formData.end_date,
-                pricing: Number(formData.pricing),
+                pricing: formData.is_paid ? Number(formData.pricing) : 0,
+                is_paid: formData.is_paid,
                 description: formData.description,
                 month_year: monthYear,
                 status: isActive,
@@ -73,13 +76,24 @@ const Events = () => {
                 guidelines: formData.description
             };
 
-            const { error } = await supabase
-                .from('events')
-                .insert([eventData]);
+            if (editingEvent) {
+                // Update existing event
+                const { error } = await supabase
+                    .from('events')
+                    .update(eventData)
+                    .eq('id', editingEvent.id);
 
-            if (error) throw error;
+                if (error) throw error;
+                alert('Event updated successfully!');
+            } else {
+                // Create new event
+                const { error } = await supabase
+                    .from('events')
+                    .insert([eventData]);
 
-            alert('Event created successfully!');
+                if (error) throw error;
+                alert('Event created successfully!');
+            }
             fetchEvents();
             resetForm();
         } catch (error) {
@@ -95,9 +109,26 @@ const Events = () => {
             start_date: '',
             end_date: '',
             pricing: 0,
+            is_paid: false,
             description: ''
         });
+        setEditingEvent(null);
         setShowForm(false);
+    };
+
+    const handleEdit = (event) => {
+        setEditingEvent(event);
+        setFormData({
+            title: event.title,
+            activity_category: event.activity_category,
+            start_date: event.start_date,
+            end_date: event.end_date,
+            pricing: event.pricing,
+            is_paid: event.is_paid,
+            description: event.description || ''
+        });
+        setShowForm(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const deleteEvent = async (id) => {
@@ -148,7 +179,10 @@ const Events = () => {
                     <p className="text-gray-600 mt-1">Create and manage events for each category</p>
                 </div>
                 <button
-                    onClick={() => setShowForm(!showForm)}
+                    onClick={() => {
+                        if (showForm) resetForm();
+                        else setShowForm(true);
+                    }}
                     className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2"
                 >
                     <Plus size={20} />
@@ -159,7 +193,7 @@ const Events = () => {
             {/* Simple Form */}
             {showForm && (
                 <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border-2 border-blue-100">
-                    <h2 className="text-2xl font-bold mb-6 text-gray-800">Create New Event</h2>
+                    <h2 className="text-2xl font-bold mb-6 text-gray-800">{editingEvent ? 'Edit Event' : 'Create New Event'}</h2>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Category */}
                         <div>
@@ -221,24 +255,55 @@ const Events = () => {
                             </div>
                         </div>
 
-                        {/* Price */}
+                        {/* Event Type (Free/Paid) */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Participation Fee (₹)
+                                Event Type
                             </label>
-                            <div className="relative">
-                                <DollarSign className="absolute left-3 top-3.5 text-gray-400" size={20} />
-                                <input
-                                    type="number"
-                                    value={formData.pricing}
-                                    onChange={(e) => setFormData({ ...formData, pricing: e.target.value })}
-                                    placeholder="0"
-                                    min="0"
-                                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
-                                />
+                            <div className="flex items-center gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, is_paid: false, pricing: 0 })}
+                                    className={`flex-1 py-3 rounded-lg font-bold border-2 transition ${!formData.is_paid
+                                        ? 'bg-green-50 border-green-500 text-green-700'
+                                        : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    Free Event
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, is_paid: true })}
+                                    className={`flex-1 py-3 rounded-lg font-bold border-2 transition ${formData.is_paid
+                                        ? 'bg-blue-50 border-blue-500 text-blue-700'
+                                        : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    Paid Event
+                                </button>
                             </div>
-                            <p className="text-sm text-gray-500 mt-1">Enter 0 for free events</p>
                         </div>
+
+                        {/* Price (Only if Paid) */}
+                        {formData.is_paid && (
+                            <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Participation Fee (₹) *
+                                </label>
+                                <div className="relative">
+                                    <DollarSign className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                                    <input
+                                        type="number"
+                                        value={formData.pricing}
+                                        onChange={(e) => setFormData({ ...formData, pricing: e.target.value })}
+                                        placeholder="Enter amount"
+                                        min="1"
+                                        className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
+                                        required={formData.is_paid}
+                                    />
+                                </div>
+                            </div>
+                        )}
 
                         {/* Description */}
                         <div>
@@ -260,7 +325,7 @@ const Events = () => {
                                 type="submit"
                                 className="flex-1 bg-blue-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition"
                             >
-                                Create Event
+                                {editingEvent ? 'Update Event' : 'Create Event'}
                             </button>
                             <button
                                 type="button"
@@ -314,17 +379,24 @@ const Events = () => {
                                                 <CalendarIcon size={16} />
                                                 {new Date(event.start_date).toLocaleDateString()} - {new Date(event.end_date).toLocaleDateString()}
                                             </span>
-                                            <span className="font-bold text-lg text-green-600">
-                                                {event.pricing > 0 ? `₹${event.pricing}` : 'FREE'}
+                                            <span className={`font-bold text-lg ${event.is_paid ? 'text-blue-600' : 'text-green-600'}`}>
+                                                {event.is_paid ? `₹${event.pricing}` : 'FREE'}
                                             </span>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleEdit(event)}
+                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                            title="Edit event"
+                                        >
+                                            <CalendarIcon size={20} />
+                                        </button>
                                         <a
                                             href={`http://localhost:5173/events`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                            className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition"
                                             title="View on website"
                                         >
                                             <Eye size={20} />

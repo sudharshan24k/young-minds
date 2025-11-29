@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, ArrowRight, Star, Sparkles, Search } from 'lucide-react';
+import { useState as useReactState } from 'react';
+import { Menu, X, ArrowRight, Star, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ShinyButton from '../ui/ShinyButton';
-import NotificationCenter from '../NotificationCenter';
 import '../../styles/components/Header.css';
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
     const { user, signOut } = useAuth();
 
@@ -19,27 +17,18 @@ const Header = () => {
         navigate('/login');
     };
 
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
-        if (searchQuery.trim()) {
-            navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-            setIsSearchOpen(false);
-            setSearchQuery('');
-        }
-    };
-
     const navLinks = [
         { name: 'Home', path: '/' },
         { name: 'Express Yourself', path: '/express' },
         { name: 'Challenge Yourself', path: '/challenge' },
         { name: 'Brainy Bites', path: '/brainy' },
         { name: 'Gallery', path: '/gallery' },
-        { name: 'Hall of Fame', path: '/winners' },
+        { name: 'Hall of Fame', path: '/hall-of-fame' },
         { name: 'Enroll', path: '/enroll' },
     ];
 
     return (
-        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-white/50 relative overflow-hidden">
+        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-white/50 relative">
             {/* Floating Decorative Shapes */}
             <motion.div
                 animate={{
@@ -95,7 +84,7 @@ const Header = () => {
                 <Sparkles size={14} />
             </motion.div>
 
-            <div className="header-container relative z-10">
+            <div className="header-container relative z-50">
                 <Link to="/" className="flex items-center gap-2 group relative">
                     {/* Sparkle effect on logo hover */}
                     <motion.div
@@ -135,7 +124,7 @@ const Header = () => {
                 </Link>
 
                 {/* Desktop Navigation */}
-                <nav className="hidden md:flex items-center gap-6">
+                <nav className="hidden md:flex items-center gap-6 relative">
                     {navLinks.map((link) => (
                         <Link
                             key={link.name}
@@ -147,61 +136,37 @@ const Header = () => {
                         </Link>
                     ))}
 
-                    {/* Search Bar */}
-                    <div className="relative">
-                        <AnimatePresence>
-                            {isSearchOpen ? (
-                                <motion.form
-                                    initial={{ width: 0, opacity: 0 }}
-                                    animate={{ width: 200, opacity: 1 }}
-                                    exit={{ width: 0, opacity: 0 }}
-                                    onSubmit={handleSearchSubmit}
-                                    className="relative flex items-center"
-                                >
-                                    <input
-                                        type="text"
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        placeholder="Search..."
-                                        className="w-full pl-3 pr-8 py-1.5 rounded-full border border-purple-200 focus:outline-none focus:border-purple-400 text-sm bg-purple-50/50"
-                                        autoFocus
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsSearchOpen(false)}
-                                        className="absolute right-2 text-gray-400 hover:text-gray-600"
-                                    >
-                                        <X size={14} />
-                                    </button>
-                                </motion.form>
-                            ) : (
-                                <motion.button
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    onClick={() => setIsSearchOpen(true)}
-                                    className="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-colors"
-                                >
-                                    <Search size={20} />
-                                </motion.button>
-                            )}
-                        </AnimatePresence>
-                    </div>
 
                     {user ? (
                         <div className="flex items-center gap-4">
-                            <NotificationCenter />
-                            <Link to="/profile" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-purple-600 transition-colors">
-                                <motion.div
-                                    className="w-8 h-8 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center text-purple-600 font-bold border-2 border-purple-200"
-                                    whileHover={{ scale: 1.1, rotate: 5 }}
-                                >
-                                    {user.email[0].toUpperCase()}
-                                </motion.div>
-                                <span className="hidden lg:inline">{user.email}</span>
-                            </Link>
-                            <Link to="/my-submissions" className="text-sm font-medium text-gray-600 hover:text-purple-600 transition-colors">
-                                My Submissions
-                            </Link>
+                            <div className="relative group">
+                                <Link to="/profile" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-purple-600 transition-colors">
+                                    <motion.div
+                                        className="w-8 h-8 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center text-purple-600 font-bold border-2 border-purple-200"
+                                        whileHover={{ scale: 1.1, rotate: 5 }}
+                                    >
+                                        {user.email[0].toUpperCase()}
+                                    </motion.div>
+                                    <span className="hidden lg:inline">{user.email}</span>
+                                </Link>
+                                {/* Dropdown Menu */}
+                                <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
+                                    <div className="py-2">
+                                        <Link
+                                            to="/my-submissions"
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                                        >
+                                            My Submissions
+                                        </Link>
+                                        <Link
+                                            to="/certificates"
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                                        >
+                                            My Certificates
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
                             <ShinyButton
                                 onClick={handleLogout}
                                 className="py-2 px-6 text-sm bg-gray-100 hover:bg-gray-200 text-gray-800"
@@ -240,17 +205,6 @@ const Header = () => {
                         className="md:hidden bg-gradient-to-b from-white to-purple-50/30 border-t border-gray-100 overflow-hidden"
                     >
                         <nav className="flex flex-col p-4 gap-4">
-                            <form onSubmit={handleSearchSubmit} className="relative">
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Search..."
-                                    className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-400"
-                                />
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                            </form>
-
                             {navLinks.map((link, index) => (
                                 <motion.div
                                     key={link.name}
@@ -275,6 +229,13 @@ const Header = () => {
                                         className="btn-ghost w-full text-left hover:bg-purple-50"
                                     >
                                         My Submissions
+                                    </Link>
+                                    <Link
+                                        to="/certificates"
+                                        onClick={() => setIsOpen(false)}
+                                        className="btn-ghost w-full text-left hover:bg-purple-50"
+                                    >
+                                        My Certificates
                                     </Link>
                                     <button
                                         onClick={() => {

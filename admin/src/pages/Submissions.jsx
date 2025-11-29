@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { ExternalLink, Trash2, Check, X, Eye, Globe, Download } from 'lucide-react';
+import { ExternalLink, Trash2, Check, X, Eye, Globe, Download, Star } from 'lucide-react';
 import EventFilter from '../components/dashboard/EventFilter';
 
 const Submissions = () => {
@@ -10,7 +10,9 @@ const Submissions = () => {
     const [filters, setFilters] = useState({
         month: '',
         eventId: '',
-        category: ''
+        category: '',
+        status: 'all',
+        sortBy: 'newest'
     });
     const [viewingSubmission, setViewingSubmission] = useState(null);
 
@@ -23,13 +25,18 @@ const Submissions = () => {
                     id,
                     title,
                     month_year
+                ),
+                profiles:user_id (
+                    full_name
                 )
             `)
             .order('created_at', { ascending: false });
 
         if (!error) {
-            setSubmissions(data);
-            setFilteredSubmissions(data);
+            setSubmissions(data || []);
+            setFilteredSubmissions(data || []);
+        } else {
+            console.error('Error fetching submissions:', error);
         }
         setLoading(false);
     };
@@ -60,11 +67,60 @@ const Submissions = () => {
             filtered = filtered.filter(s => s.category === filters.category);
         }
 
+        // Filter by status
+        if (filters.status !== 'all') {
+            filtered = filtered.filter(s => s.status === filters.status);
+        }
+
+        // Sort
+        filtered.sort((a, b) => {
+            const dateA = new Date(a.created_at);
+            const dateB = new Date(b.created_at);
+            return filters.sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+
         setFilteredSubmissions(filtered);
     };
 
     const handleFilterChange = (newFilters) => {
         setFilters(newFilters);
+    };
+
+    const handleGradeChange = async (id, grade) => {
+        // Optimistic update
+        setSubmissions(prev => prev.map(s =>
+            s.id === id ? { ...s, admin_grade: grade } : s
+        ));
+
+        const { error } = await supabase
+            .from('submissions')
+            .update({ admin_grade: grade })
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error saving grade:', error);
+            alert('Failed to save grade');
+            fetchSubmissions(); // Revert on error
+        }
+    };
+
+    const handleFeedbackChange = async (id, feedback) => {
+        // Optimistic update
+        setSubmissions(prev => prev.map(s =>
+            s.id === id ? { ...s, admin_feedback: feedback } : s
+        ));
+    };
+
+    const saveFeedback = async (id, feedback) => {
+        const { error } = await supabase
+            .from('submissions')
+            .update({ admin_feedback: feedback })
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error saving feedback:', error);
+            alert('Failed to save feedback');
+        }
     };
 
     const handleApprove = async (id) => {
@@ -129,7 +185,6 @@ const Submissions = () => {
         } else if (isPdf) {
             return <iframe src={url} className="w-full h-[80vh]" title="PDF Viewer"></iframe>;
         } else {
-            // Use Google Docs Viewer for other formats (doc, docx, ppt, pptx, etc.)
             const googleDocsUrl = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
             return <iframe src={googleDocsUrl} className="w-full h-[80vh]" title="Document Viewer"></iframe>;
         }
@@ -139,7 +194,31 @@ const Submissions = () => {
         <div>
             <h1 className="text-2xl font-bold text-gray-800 mb-8">Submissions</h1>
 
-            <EventFilter onFilterChange={handleFilterChange} />
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <div className="flex-1">
+                    <EventFilter onFilterChange={handleFilterChange} />
+                </div>
+                <div className="flex gap-4">
+                    <select
+                        value={filters.status}
+                        onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                        className="px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-500 bg-white"
+                    >
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <select
+                        value={filters.sortBy}
+                        onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
+                        className="px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-500 bg-white"
+                    >
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+            </div>
 
             {loading ? (
                 <div className="text-center py-20 text-gray-500">Loading...</div>
@@ -173,13 +252,9 @@ const Submissions = () => {
                                         <div className="p-6 flex-1 flex flex-col">
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
-                                                    <h3 className="font-bold text-gray-800 line-clamp-1">{submission.description}</h3>
-                                                    <p className="text-sm text-gray-500">{submission.participant_name}</p>
-                                                    {submission.events && (
-                                                        <p className="text-xs text-purple-600 font-medium mt-1">
-                                                            {submission.events.title}
-                                                        </p>
-                                                    )}
+                                                    <h3 className="font-bold text-gray-800 line-clamp-1">{submission.events?.title || 'Unknown Event'}</h3>
+                                                    <p className="text-sm text-gray-500">{submission.profiles?.full_name || 'Unknown User'}</p>
+                                                    <p className="text-xs text-gray-400 mt-1">{new Date(submission.created_at).toLocaleDateString()}</p>
                                                 </div>
                                                 <div className="flex flex-col gap-2 items-end">
                                                     <span className={`px-2 py-1 text-xs font-bold rounded uppercase ${submission.status === 'approved' ? 'bg-green-100 text-green-700' :
@@ -188,26 +263,50 @@ const Submissions = () => {
                                                         }`}>
                                                         {submission.status}
                                                     </span>
-                                                    {submission.is_public && (
-                                                        <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded uppercase flex items-center gap-1">
-                                                            <Globe size={10} /> Public
-                                                        </span>
-                                                    )}
                                                 </div>
                                             </div>
+
                                             <p className="text-gray-600 text-sm mb-6 line-clamp-3 flex-1">
-                                                "{submission.reflection}"
+                                                "{submission.description}"
                                             </p>
-                                            <div className="space-y-3">
-                                                <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-                                                    <span className="text-xs text-gray-400">
-                                                        {new Date(submission.created_at).toLocaleDateString()}
+
+                                            {/* Grading Section */}
+                                            <div className="mb-4 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
+                                                        <Star size={12} /> Grade
                                                     </span>
-                                                    <span className="text-xs text-gray-600 font-medium">
-                                                        {submission.votes || 0} votes
-                                                    </span>
+                                                    <span className="text-lg font-bold text-purple-600">{submission.admin_grade || '-'}</span>
+                                                </div>
+                                                <input
+                                                    type="range"
+                                                    min="1"
+                                                    max="10"
+                                                    value={submission.admin_grade || 0}
+                                                    onChange={(e) => handleGradeChange(submission.id, parseInt(e.target.value))}
+                                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600 mb-4"
+                                                />
+                                                <div className="flex justify-between text-[10px] text-gray-400 mt-1 mb-3">
+                                                    <span>1</span>
+                                                    <span>10</span>
                                                 </div>
 
+                                                {/* Feedback Section */}
+                                                <div className="mt-2">
+                                                    <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">
+                                                        Feedback
+                                                    </label>
+                                                    <textarea
+                                                        value={submission.admin_feedback || ''}
+                                                        onChange={(e) => handleFeedbackChange(submission.id, e.target.value)}
+                                                        onBlur={(e) => saveFeedback(submission.id, e.target.value)}
+                                                        placeholder="Write feedback for the student..."
+                                                        className="w-full p-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400 min-h-[60px] resize-none"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-3">
                                                 {/* Action Buttons */}
                                                 <div className="grid grid-cols-2 gap-2">
                                                     {submission.status === 'pending' ? (

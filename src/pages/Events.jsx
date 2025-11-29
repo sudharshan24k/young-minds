@@ -268,7 +268,10 @@ const Events = () => {
 
                         {/* Participate Button */}
                         {user ? (
-                            <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-xl font-bold hover:shadow-lg transition-all">
+                            <button
+                                onClick={() => navigate('/submit-work', { state: { event: selectedEvent } })}
+                                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-xl font-bold hover:shadow-lg transition-all"
+                            >
                                 Participate Now
                             </button>
                         ) : (

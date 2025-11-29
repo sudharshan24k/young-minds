@@ -2,7 +2,7 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, FileText, LogOut, Calendar, Image, BookOpen, BarChart } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, LogOut, Calendar, Image, BookOpen, BarChart, Trophy, Award } from 'lucide-react';
 
 const Layout = () => {
     const { signOut } = useAuth();
@@ -19,6 +19,8 @@ const Layout = () => {
         { path: '/submissions', icon: FileText, label: 'Submissions' },
         { path: '/users', label: 'Users', icon: Users },
         { path: '/events', label: 'Events', icon: Calendar },
+        { path: '/certificates', label: 'Certificates', icon: Award },
+        { path: '/hall-of-fame', label: 'Hall of Fame', icon: Trophy },
         { path: '/resources', label: 'Resources', icon: BookOpen },
         { path: '/gallery', label: 'Gallery', icon: Image },
         { path: '/analytics', label: 'Analytics', icon: BarChart },
