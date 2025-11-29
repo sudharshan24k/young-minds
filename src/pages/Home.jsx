@@ -318,6 +318,8 @@ const Home = () => {
                                         src="/src/assets/images/hero/happy_kids_creating.png"
                                         alt="Happy kids creating art and learning"
                                         className="w-full h-full object-cover"
+                                        fetchPriority="high"
+                                        loading="eager"
                                         onError={(e) => {
                                             // Hide image if it fails to load, show gradient background instead
                                             e.target.style.display = 'none';
