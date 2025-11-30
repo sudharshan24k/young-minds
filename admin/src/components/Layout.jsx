@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, FileText, LogOut, Calendar, Image, BookOpen, BarChart, Trophy, Award } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, LogOut, Calendar, Image, BookOpen, BarChart, Trophy, Award, MessageSquare } from 'lucide-react';
 
 const Layout = () => {
     const { signOut } = useAuth();
@@ -19,6 +18,9 @@ const Layout = () => {
         { path: '/submissions', icon: FileText, label: 'Submissions' },
         { path: '/users', label: 'Users', icon: Users },
         { path: '/events', label: 'Events', icon: Calendar },
+        { path: '/team-events', label: 'Team Events', icon: Users },
+        { path: '/moderation', label: 'Moderation', icon: MessageSquare },
+        { path: '/badges', label: 'Badges', icon: Award },
         { path: '/certificates', label: 'Certificates', icon: Award },
         { path: '/hall-of-fame', label: 'Hall of Fame', icon: Trophy },
         { path: '/resources', label: 'Resources', icon: BookOpen },
@@ -49,7 +51,7 @@ const Layout = () => {
                             key={item.path}
                             to={item.path}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 font-medium group ${isActive
+                                `flex items - center gap - 3 px - 4 py - 3.5 rounded - xl transition - all duration - 200 font - medium group ${isActive
                                     ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/20'
                                     : 'text-slate-400 hover:bg-white/5 hover:text-white'
                                 } `

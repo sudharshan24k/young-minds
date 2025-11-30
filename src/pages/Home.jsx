@@ -14,6 +14,13 @@ import '../styles/pages/Home.css';
 import homeData from '../data/home.json';
 import { getIcon } from '../utils/iconMapper';
 
+// Import images for production builds
+import creativeToolsImg from '../assets/images/decorative/creative_tools.png';
+import paintSplashImg from '../assets/images/decorative/paint_splash.png';
+import playfulShapesImg from '../assets/images/patterns/playful_shapes.png';
+import happyKidsCreatingImg from '../assets/images/hero/happy_kids_creating.png';
+import brainLightbulbImg from '../assets/images/illustrations/brain_lightbulb.png';
+
 const Home = () => {
     const navigate = useNavigate();
     const { user, profile } = useAuth();
@@ -143,7 +150,7 @@ const Home = () => {
                         }}
                     >
                         <img
-                            src="/src/assets/images/decorative/creative_tools.png"
+                            src={creativeToolsImg}
                             alt=""
                             className="w-full h-full object-contain"
                         />
@@ -163,7 +170,7 @@ const Home = () => {
                         }}
                     >
                         <img
-                            src="/src/assets/images/decorative/paint_splash.png"
+                            src={paintSplashImg}
                             alt=""
                             className="w-full h-full object-contain"
                         />
@@ -173,7 +180,7 @@ const Home = () => {
                     <div
                         className="absolute inset-0 opacity-5"
                         style={{
-                            backgroundImage: 'url(/src/assets/images/patterns/playful_shapes.png)',
+                            backgroundImage: `url(${playfulShapesImg})`,
                             backgroundRepeat: 'repeat',
                             backgroundSize: '200px 200px'
                         }}
@@ -315,7 +322,7 @@ const Home = () => {
                                     }}
                                 >
                                     <img
-                                        src="/src/assets/images/hero/happy_kids_creating.png"
+                                        src={happyKidsCreatingImg}
                                         alt="Happy kids creating art and learning"
                                         className="w-full h-full object-cover"
                                         fetchPriority="high"
@@ -371,7 +378,7 @@ const Home = () => {
                     }}
                 >
                     <img
-                        src="/src/assets/images/illustrations/brain_lightbulb.png"
+                        src={brainLightbulbImg}
                         alt=""
                         className="w-full h-full object-contain"
                     />
@@ -456,7 +463,7 @@ const Home = () => {
                                 <div
                                     className="absolute inset-0 opacity-5"
                                     style={{
-                                        backgroundImage: 'url(/src/assets/images/patterns/playful_shapes.png)',
+                                        backgroundImage: `url(${playfulShapesImg})`,
                                         backgroundRepeat: 'repeat',
                                         backgroundSize: '150px 150px'
                                     }}

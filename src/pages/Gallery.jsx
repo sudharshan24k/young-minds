@@ -1,17 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Calendar, Tag, Loader2 } from 'lucide-react';
+import { X, Heart, Calendar, Tag, Loader2, MessageSquare, Send, Hand } from 'lucide-react';
 import GalleryCard from '../components/ui/GalleryCard';
 import FadeIn from '../components/ui/FadeIn';
 import Modal from '../components/ui/Modal';
 import { SkeletonCardGrid } from '../components/ui/SkeletonComponents';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabase';
+import { useAuth } from '../context/AuthContext';
 
 const Gallery = () => {
+    const { user } = useAuth();
     const [activeCategory, setActiveCategory] = useState('all');
     const [votedIds, setVotedIds] = useState(new Set());
     const [selectedSubmission, setSelectedSubmission] = useState(null);
+
+    // Social features state
+    const [comments, setComments] = useState([]);
+    const [reactions, setReactions] = useState({});
+    const [newComment, setNewComment] = useState('');
+    const [submittingComment, setSubmittingComment] = useState(false);
+    const [loadingComments, setLoadingComments] = useState(false);
 
     // Fetch approved submissions from Supabase
     const { data: submissions, loading, error, refetch } = useSupabaseQuery('submissions', {
@@ -32,39 +41,114 @@ const Gallery = () => {
         ? submissions
         : submissions.filter(s => s.category.toLowerCase() === activeCategory);
 
+    // Fetch comments and reactions when submission is selected
+    useEffect(() => {
+        if (selectedSubmission) {
+            fetchComments(selectedSubmission.id);
+            fetchReactions(selectedSubmission.id);
+        }
+    }, [selectedSubmission]);
+
+    const fetchComments = async (submissionId) => {
+        setLoadingComments(true);
+        const { data } = await supabase
+            .from('comments')
+            .select('*, user:user_id(email, raw_user_meta_data)')
+            .eq('submission_id', submissionId)
+            .eq('status', 'approved')
+            .order('created_at', { ascending: true });
+        setComments(data || []);
+        setLoadingComments(false);
+    };
+
+    const fetchReactions = async (submissionId) => {
+        const { data } = await supabase
+            .from('reactions')
+            .select('*')
+            .eq('submission_id', submissionId);
+
+        // Group by type
+        const grouped = (data || []).reduce((acc, r) => {
+            acc[r.reaction_type] = (acc[r.reaction_type] || 0) + 1;
+            return acc;
+        }, {});
+        setReactions(grouped);
+    };
+
     const handleVote = async (id) => {
         if (votedIds.has(id)) {
-            // Unvote
             setVotedIds(prev => {
                 const next = new Set(prev);
                 next.delete(id);
                 return next;
             });
-
-            // Update in Supabase
+            // Update Supabase (decrement)
             const submission = submissions.find(s => s.id === id);
             if (submission) {
-                await supabase
-                    .from('submissions')
-                    .update({ votes: submission.votes - 1 })
-                    .eq('id', id);
+                await supabase.from('submissions').update({ votes: submission.votes - 1 }).eq('id', id);
             }
-
             refetch();
         } else {
-            // Vote
             setVotedIds(prev => new Set(prev).add(id));
-
-            // Update in Supabase
+            // Update Supabase (increment)
             const submission = submissions.find(s => s.id === id);
             if (submission) {
-                await supabase
-                    .from('submissions')
-                    .update({ votes: submission.votes + 1 })
-                    .eq('id', id);
+                await supabase.from('submissions').update({ votes: submission.votes + 1 }).eq('id', id);
             }
-
             refetch();
+        }
+    };
+
+    const handleReaction = async (type) => {
+        if (!user || !selectedSubmission) return;
+
+        try {
+            const { error } = await supabase
+                .from('reactions')
+                .insert([{
+                    submission_id: selectedSubmission.id,
+                    user_id: user.id,
+                    reaction_type: type
+                }]);
+
+            if (error) {
+                if (error.code === '23505') { // Unique violation (already reacted)
+                    // Optional: Toggle off? For now just ignore
+                } else {
+                    throw error;
+                }
+            } else {
+                fetchReactions(selectedSubmission.id);
+            }
+        } catch (error) {
+            console.error('Error adding reaction:', error);
+        }
+    };
+
+    const handleSubmitComment = async (e) => {
+        e.preventDefault();
+        if (!user || !newComment.trim() || !selectedSubmission) return;
+
+        setSubmittingComment(true);
+        try {
+            const { error } = await supabase
+                .from('comments')
+                .insert([{
+                    submission_id: selectedSubmission.id,
+                    user_id: user.id,
+                    content: newComment.trim(),
+                    status: 'pending'
+                }]);
+
+            if (error) throw error;
+
+            setNewComment('');
+            alert('Thanks! Your comment has been sent for moderation.');
+        } catch (error) {
+            console.error('Error posting comment:', error);
+            alert('Failed to post comment');
+        } finally {
+            setSubmittingComment(false);
         }
     };
 
@@ -190,6 +274,91 @@ const Gallery = () => {
 
                             <div className="text-sm text-gray-500 pt-4 border-t border-gray-100">
                                 Created by <span className="font-bold text-purple-600">{selectedSubmission.participantName}</span>
+                            </div>
+
+                            {/* Reactions Section */}
+                            <div className="py-4 border-t border-gray-100">
+                                <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                    <Hand size={18} className="text-orange-500" />
+                                    Give Kudos!
+                                </h4>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => handleReaction('high_five')}
+                                        className="flex items-center gap-2 px-4 py-2 bg-orange-50 text-orange-700 rounded-full hover:bg-orange-100 transition"
+                                    >
+                                        🙌 High Five <span className="font-bold">{reactions['high_five'] || 0}</span>
+                                    </button>
+                                    <button
+                                        onClick={() => handleReaction('star')}
+                                        className="flex items-center gap-2 px-4 py-2 bg-yellow-50 text-yellow-700 rounded-full hover:bg-yellow-100 transition"
+                                    >
+                                        ⭐ Star <span className="font-bold">{reactions['star'] || 0}</span>
+                                    </button>
+                                    <button
+                                        onClick={() => handleReaction('clap')}
+                                        className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition"
+                                    >
+                                        👏 Clap <span className="font-bold">{reactions['clap'] || 0}</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Comments Section */}
+                            <div className="py-4 border-t border-gray-100">
+                                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                    <MessageSquare size={18} className="text-blue-500" />
+                                    Comments
+                                </h4>
+
+                                {/* Comments List */}
+                                <div className="space-y-4 mb-6 max-h-60 overflow-y-auto">
+                                    {loadingComments ? (
+                                        <div className="flex justify-center py-4">
+                                            <Loader2 className="animate-spin text-gray-400" />
+                                        </div>
+                                    ) : comments.length > 0 ? (
+                                        comments.map(comment => (
+                                            <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
+                                                <div className="flex justify-between items-start mb-1">
+                                                    <span className="font-bold text-sm text-gray-900">
+                                                        {comment.user?.raw_user_meta_data?.full_name || 'User'}
+                                                    </span>
+                                                    <span className="text-xs text-gray-500">
+                                                        {new Date(comment.created_at).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-gray-700">{comment.content}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-gray-500 italic">No comments yet. Be the first!</p>
+                                    )}
+                                </div>
+
+                                {/* Add Comment Form */}
+                                {user ? (
+                                    <form onSubmit={handleSubmitComment} className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={newComment}
+                                            onChange={(e) => setNewComment(e.target.value)}
+                                            placeholder="Write a supportive comment..."
+                                            className="flex-1 px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:border-blue-500 text-sm"
+                                        />
+                                        <button
+                                            type="submit"
+                                            disabled={submittingComment || !newComment.trim()}
+                                            className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50 transition"
+                                        >
+                                            {submittingComment ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                                        </button>
+                                    </form>
+                                ) : (
+                                    <div className="text-center p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
+                                        Please log in to leave a comment.
+                                    </div>
+                                )}
                             </div>
 
                             <button

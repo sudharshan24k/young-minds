@@ -18,6 +18,7 @@ const Events = () => {
     const [loading, setLoading] = useState(true);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [currentMonth, setCurrentMonth] = useState('');
+    const [featuredCreator, setFeaturedCreator] = useState(null);
 
     useEffect(() => {
         const now = new Date();
@@ -44,6 +45,10 @@ const Events = () => {
             };
 
             setEvents(eventsByCategory);
+
+            // Find featured creator for this month
+            const featured = data?.find(e => e.is_featured && e.expert_name) || null;
+            setFeaturedCreator(featured);
         } catch (error) {
             console.error('Error fetching events:', error);
         } finally {
@@ -92,12 +97,30 @@ const Events = () => {
             );
         }
 
+        const getEventTypeInfo = (eventType) => {
+            const types = {
+                competition: { label: 'Competition', icon: '🏆', color: 'text-orange-600' },
+                workshop: { label: 'Workshop', icon: '🎓', color: 'text-purple-600' },
+                qna_session: { label: 'Q&A Session', icon: '💬', color: 'text-indigo-600' }
+            };
+            return types[eventType] || types.competition;
+        };
+
+        const typeInfo = getEventTypeInfo(event.event_type);
+
         return (
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`bg-white rounded-2xl shadow-lg border-2 ${config.borderColor} ${config.hoverBorder} transition-all duration-300 hover:shadow-xl h-full flex flex-col overflow-hidden group`}
+                className={`bg-white rounded-2xl shadow-lg border-2 ${config.borderColor} ${config.hoverBorder} transition-all duration-300 hover:shadow-xl h-full flex flex-col overflow-hidden group relative`}
             >
+                {/* Featured Badge */}
+                {event.is_featured && (
+                    <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold z-10 shadow-lg">
+                        ⭐ FEATURED
+                    </div>
+                )}
+
                 {/* Header */}
                 <div className={`bg-gradient-to-r ${config.color} p-6 text-white`}>
                     <div className="flex items-center gap-3 mb-2">
@@ -105,11 +128,36 @@ const Events = () => {
                         <h3 className="text-2xl font-bold">{config.title}</h3>
                     </div>
                     <h4 className="text-xl font-semibold">{event.title}</h4>
+                    <p className="text-sm opacity-90 mt-1 flex items-center gap-2">
+                        <span>{typeInfo.icon}</span>
+                        <span>{typeInfo.label}</span>
+                    </p>
                 </div>
 
                 {/* Content */}
                 <div className="p-6 flex-grow">
                     <div className="space-y-4">
+                        {/* Expert Info */}
+                        {event.expert_name && (
+                            <div className="bg-purple-50 border-2 border-purple-200 rounded-lg p-4">
+                                <div className="flex items-start gap-3">
+                                    {event.expert_image_url && (
+                                        <img
+                                            src={event.expert_image_url}
+                                            alt={event.expert_name}
+                                            className="w-16 h-16 rounded-full object-cover border-2 border-purple-300"
+                                        />
+                                    )}
+                                    <div className="flex-1">
+                                        <p className="font-bold text-purple-900 text-lg">{event.expert_name}</p>
+                                        {event.expert_title && (
+                                            <p className="text-sm text-purple-700">{event.expert_title}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Dates */}
                         <div className="flex items-center gap-2 text-gray-600">
                             <Calendar size={18} />
@@ -147,7 +195,7 @@ const Events = () => {
                         onClick={() => setSelectedEvent({ ...event, category })}
                         className={`w-full bg-gradient-to-r ${config.color} text-white py-3 px-6 rounded-xl font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2 group-hover:scale-105 duration-300`}
                     >
-                        View Details
+                        {event.event_type === 'workshop' ? 'View Workshop' : event.event_type === 'qna_session' ? 'Join Q&A' : 'View Details'}
                         <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
@@ -179,6 +227,58 @@ const Events = () => {
                         </p>
                     </div>
                 </FadeIn>
+
+                {/* Featured Creator of the Month */}
+                {!loading && featuredCreator && (
+                    <FadeIn delay={0.15}>
+                        <div className="mb-12 bg-gradient-to-r from-yellow-50 via-orange-50 to-pink-50 border-4 border-yellow-400 rounded-3xl p-8 shadow-2xl">
+                            <div className="flex items-center gap-3 mb-6">
+                                <span className="text-4xl">⭐</span>
+                                <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-orange-600 to-pink-600 bg-clip-text text-transparent">
+                                    Featured Creator of the Month
+                                </h2>
+                            </div>
+                            <div className="bg-white rounded-2xl p-6 shadow-lg">
+                                <div className="grid md:grid-cols-3 gap-6">
+                                    {/* Expert Photo */}
+                                    {featuredCreator.expert_image_url && (
+                                        <div className="flex justify-center items-start">
+                                            <img
+                                                src={featuredCreator.expert_image_url}
+                                                alt={featuredCreator.expert_name}
+                                                className="w-48 h-48 rounded-full object-cover border-8 border-gradient-to-r from-yellow-400 to-orange-400 shadow-xl"
+                                            />
+                                        </div>
+                                    )}
+                                    {/* Expert Info */}
+                                    <div className={featuredCreator.expert_image_url ? "md:col-span-2" : "md:col-span-3"}>
+                                        <h3 className="text-3xl font-black text-gray-900 mb-2">{featuredCreator.expert_name}</h3>
+                                        {featuredCreator.expert_title && (
+                                            <p className="text-xl text-purple-700 font-bold mb-4">{featuredCreator.expert_title}</p>
+                                        )}
+                                        {featuredCreator.expert_bio && (
+                                            <p className="text-gray-700 leading-relaxed mb-6 text-lg">{featuredCreator.expert_bio}</p>
+                                        )}
+                                        <div className="flex flex-wrap items-center gap-4">
+                                            <div className="bg-purple-100 px-4 py-2 rounded-full">
+                                                <span className="text-sm font-bold text-purple-900">
+                                                    {featuredCreator.event_type === 'workshop' ? '🎓 Workshop' : '💬 Q&A Session'}
+                                                </span>
+                                            </div>
+                                            <button
+                                                onClick={() => setSelectedEvent(featuredCreator)}
+                                                className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-3 rounded-full font-bold hover:shadow-lg transition-all flex items-center gap-2"
+                                            >
+                                                Learn More
+                                                <ArrowRight size={20} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </FadeIn>
+                )}
 
                 {/* Events Grid */}
                 {loading ? (
@@ -232,6 +332,53 @@ const Events = () => {
                                 alt={selectedEvent.title}
                                 className="w-full rounded-xl"
                             />
+                        )}
+
+                        {/* Expert Bio (for Workshops and Q&A) */}
+                        {selectedEvent.expert_name && (
+                            <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6">
+                                <h4 className="font-bold text-purple-900 mb-4 text-lg flex items-center gap-2">
+                                    <span>👤</span>
+                                    <span>Led by</span>
+                                </h4>
+                                <div className="flex items-start gap-4">
+                                    {selectedEvent.expert_image_url && (
+                                        <img
+                                            src={selectedEvent.expert_image_url}
+                                            alt={selectedEvent.expert_name}
+                                            className="w-20 h-20 rounded-full object-cover border-4 border-purple-300 shadow-lg"
+                                        />
+                                    )}
+                                    <div className="flex-1">
+                                        <h5 className="text-xl font-bold text-gray-900">{selectedEvent.expert_name}</h5>
+                                        {selectedEvent.expert_title && (
+                                            <p className="text-purple-700 font-semibold mb-2">{selectedEvent.expert_title}</p>
+                                        )}
+                                        {selectedEvent.expert_bio && (
+                                            <p className="text-gray-700 leading-relaxed">{selectedEvent.expert_bio}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Workshop Video */}
+                        {selectedEvent.video_url && selectedEvent.event_type === 'workshop' && (
+                            <div>
+                                <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                    <span>🎬</span>
+                                    <span>Recorded Workshop</span>
+                                </h4>
+                                <div className="relative aspect-video bg-gray-900 rounded-xl overflow-hidden">
+                                    <iframe
+                                        src={selectedEvent.video_url.replace('watch?v=', 'embed/')}
+                                        title={selectedEvent.title}
+                                        className="absolute inset-0 w-full h-full"
+                                        allowFullScreen
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    />
+                                </div>
+                            </div>
                         )}
 
                         {/* Full Description */}

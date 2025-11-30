@@ -9,12 +9,21 @@ const Events = () => {
     const [editingEvent, setEditingEvent] = useState(null);
     const [formData, setFormData] = useState({
         title: '',
+        event_type: 'competition',
         activity_category: 'challenge',
         start_date: '',
         end_date: '',
         pricing: 0,
         is_paid: false,
-        description: ''
+        description: '',
+        expert_name: '',
+        expert_title: '',
+        expert_bio: '',
+        expert_image_url: '',
+        video_url: '',
+        is_featured: false,
+        registration_required: false,
+        max_participants: null
     });
 
     useEffect(() => {
@@ -46,6 +55,12 @@ const Events = () => {
             return;
         }
 
+        // Validate expert fields for workshops and Q&A sessions
+        if ((formData.event_type === 'workshop' || formData.event_type === 'qna_session') && !formData.expert_name) {
+            alert('Expert name is required for workshops and Q&A sessions');
+            return;
+        }
+
         if (new Date(formData.end_date) < new Date(formData.start_date)) {
             alert('End date must be after start date');
             return;
@@ -61,6 +76,7 @@ const Events = () => {
 
             const eventData = {
                 title: formData.title,
+                event_type: formData.event_type,
                 activity_category: formData.activity_category,
                 start_date: formData.start_date,
                 end_date: formData.end_date,
@@ -73,7 +89,16 @@ const Events = () => {
                 type: 'event',
                 formats: 'All formats accepted',
                 theme: formData.title,
-                guidelines: formData.description
+                guidelines: formData.description,
+                // Expert fields (optional for competitions, required for workshops/Q&A)
+                expert_name: formData.expert_name || null,
+                expert_title: formData.expert_title || null,
+                expert_bio: formData.expert_bio || null,
+                expert_image_url: formData.expert_image_url || null,
+                video_url: formData.video_url || null,
+                is_featured: formData.is_featured || false,
+                registration_required: formData.registration_required || false,
+                max_participants: formData.max_participants ? Number(formData.max_participants) : null
             };
 
             if (editingEvent) {
@@ -105,12 +130,21 @@ const Events = () => {
     const resetForm = () => {
         setFormData({
             title: '',
+            event_type: 'competition',
             activity_category: 'challenge',
             start_date: '',
             end_date: '',
             pricing: 0,
             is_paid: false,
-            description: ''
+            description: '',
+            expert_name: '',
+            expert_title: '',
+            expert_bio: '',
+            expert_image_url: '',
+            video_url: '',
+            is_featured: false,
+            registration_required: false,
+            max_participants: null
         });
         setEditingEvent(null);
         setShowForm(false);
@@ -120,12 +154,21 @@ const Events = () => {
         setEditingEvent(event);
         setFormData({
             title: event.title,
+            event_type: event.event_type || 'competition',
             activity_category: event.activity_category,
             start_date: event.start_date,
             end_date: event.end_date,
             pricing: event.pricing,
             is_paid: event.is_paid,
-            description: event.description || ''
+            description: event.description || '',
+            expert_name: event.expert_name || '',
+            expert_title: event.expert_title || '',
+            expert_bio: event.expert_bio || '',
+            expert_image_url: event.expert_image_url || '',
+            video_url: event.video_url || '',
+            is_featured: event.is_featured || false,
+            registration_required: event.registration_required || false,
+            max_participants: event.max_participants || null
         });
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -155,6 +198,15 @@ const Events = () => {
             brainy: { name: 'Brainy Bites', color: 'bg-green-500', icon: '🧠' }
         };
         return labels[category] || labels.challenge;
+    };
+
+    const getEventTypeLabel = (eventType) => {
+        const labels = {
+            competition: { name: 'Competition', color: 'bg-orange-500', icon: '🏆' },
+            workshop: { name: 'Workshop', color: 'bg-purple-500', icon: '🎓' },
+            qna_session: { name: 'Q&A Session', color: 'bg-indigo-500', icon: '💬' }
+        };
+        return labels[eventType] || labels.competition;
     };
 
     const isEventActive = (event) => {
@@ -211,6 +263,146 @@ const Events = () => {
                                 <option value="brainy">🧠 Brainy Bites</option>
                             </select>
                         </div>
+
+                        {/* Event Type Selector */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Event Type *
+                            </label>
+                            <select
+                                value={formData.event_type}
+                                onChange={(e) => setFormData({ ...formData, event_type: e.target.value })}
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
+                                required
+                            >
+                                <option value="competition">🏆 Competition</option>
+                                <option value="workshop">🎓 Workshop</option>
+                                <option value="qna_session">💬 Q&A Session</option>
+                            </select>
+                        </div>
+
+                        {/* Expert Information (for Workshops and Q&A) */}
+                        {(formData.event_type === 'workshop' || formData.event_type === 'qna_session') && (
+                            <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 space-y-4">
+                                <h3 className="text-lg font-bold text-purple-900 mb-4">
+                                    Expert / Creator Information
+                                </h3>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Expert Name *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.expert_name}
+                                            onChange={(e) => setFormData({ ...formData, expert_name: e.target.value })}
+                                            placeholder="e.g., Dr. Jane Smith"
+                                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Expert Title
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.expert_title}
+                                            onChange={(e) => setFormData({ ...formData, expert_title: e.target.value })}
+                                            placeholder="e.g., Professional Artist"
+                                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Expert Bio
+                                    </label>
+                                    <textarea
+                                        value={formData.expert_bio}
+                                        onChange={(e) => setFormData({ ...formData, expert_bio: e.target.value })}
+                                        placeholder="Brief biography and credentials..."
+                                        rows="3"
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none resize-none"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Expert Image URL
+                                    </label>
+                                    <input
+                                        type="url"
+                                        value={formData.expert_image_url}
+                                        onChange={(e) => setFormData({ ...formData, expert_image_url: e.target.value })}
+                                        placeholder="https://example.com/expert-photo.jpg"
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">Upload image to a service or use a URL</p>
+                                </div>
+
+                                {formData.event_type === 'workshop' && (
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Workshop Video URL
+                                        </label>
+                                        <input
+                                            type="url"
+                                            value={formData.video_url}
+                                            onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                                            placeholder="https://youtube.com/watch?v=..."
+                                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">YouTube or Vimeo link for recorded workshop</p>
+                                    </div>
+                                )}
+
+                                <div className="flex items-center gap-6 pt-4 border-t border-purple-200">
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.is_featured}
+                                            onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                                            className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                                        />
+                                        <span className="font-semibold text-gray-700">
+                                            ⭐ Feature as "Creator of the Month"
+                                        </span>
+                                    </label>
+                                </div>
+
+                                {formData.event_type === 'qna_session' && (
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <label className="flex items-center gap-3 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.registration_required}
+                                                onChange={(e) => setFormData({ ...formData, registration_required: e.target.checked })}
+                                                className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                                            />
+                                            <span className="font-semibold text-gray-700">
+                                                Registration Required
+                                            </span>
+                                        </label>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                Max Participants
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={formData.max_participants || ''}
+                                                onChange={(e) => setFormData({ ...formData, max_participants: e.target.value })}
+                                                placeholder="e.g., 50"
+                                                min="1"
+                                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         {/* Title */}
                         <div>
@@ -362,17 +554,35 @@ const Events = () => {
                             >
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
-                                        <div className="flex items-center gap-3 mb-2">
+                                        <div className="flex items-center gap-3 mb-2 flex-wrap">
                                             <span className={`${categoryInfo.color} text-white px-3 py-1 rounded-full text-sm font-bold`}>
                                                 {categoryInfo.icon} {categoryInfo.name}
                                             </span>
+                                            {(() => {
+                                                const typeInfo = getEventTypeLabel(event.event_type);
+                                                return (
+                                                    <span className={`${typeInfo.color} text-white px-3 py-1 rounded-full text-sm font-bold`}>
+                                                        {typeInfo.icon} {typeInfo.name}
+                                                    </span>
+                                                );
+                                            })()}
                                             {active && (
                                                 <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">
                                                     LIVE
                                                 </span>
                                             )}
+                                            {event.is_featured && (
+                                                <span className="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                                                    ⭐ FEATURED
+                                                </span>
+                                            )}
                                         </div>
                                         <h3 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h3>
+                                        {event.expert_name && (
+                                            <p className="text-purple-700 font-semibold mb-2">
+                                                Led by: {event.expert_name} {event.expert_title && `(${event.expert_title})`}
+                                            </p>
+                                        )}
                                         <p className="text-gray-600 mb-3">{event.description || 'No description'}</p>
                                         <div className="flex items-center gap-6 text-sm text-gray-600">
                                             <span className="flex items-center gap-1">

@@ -7,8 +7,12 @@ import Dashboard from './pages/Dashboard';
 import Enrollments from './pages/Enrollments';
 import Users from './pages/Users';
 import Events from './pages/Events';
+import TeamEvents from './pages/TeamEvents';
+import TeamManager from './pages/TeamManager';
+import Moderation from './pages/Moderation';
 import Resources from './pages/Resources';
 import Gallery from './pages/Gallery';
+import Badges from './pages/Badges';
 
 import Submissions from './pages/Submissions';
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
@@ -40,6 +44,10 @@ const App = () => {
             <Route path="submissions" element={<Submissions />} />
             <Route path="users" element={<Users />} />
             <Route path="events" element={<Events />} />
+            <Route path="team-events" element={<TeamEvents />} />
+            <Route path="team-events/:id/manage" element={<TeamManager />} />
+            <Route path="moderation" element={<Moderation />} />
+            <Route path="badges" element={<Badges />} />
             <Route path="resources" element={<Resources />} />
             <Route path="gallery" element={<Gallery />} />
             <Route path="analytics" element={<AnalyticsDashboard />} />

@@ -1,11 +1,80 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Rocket, ArrowRight, CheckCircle, Users, Calendar as CalendarIcon } from 'lucide-react';
+import { Rocket, ArrowRight, CheckCircle, Users, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import FadeIn from '../components/ui/FadeIn';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 const Enroll = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const [teamEvents, setTeamEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [registering, setRegistering] = useState(null);
+    const [userRegistrations, setUserRegistrations] = useState([]);
+
+    useEffect(() => {
+        fetchTeamEvents();
+        if (user) {
+            fetchUserRegistrations();
+        }
+    }, [user]);
+
+    const fetchTeamEvents = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('team_events')
+                .select('*')
+                .in('status', ['upcoming', 'open'])
+                .order('start_date', { ascending: true });
+
+            if (error) throw error;
+            setTeamEvents(data || []);
+        } catch (error) {
+            console.error('Error fetching team events:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchUserRegistrations = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('team_registrations')
+                .select('event_id, status')
+                .eq('user_id', user.id);
+
+            if (error) throw error;
+            setUserRegistrations(data || []);
+        } catch (error) {
+            console.error('Error fetching registrations:', error);
+        }
+    };
+
+    const handleRegister = async (eventId) => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
+        setRegistering(eventId);
+        try {
+            const { error } = await supabase
+                .from('team_registrations')
+                .insert([{ event_id: eventId, user_id: user.id }]);
+
+            if (error) throw error;
+
+            alert('Application Received! Teams will be announced soon.');
+            fetchUserRegistrations();
+        } catch (error) {
+            console.error('Error registering:', error);
+            alert('Registration failed: ' + error.message);
+        } finally {
+            setRegistering(null);
+        }
+    };
 
     const features = [
         { icon: '🎨', title: 'Creative Expression', description: 'Art, writing, music, and more' },
@@ -22,6 +91,10 @@ const Enroll = () => {
         'Community of creative young minds',
         'Safe and encouraging environment'
     ];
+
+    const isRegistered = (eventId) => {
+        return userRegistrations.some(r => r.event_id === eventId);
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 py-12 relative overflow-hidden">
@@ -105,6 +178,97 @@ const Enroll = () => {
                                 <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
                             </motion.button>
                         </div>
+                    </div>
+                </FadeIn>
+
+                {/* Team Events Section */}
+                <FadeIn delay={0.5}>
+                    <div className="mb-16">
+                        <div className="text-center mb-10">
+                            <h2 className="text-3xl md:text-4xl font-black text-gray-800 mb-4 flex items-center justify-center gap-3">
+                                <Users className="text-blue-600" size={40} />
+                                Collaborative Team Events
+                            </h2>
+                            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                                Join forces with other students! Register individually, and we'll place you in a team to collaborate on exciting projects.
+                            </p>
+                        </div>
+
+                        {loading ? (
+                            <div className="flex justify-center py-12">
+                                <Loader2 className="animate-spin text-blue-600" size={40} />
+                            </div>
+                        ) : teamEvents.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                                {teamEvents.map((event) => (
+                                    <motion.div
+                                        key={event.id}
+                                        whileHover={{ y: -5 }}
+                                        className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 flex flex-col"
+                                    >
+                                        <div className="h-48 bg-gray-200 relative">
+                                            {event.image_url ? (
+                                                <img src={event.image_url} alt={event.title} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-300">
+                                                    <Users size={48} />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-blue-600 shadow-sm">
+                                                Team Size: {event.min_team_size}-{event.max_team_size}
+                                            </div>
+                                        </div>
+                                        <div className="p-6 flex-1 flex flex-col">
+                                            <h3 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h3>
+                                            <p className="text-gray-600 text-sm mb-4 flex-1 line-clamp-3">{event.description}</p>
+
+                                            <div className="space-y-3 mb-6">
+                                                <div className="flex items-center text-sm text-gray-500">
+                                                    <CalendarIcon size={16} className="mr-2 text-blue-500" />
+                                                    <span>{new Date(event.start_date).toLocaleDateString()} - {new Date(event.end_date).toLocaleDateString()}</span>
+                                                </div>
+                                                {event.registration_deadline && (
+                                                    <div className="flex items-center text-sm text-orange-500 font-medium">
+                                                        <CheckCircle size={16} className="mr-2" />
+                                                        <span>Register by {new Date(event.registration_deadline).toLocaleDateString()}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <button
+                                                onClick={() => handleRegister(event.id)}
+                                                disabled={isRegistered(event.id) || registering === event.id || event.status === 'closed'}
+                                                className={`w-full py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 ${isRegistered(event.id)
+                                                        ? 'bg-green-100 text-green-700 cursor-default'
+                                                        : event.status === 'closed'
+                                                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                                                            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-blue-200'
+                                                    }`}
+                                            >
+                                                {registering === event.id ? (
+                                                    <Loader2 className="animate-spin" size={20} />
+                                                ) : isRegistered(event.id) ? (
+                                                    <>
+                                                        <CheckCircle size={20} />
+                                                        Registered
+                                                    </>
+                                                ) : event.status === 'closed' ? (
+                                                    'Registration Closed'
+                                                ) : (
+                                                    'Register Now'
+                                                )}
+                                            </button>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12 bg-white rounded-2xl shadow-sm border border-dashed border-gray-200 max-w-2xl mx-auto">
+                                <Users size={48} className="mx-auto text-gray-300 mb-4" />
+                                <p className="text-gray-500 font-medium">No team events currently open for registration.</p>
+                                <p className="text-sm text-gray-400">Check back soon for upcoming collaborative opportunities!</p>
+                            </div>
+                        )}
                     </div>
                 </FadeIn>
 
