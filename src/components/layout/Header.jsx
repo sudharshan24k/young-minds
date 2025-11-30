@@ -28,7 +28,8 @@ const Header = () => {
     ];
 
     return (
-        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-white/50 relative">
+        <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl shadow-sm border-b border-white/20 relative transition-all duration-300">
+            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-200 to-transparent opacity-50" />
             {/* Floating Decorative Shapes */}
             <motion.div
                 animate={{
@@ -124,15 +125,15 @@ const Header = () => {
                 </Link>
 
                 {/* Desktop Navigation */}
-                <nav className="hidden md:flex items-center gap-6 relative">
+                <nav className="hidden md:flex items-center gap-8 relative">
                     {navLinks.map((link) => (
                         <Link
                             key={link.name}
                             to={link.path}
-                            className="nav-link group relative text-sm"
+                            className="nav-link group relative text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
                         >
                             {link.name}
-                            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 transition-all duration-300 group-hover:w-full" />
+                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 transition-all duration-300 group-hover:w-full rounded-full" />
                         </Link>
                     ))}
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, FileText, LogOut, Calendar, Image, BookOpen, BarChart, Trophy, Award, MessageSquare, FileCheck, Search } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, LogOut, Calendar, Image, BookOpen, BarChart, Trophy, Award, MessageSquare, FileCheck, Search, Mail } from 'lucide-react';
 
 const Layout = () => {
     const { signOut } = useAuth();
@@ -15,6 +15,7 @@ const Layout = () => {
     const navItems = [
         { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/search', icon: Search, label: 'Global Search' },
+        { path: '/email-communication', icon: Mail, label: 'Email Communication' },
         { path: '/enrollments', icon: FileText, label: 'Enrollments' },
         { path: '/submissions', icon: FileText, label: 'Submissions' },
         { path: '/users', label: 'Users', icon: Users },
@@ -23,7 +24,6 @@ const Layout = () => {
         { path: '/moderation', label: 'Moderation', icon: MessageSquare },
         { path: '/resources', label: 'Resources', icon: BookOpen },
         { path: '/gallery', label: 'Gallery', icon: Image },
-        { path: '/analytics', label: 'Analytics', icon: BarChart },
         { path: '/certificates', label: 'Certificates', icon: Award },
         { path: '/certificate-templates', label: 'Certificate Templates', icon: FileCheck },
     ];
@@ -44,23 +44,25 @@ const Layout = () => {
                     </div>
                 </div>
 
-                <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
-                    <p className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Menu</p>
+                <nav className="p-4 space-y-1.5 flex-1 overflow-y-auto">
+                    <p className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Menu</p>
                     {navItems.map((item) => (
                         <NavLink
                             key={item.path}
                             to={item.path}
                             className={({ isActive }) =>
-                                `flex items - center gap - 3 px - 4 py - 3.5 rounded - xl transition - all duration - 200 font - medium group ${isActive
-                                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/20'
+                                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium group relative overflow-hidden ${isActive
+                                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-900/30'
                                     : 'text-slate-400 hover:bg-white/5 hover:text-white'
                                 } `
                             }
                         >
                             {({ isActive }) => (
                                 <>
-                                    <item.icon size={20} className={isActive ? 'text-white' : 'text-slate-400 group-hover:text-white transition-colors'} />
-                                    {item.label}
+                                    <div className={`absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isActive ? 'hidden' : 'block'}`} />
+                                    <item.icon size={20} className={`relative z-10 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white transition-colors duration-300'}`} />
+                                    <span className="relative z-10">{item.label}</span>
+                                    {isActive && <div className="absolute right-2 w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse" />}
                                 </>
                             )}
                         </NavLink>
