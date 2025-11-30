@@ -12,12 +12,11 @@ import TeamManager from './pages/TeamManager';
 import Moderation from './pages/Moderation';
 import Resources from './pages/Resources';
 import Gallery from './pages/Gallery';
-import Badges from './pages/Badges';
-
 import Submissions from './pages/Submissions';
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
-import HallOfFame from './pages/HallOfFame';
 import Certificates from './pages/Certificates';
+import CertificateTemplates from './pages/CertificateTemplates';
+import GlobalSearch from './pages/GlobalSearch';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -47,12 +46,12 @@ const App = () => {
             <Route path="team-events" element={<TeamEvents />} />
             <Route path="team-events/:id/manage" element={<TeamManager />} />
             <Route path="moderation" element={<Moderation />} />
-            <Route path="badges" element={<Badges />} />
             <Route path="resources" element={<Resources />} />
             <Route path="gallery" element={<Gallery />} />
             <Route path="analytics" element={<AnalyticsDashboard />} />
-            <Route path="hall-of-fame" element={<HallOfFame />} />
             <Route path="certificates" element={<Certificates />} />
+            <Route path="certificate-templates" element={<CertificateTemplates />} />
+            <Route path="search" element={<GlobalSearch />} />
           </Route>
         </Routes>
       </BrowserRouter>

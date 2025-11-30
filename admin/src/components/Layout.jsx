@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, FileText, LogOut, Calendar, Image, BookOpen, BarChart, Trophy, Award, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, LogOut, Calendar, Image, BookOpen, BarChart, Trophy, Award, MessageSquare, FileCheck, Search } from 'lucide-react';
 
 const Layout = () => {
     const { signOut } = useAuth();
@@ -14,18 +14,18 @@ const Layout = () => {
 
     const navItems = [
         { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+        { path: '/search', icon: Search, label: 'Global Search' },
         { path: '/enrollments', icon: FileText, label: 'Enrollments' },
         { path: '/submissions', icon: FileText, label: 'Submissions' },
         { path: '/users', label: 'Users', icon: Users },
         { path: '/events', label: 'Events', icon: Calendar },
         { path: '/team-events', label: 'Team Events', icon: Users },
         { path: '/moderation', label: 'Moderation', icon: MessageSquare },
-        { path: '/badges', label: 'Badges', icon: Award },
-        { path: '/certificates', label: 'Certificates', icon: Award },
-        { path: '/hall-of-fame', label: 'Hall of Fame', icon: Trophy },
         { path: '/resources', label: 'Resources', icon: BookOpen },
         { path: '/gallery', label: 'Gallery', icon: Image },
         { path: '/analytics', label: 'Analytics', icon: BarChart },
+        { path: '/certificates', label: 'Certificates', icon: Award },
+        { path: '/certificate-templates', label: 'Certificate Templates', icon: FileCheck },
     ];
 
     return (

@@ -4,6 +4,7 @@ import { Loader2, Plus, Calendar as CalendarIcon, Trash2, Eye, DollarSign } from
 
 const Events = () => {
     const [events, setEvents] = useState([]);
+    const [templates, setTemplates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editingEvent, setEditingEvent] = useState(null);
@@ -23,18 +24,27 @@ const Events = () => {
         video_url: '',
         is_featured: false,
         registration_required: false,
-        max_participants: null
+        max_participants: null,
+        certificate_template_id: '',
+        certificate_title: '',
+        certificate_message: '',
+        certificate_footer: '',
+        use_template_defaults: true
     });
 
     useEffect(() => {
         fetchEvents();
+        fetchTemplates();
     }, []);
 
     const fetchEvents = async () => {
         try {
             const { data, error } = await supabase
                 .from('events')
-                .select('*')
+                .select(`
+                    *,
+                    certificate_templates (id, name, layout_type)
+                `)
                 .order('start_date', { ascending: false });
 
             if (error) throw error;
@@ -43,6 +53,20 @@ const Events = () => {
             console.error('Error fetching events:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchTemplates = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('certificate_templates')
+                .select('*')
+                .order('is_default', { ascending: false });
+
+            if (error) throw error;
+            setTemplates(data || []);
+        } catch (error) {
+            console.error('Error fetching templates:', error);
         }
     };
 
@@ -98,7 +122,13 @@ const Events = () => {
                 video_url: formData.video_url || null,
                 is_featured: formData.is_featured || false,
                 registration_required: formData.registration_required || false,
-                max_participants: formData.max_participants ? Number(formData.max_participants) : null
+                max_participants: formData.max_participants ? Number(formData.max_participants) : null,
+                // Certificate settings
+                certificate_template_id: formData.certificate_template_id || null,
+                certificate_title: formData.use_template_defaults ? null : formData.certificate_title,
+                certificate_message: formData.use_template_defaults ? null : formData.certificate_message,
+                certificate_footer: formData.use_template_defaults ? null : formData.certificate_footer,
+                use_template_defaults: formData.use_template_defaults
             };
 
             if (editingEvent) {
@@ -144,7 +174,12 @@ const Events = () => {
             video_url: '',
             is_featured: false,
             registration_required: false,
-            max_participants: null
+            max_participants: null,
+            certificate_template_id: '',
+            certificate_title: '',
+            certificate_message: '',
+            certificate_footer: '',
+            use_template_defaults: true
         });
         setEditingEvent(null);
         setShowForm(false);
@@ -168,7 +203,12 @@ const Events = () => {
             video_url: event.video_url || '',
             is_featured: event.is_featured || false,
             registration_required: event.registration_required || false,
-            max_participants: event.max_participants || null
+            max_participants: event.max_participants || null,
+            certificate_template_id: event.certificate_template_id || '',
+            certificate_title: event.certificate_title || '',
+            certificate_message: event.certificate_message || '',
+            certificate_footer: event.certificate_footer || '',
+            use_template_defaults: event.use_template_defaults !== false
         });
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -509,6 +549,92 @@ const Events = () => {
                                 rows="4"
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none text-lg resize-none"
                             />
+                        </div>
+
+                        {/* Certificate Settings */}
+                        <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 space-y-4">
+                            <h3 className="text-lg font-bold text-purple-900 mb-4">
+                                📜 Certificate Settings
+                            </h3>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Certificate Template
+                                </label>
+                                <select
+                                    value={formData.certificate_template_id}
+                                    onChange={(e) => setFormData({ ...formData, certificate_template_id: e.target.value })}
+                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
+                                >
+                                    <option value="">No certificate (use default if available)</option>
+                                    {templates.map((template) => (
+                                        <option key={template.id} value={template.id}>
+                                            {template.name} ({template.layout_type})
+                                            {template.is_default && ' - Default'}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Select a certificate template for this event. Manage templates in Certificate Templates page.
+                                </p>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="checkbox"
+                                    id="use_template_defaults"
+                                    checked={formData.use_template_defaults}
+                                    onChange={(e) => setFormData({ ...formData, use_template_defaults: e.target.checked })}
+                                    className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                                />
+                                <label htmlFor="use_template_defaults" className="font-semibold text-gray-700 cursor-pointer">
+                                    Use template default content
+                                </label>
+                            </div>
+
+                            {!formData.use_template_defaults && (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Custom Certificate Title
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.certificate_title}
+                                            onChange={(e) => setFormData({ ...formData, certificate_title: e.target.value })}
+                                            placeholder="e.g., Certificate of Excellence"
+                                            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Custom Certificate Message
+                                        </label>
+                                        <textarea
+                                            value={formData.certificate_message}
+                                            onChange={(e) => setFormData({ ...formData, certificate_message: e.target.value })}
+                                            placeholder="Use placeholders: {name}, {event}, {date}, {type}, {category}"
+                                            rows="3"
+                                            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none resize-none"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Available placeholders: {'{name}'}, {'{event}'}, {'{date}'}, {'{type}'}, {'{category}'}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Custom Certificate Footer
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.certificate_footer}
+                                            onChange={(e) => setFormData({ ...formData, certificate_footer: e.target.value })}
+                                            placeholder="e.g., Keep up the great work!"
+                                            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Submit */}
