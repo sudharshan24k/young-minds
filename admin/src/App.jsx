@@ -10,6 +10,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Enrollments = lazy(() => import('./pages/Enrollments'));
 const Users = lazy(() => import('./pages/Users'));
 const Events = lazy(() => import('./pages/Events'));
+const Workshops = lazy(() => import('./pages/Workshops'));
 const TeamEvents = lazy(() => import('./pages/TeamEvents'));
 const TeamManager = lazy(() => import('./pages/TeamManager'));
 const Moderation = lazy(() => import('./pages/Moderation'));
@@ -20,6 +21,7 @@ const Certificates = lazy(() => import('./pages/Certificates'));
 const CertificateTemplates = lazy(() => import('./pages/CertificateTemplates'));
 const GlobalSearch = lazy(() => import('./pages/GlobalSearch'));
 const EmailCommunication = lazy(() => import('./pages/EmailCommunication'));
+const HallOfFame = lazy(() => import('./pages/HallOfFame'));
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -57,6 +59,7 @@ const App = () => {
               <Route path="submissions" element={<Submissions />} />
               <Route path="users" element={<Users />} />
               <Route path="events" element={<Events />} />
+              <Route path="workshops" element={<Workshops />} />
               <Route path="team-events" element={<TeamEvents />} />
               <Route path="team-events/:id/manage" element={<TeamManager />} />
               <Route path="moderation" element={<Moderation />} />
@@ -66,6 +69,7 @@ const App = () => {
               <Route path="certificate-templates" element={<CertificateTemplates />} />
               <Route path="search" element={<GlobalSearch />} />
               <Route path="email-communication" element={<EmailCommunication />} />
+              <Route path="hall-of-fame" element={<HallOfFame />} />
             </Route>
           </Routes>
         </Suspense>

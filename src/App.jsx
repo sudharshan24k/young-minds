@@ -20,6 +20,8 @@ const Enroll = lazy(() => import('./pages/Enroll'));
 const Gallery = lazy(() => import('./pages/Gallery'));
 const Winners = lazy(() => import('./pages/Winners'));
 const Events = lazy(() => import('./pages/Events'));
+const Workshops = lazy(() => import('./pages/Workshops'));
+const WorkshopDetails = lazy(() => import('./pages/WorkshopDetails'));
 const FAQ = lazy(() => import('./pages/FAQ'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
@@ -91,6 +93,8 @@ function App() {
                 <Route path="/express" element={<ExpressYourself />} />
                 <Route path="/challenge" element={<ChallengeYourself />} />
                 <Route path="/brainy" element={<BrainyBites />} />
+                <Route path="/workshops" element={<Workshops />} />
+                <Route path="/workshops/:id" element={<WorkshopDetails />} />
                 <Route path="/enroll" element={<Enroll />} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/winners" element={<Winners />} />

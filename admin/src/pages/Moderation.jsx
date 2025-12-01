@@ -12,24 +12,48 @@ const Moderation = () => {
 
     const fetchPendingComments = async () => {
         try {
-            const { data, error } = await supabase
+            // Fetch comments
+            const { data: commentsData, error: commentsError } = await supabase
                 .from('comments')
-                .select(`
-                    *,
-                    user:user_id (
-                        email,
-                        raw_user_meta_data
-                    ),
-                    submission:submission_id (
-                        title,
-                        image_url
-                    )
-                `)
+                .select('*')
                 .eq('status', 'pending')
                 .order('created_at', { ascending: false });
 
-            if (error) throw error;
-            setComments(data || []);
+            if (commentsError) throw commentsError;
+
+            if (!commentsData || commentsData.length === 0) {
+                setComments([]);
+                return;
+            }
+
+            // Get unique user IDs and submission IDs
+            const userIds = [...new Set(commentsData.map(c => c.user_id))];
+            const submissionIds = [...new Set(commentsData.map(c => c.submission_id))];
+
+            // Fetch user profiles
+            const { data: profilesData, error: profilesError } = await supabase
+                .from('profiles')
+                .select('id, full_name, email')
+                .in('id', userIds);
+
+            if (profilesError) console.error('Error fetching profiles:', profilesError);
+
+            // Fetch submissions
+            const { data: submissionsData, error: submissionsError } = await supabase
+                .from('submissions')
+                .select('id, title, image_url')
+                .in('id', submissionIds);
+
+            if (submissionsError) console.error('Error fetching submissions:', submissionsError);
+
+            // Join data on frontend
+            const enrichedComments = commentsData.map(comment => ({
+                ...comment,
+                profile: profilesData?.find(p => p.id === comment.user_id) || null,
+                submission: submissionsData?.find(s => s.id === comment.submission_id) || null
+            }));
+
+            setComments(enrichedComments);
         } catch (error) {
             console.error('Error fetching comments:', error);
         } finally {
@@ -106,7 +130,7 @@ const Moderation = () => {
                                 <div className="flex items-start justify-between mb-2">
                                     <div>
                                         <h3 className="font-bold text-gray-900">
-                                            {comment.user?.raw_user_meta_data?.full_name || comment.user?.email || 'Unknown User'}
+                                            {comment.profile?.full_name || comment.profile?.email || 'Unknown User'}
                                         </h3>
                                         <p className="text-xs text-gray-500">
                                             {new Date(comment.created_at).toLocaleString()}

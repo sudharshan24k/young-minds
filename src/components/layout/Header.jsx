@@ -9,6 +9,7 @@ import '../../styles/components/Header.css';
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [activeDropdown, setActiveDropdown] = useState(null);
     const navigate = useNavigate();
     const { user, signOut } = useAuth();
 
@@ -19,11 +20,19 @@ const Header = () => {
 
     const navLinks = [
         { name: 'Home', path: '/' },
-        { name: 'Express Yourself', path: '/express' },
-        { name: 'Challenge Yourself', path: '/challenge' },
-        { name: 'Brainy Bites', path: '/brainy' },
+        {
+            name: 'Events',
+            path: '#', // Placeholder, dropdown trigger
+            dropdown: [
+                { name: 'Express Yourself', path: '/express' },
+                { name: 'Challenge Yourself', path: '/challenge' },
+                { name: 'Brainy Bites', path: '/brainy' },
+                { name: 'Monthly Events', path: '/events' },
+            ]
+        },
         { name: 'Gallery', path: '/gallery' },
         { name: 'Hall of Fame', path: '/hall-of-fame' },
+        { name: 'Workshops', path: '/workshops' },
         { name: 'Enroll', path: '/enroll' },
     ];
 
@@ -127,14 +136,40 @@ const Header = () => {
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex items-center gap-8 relative">
                     {navLinks.map((link) => (
-                        <Link
+                        <div
                             key={link.name}
-                            to={link.path}
-                            className="nav-link group relative text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                            className="relative group"
+                            onMouseEnter={() => link.dropdown && setActiveDropdown(link.name)}
+                            onMouseLeave={() => link.dropdown && setActiveDropdown(null)}
                         >
-                            {link.name}
-                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 transition-all duration-300 group-hover:w-full rounded-full" />
-                        </Link>
+                            {link.dropdown ? (
+                                <div className="flex items-center gap-1 cursor-pointer nav-link text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                                    {link.name}
+                                    {/* Dropdown Menu */}
+                                    <div className={`absolute left-0 top-full pt-4 w-48 transition-all duration-200 ${activeDropdown === link.name ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
+                                        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                                            {link.dropdown.map((subLink) => (
+                                                <Link
+                                                    key={subLink.name}
+                                                    to={subLink.path}
+                                                    className="block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors border-b border-gray-50 last:border-0"
+                                                >
+                                                    {subLink.name}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <Link
+                                    to={link.path}
+                                    className="nav-link group relative text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                                >
+                                    {link.name}
+                                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 transition-all duration-300 group-hover:w-full rounded-full" />
+                                </Link>
+                            )}
+                        </div>
                     ))}
 
 
@@ -205,7 +240,7 @@ const Header = () => {
                         exit={{ opacity: 0, height: 0 }}
                         className="md:hidden bg-gradient-to-b from-white to-purple-50/30 border-t border-gray-100 overflow-hidden"
                     >
-                        <nav className="flex flex-col p-4 gap-4">
+                        <nav className="flex flex-col p-4 gap-2">
                             {navLinks.map((link, index) => (
                                 <motion.div
                                     key={link.name}
@@ -213,13 +248,33 @@ const Header = () => {
                                     animate={{ x: 0, opacity: 1 }}
                                     transition={{ delay: index * 0.05 }}
                                 >
-                                    <Link
-                                        to={link.path}
-                                        onClick={() => setIsOpen(false)}
-                                        className="btn-ghost w-full text-left hover:bg-purple-50"
-                                    >
-                                        {link.name}
-                                    </Link>
+                                    {link.dropdown ? (
+                                        <div className="flex flex-col">
+                                            <div className="px-4 py-2 text-sm font-semibold text-gray-800">
+                                                {link.name}
+                                            </div>
+                                            <div className="pl-4 flex flex-col gap-1 border-l-2 border-purple-100 ml-4">
+                                                {link.dropdown.map((subLink) => (
+                                                    <Link
+                                                        key={subLink.name}
+                                                        to={subLink.path}
+                                                        onClick={() => setIsOpen(false)}
+                                                        className="block px-4 py-2 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                                    >
+                                                        {subLink.name}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <Link
+                                            to={link.path}
+                                            onClick={() => setIsOpen(false)}
+                                            className="btn-ghost w-full text-left hover:bg-purple-50"
+                                        >
+                                            {link.name}
+                                        </Link>
+                                    )}
                                 </motion.div>
                             ))}
                             {user ? (

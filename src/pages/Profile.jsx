@@ -36,6 +36,8 @@ const Profile = () => {
     const [badgesLoading, setBadgesLoading] = useState(true);
     const [invoices, setInvoices] = useState([]);
     const [invoicesLoading, setInvoicesLoading] = useState(true);
+    const [registrations, setRegistrations] = useState([]);
+    const [registrationsLoading, setRegistrationsLoading] = useState(true);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -57,7 +59,10 @@ const Profile = () => {
             fetchSubmissions();
             fetchSkills();
             fetchBadges();
+            fetchSkills();
+            fetchBadges();
             fetchInvoices();
+            fetchRegistrations();
         }
     }, [user, profile, loading, navigate]);
 
@@ -145,6 +150,23 @@ const Profile = () => {
             console.error('Error fetching invoices:', error);
         } finally {
             setInvoicesLoading(false);
+        }
+    };
+
+    const fetchRegistrations = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('event_registrations')
+                .select('*, events(*)')
+                .eq('user_id', user.id)
+                .order('registration_date', { ascending: false });
+
+            if (error) throw error;
+            setRegistrations(data || []);
+        } catch (error) {
+            console.error('Error fetching registrations:', error);
+        } finally {
+            setRegistrationsLoading(false);
         }
     };
 
@@ -633,6 +655,77 @@ const Profile = () => {
                                 className="px-6 py-2 rounded-xl bg-white border border-purple-200 text-purple-600 font-medium hover:bg-purple-50 transition-colors"
                             >
                                 Submit an Entry
+                            </button>
+                        </div>
+                    )}
+                </motion.div>
+
+                {/* Attended Workshops Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="mt-8 bg-white rounded-2xl shadow-lg overflow-hidden p-8"
+                >
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Attended Workshops</h2>
+
+                    {registrationsLoading ? (
+                        <div className="flex justify-center py-12">
+                            <Loader className="w-8 h-8 animate-spin text-purple-600" />
+                        </div>
+                    ) : registrations.length > 0 ? (
+                        <div className="grid gap-4 md:grid-cols-2">
+                            {registrations.map((reg) => (
+                                <div key={reg.id} className="p-4 rounded-xl border border-gray-100 hover:border-purple-100 hover:shadow-md transition-all bg-gray-50/50 flex gap-4">
+                                    <div className="w-24 h-24 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0">
+                                        {reg.events?.image_url ? (
+                                            <img
+                                                src={reg.events.image_url}
+                                                alt={reg.events.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center bg-purple-100 text-purple-400">
+                                                <School size={32} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start mb-1">
+                                            <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded-md capitalize">
+                                                {reg.events?.activity_category || 'Workshop'}
+                                            </span>
+                                            <span className={`text-xs font-medium px-2 py-1 rounded-md capitalize ${reg.status === 'attended' ? 'bg-green-100 text-green-700' :
+                                                    reg.status === 'registered' ? 'bg-blue-100 text-blue-700' :
+                                                        'bg-gray-100 text-gray-700'
+                                                }`}>
+                                                {reg.status}
+                                            </span>
+                                        </div>
+                                        <h3 className="font-bold text-gray-800 line-clamp-1">{reg.events?.title}</h3>
+                                        <p className="text-sm text-gray-500 mt-1">
+                                            {new Date(reg.events?.start_date).toLocaleDateString()}
+                                        </p>
+                                        {reg.events?.video_url && (
+                                            <button
+                                                onClick={() => navigate(`/workshops/${reg.event_id}`)}
+                                                className="text-xs text-purple-600 font-bold mt-2 hover:underline"
+                                            >
+                                                Watch Recording
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                            <p className="text-gray-500 mb-4">No workshops attended yet.</p>
+                            <button
+                                onClick={() => navigate('/workshops')}
+                                className="px-6 py-2 rounded-xl bg-white border border-purple-200 text-purple-600 font-medium hover:bg-purple-50 transition-colors"
+                            >
+                                Browse Workshops
                             </button>
                         </div>
                     )}
