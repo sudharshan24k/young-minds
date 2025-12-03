@@ -17,6 +17,7 @@ const Events = () => {
         pricing: 0,
         is_paid: false,
         description: '',
+        guidelines: '',
         expert_name: '',
         expert_title: '',
         expert_bio: '',
@@ -113,7 +114,7 @@ const Events = () => {
                 type: 'event',
                 formats: 'All formats accepted',
                 theme: formData.title,
-                guidelines: formData.description,
+                guidelines: formData.guidelines,
                 // Expert fields (optional for competitions, required for workshops/Q&A)
                 expert_name: formData.expert_name || null,
                 expert_title: formData.expert_title || null,
@@ -167,6 +168,7 @@ const Events = () => {
             pricing: 0,
             is_paid: false,
             description: '',
+            guidelines: '',
             expert_name: '',
             expert_title: '',
             expert_bio: '',
@@ -196,6 +198,7 @@ const Events = () => {
             pricing: event.pricing,
             is_paid: event.is_paid,
             description: event.description || '',
+            guidelines: event.guidelines || '',
             expert_name: event.expert_name || '',
             expert_title: event.expert_title || '',
             expert_bio: event.expert_bio || '',
@@ -547,6 +550,20 @@ const Events = () => {
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 placeholder="Brief description of the event..."
                                 rows="4"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none text-lg resize-none"
+                            />
+                        </div>
+
+                        {/* Guidelines */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Event Guidelines
+                            </label>
+                            <textarea
+                                value={formData.guidelines}
+                                onChange={(e) => setFormData({ ...formData, guidelines: e.target.value })}
+                                placeholder="Rules, requirements, and guidelines for participants..."
+                                rows="6"
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none text-lg resize-none"
                             />
                         </div>

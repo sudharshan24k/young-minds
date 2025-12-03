@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import FadeIn from '../components/ui/FadeIn';
 import Modal from '../components/ui/Modal';
+import AboutSection from '../components/ui/AboutSection';
 
 const Events = () => {
     const navigate = useNavigate();
@@ -315,6 +316,11 @@ const Events = () => {
                         )}
                     </div>
                 </FadeIn>
+
+                <AboutSection
+                    title="About Monthly Events"
+                    content="Each month, we organize exciting events across three categories: Express Yourself (creative arts), Challenge Yourself (competitions and challenges), and Brainy Bites (educational content). Participate in these events to showcase your talents, learn new skills, and earn certificates!"
+                />
             </div>
 
             {/* Event Detail Modal */}

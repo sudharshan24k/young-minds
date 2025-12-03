@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Video, ArrowRight, Loader2, Search, Filter } from 'lucide-react';
+import { Video, Calendar, Users, ArrowRight, Loader2, Star, Search } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import AboutSection from '../components/ui/AboutSection';
 import FadeIn from '../components/ui/FadeIn';
 
 const Workshops = () => {
@@ -78,8 +79,8 @@ const Workshops = () => {
                                     key={f}
                                     onClick={() => setFilter(f)}
                                     className={`px-6 py-2 rounded-full font-bold text-sm whitespace-nowrap transition-all ${filter === f
-                                            ? 'bg-purple-600 text-white shadow-lg shadow-purple-200'
-                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        ? 'bg-purple-600 text-white shadow-lg shadow-purple-200'
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                         }`}
                                 >
                                     {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -195,6 +196,11 @@ const Workshops = () => {
                         )}
                     </div>
                 )}
+
+                <AboutSection
+                    title="About Workshops"
+                    content="Our workshops are led by expert creators and educators who share their knowledge and passion. Join live sessions or watch recorded workshops to learn new skills in art, writing, science, and more. Each workshop is designed to inspire creativity and hands-on learning!"
+                />
             </div>
         </div>
     );

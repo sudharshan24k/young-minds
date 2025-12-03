@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Palette, ArrowRight, Sparkles, Star } from 'lucide-react';
 import FadeIn from '../components/ui/FadeIn';
+import AboutSection from '../components/ui/AboutSection';
 
 const ExpressYourself = () => {
     const navigate = useNavigate();
@@ -116,6 +117,11 @@ const ExpressYourself = () => {
                         </div>
                     </div>
                 </FadeIn>
+
+                <AboutSection
+                    title="About Express Yourself"
+                    content="Express Yourself is our creative arts program where students can showcase their talents in art, writing, music, photography, and more. Each month features a new theme for you to interpret through your chosen medium. Share your unique voice and get recognized for your creative work!"
+                />
             </div>
         </div>
     );

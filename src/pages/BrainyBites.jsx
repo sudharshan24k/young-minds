@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Brain, ArrowRight, Lightbulb, BookOpen, Rocket } from 'lucide-react';
 import FadeIn from '../components/ui/FadeIn';
+import AboutSection from '../components/ui/AboutSection';
 
 const BrainyBites = () => {
     const navigate = useNavigate();
@@ -116,6 +117,11 @@ const BrainyBites = () => {
                         </div>
                     </div>
                 </FadeIn>
+
+                <AboutSection
+                    title="About Brainy Bites"
+                    content="Brainy Bites is our educational enrichment program featuring fascinating topics, fun facts, science experiments, and trivia. Each month brings new themes designed to spark curiosity and expand your knowledge. Learn something new while having fun!"
+                />
             </div>
         </div>
     );

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { Trophy, Calendar, Loader2, Award, Star, Medal } from 'lucide-react';
 import FadeIn from '../components/ui/FadeIn';
+import AboutSection from '../components/ui/AboutSection';
 
 const HallOfFame = () => {
     const [winners, setWinners] = useState([]);
@@ -336,6 +337,11 @@ const HallOfFame = () => {
                         </div>
                     </div>
                 </FadeIn>
+
+                <AboutSection
+                    title="About Hall of Fame"
+                    content="The Hall of Fame celebrates our most outstanding participants each month. Winners are recognized across different categories including First Place, Second Place, Third Place, People's Choice, and Outstanding Participation. Each winner receives a certificate and Amazon vouchers as prizes. Keep participating to earn your spot in the Hall of Fame!"
+                />
             </div>
         </div>
     );

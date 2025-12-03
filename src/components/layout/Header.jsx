@@ -30,9 +30,10 @@ const Header = () => {
                 { name: 'Monthly Events', path: '/events' },
             ]
         },
+        { name: 'Publications', path: '/publications' },
+        { name: 'Workshops', path: '/workshops' },
         { name: 'Gallery', path: '/gallery' },
         { name: 'Hall of Fame', path: '/hall-of-fame' },
-        { name: 'Workshops', path: '/workshops' },
         { name: 'Enroll', path: '/enroll' },
     ];
 

@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trophy, ArrowRight, Target, Award, Medal } from 'lucide-react';
+import { Trophy, ArrowRight, Target, Zap } from 'lucide-react';
 import FadeIn from '../components/ui/FadeIn';
+import AboutSection from '../components/ui/AboutSection';
 
 const ChallengeYourself = () => {
     const navigate = useNavigate();
@@ -116,6 +117,11 @@ const ChallengeYourself = () => {
                         </div>
                     </div>
                 </FadeIn>
+
+                <AboutSection
+                    title="About Challenge Yourself"
+                    content="Challenge Yourself is our competition program where students test their skills through puzzles, quizzes, STEM challenges, and problem-solving activities. Compete with peers in monthly themed challenges. Winners receive certificates and Amazon vouchers!"
+                />
             </div>
         </div>
     );

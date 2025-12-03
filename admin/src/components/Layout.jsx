@@ -40,6 +40,12 @@ const Layout = () => {
             label: 'Dashboard'
         },
         {
+            type: 'single',
+            path: '/publications',
+            icon: BookOpen,
+            label: 'Publications'
+        },
+        {
             type: 'group',
             id: 'search-communication',
             label: 'Search & Communication',

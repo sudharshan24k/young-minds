@@ -8,6 +8,7 @@ import { SkeletonCardGrid } from '../components/ui/SkeletonComponents';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabase';
 import { useAuth } from '../context/AuthContext';
+import AboutSection from '../components/ui/AboutSection';
 
 const Gallery = () => {
     const { user } = useAuth();
@@ -374,6 +375,11 @@ const Gallery = () => {
                         </div>
                     )}
                 </Modal>
+
+                <AboutSection
+                    title="About Gallery"
+                    content="The Young Minds Gallery showcases creative work submitted by students across all categories. Browse through amazing art, writing, videos, and STEM projects. Vote for your favorites and leave encouraging comments to support fellow creators!"
+                />
             </div>
         </div>
     );

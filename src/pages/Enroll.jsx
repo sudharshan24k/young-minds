@@ -5,6 +5,7 @@ import { Rocket, ArrowRight, CheckCircle, Users, Calendar as CalendarIcon, Loade
 import FadeIn from '../components/ui/FadeIn';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import AboutSection from '../components/ui/AboutSection';
 
 const Enroll = () => {
     const navigate = useNavigate();
@@ -239,10 +240,10 @@ const Enroll = () => {
                                                 onClick={() => handleRegister(event.id)}
                                                 disabled={isRegistered(event.id) || registering === event.id || event.status === 'closed'}
                                                 className={`w-full py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 ${isRegistered(event.id)
-                                                        ? 'bg-green-100 text-green-700 cursor-default'
-                                                        : event.status === 'closed'
-                                                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                                                            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-blue-200'
+                                                    ? 'bg-green-100 text-green-700 cursor-default'
+                                                    : event.status === 'closed'
+                                                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                                                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-blue-200'
                                                     }`}
                                             >
                                                 {registering === event.id ? (
@@ -312,6 +313,11 @@ const Enroll = () => {
                         </button>
                     </div>
                 </FadeIn>
+
+                <AboutSection
+                    title="About Young Minds"
+                    content="Young Minds at Edura is a community platform where students can explore their creativity, participate in monthly themed events, and showcase their talents. We offer three main programs: Express Yourself (creative arts), Challenge Yourself (competitions), and Brainy Bites (educational content). All participants receive certificates, and winners get Amazon vouchers. Join us for a safe, encouraging environment where young minds can learn, grow, and shine!"
+                />
             </div>
         </div>
     );

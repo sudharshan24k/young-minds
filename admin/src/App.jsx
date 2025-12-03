@@ -22,6 +22,8 @@ const CertificateTemplates = lazy(() => import('./pages/CertificateTemplates'));
 const GlobalSearch = lazy(() => import('./pages/GlobalSearch'));
 const EmailCommunication = lazy(() => import('./pages/EmailCommunication'));
 const HallOfFame = lazy(() => import('./pages/HallOfFame'));
+const Publications = lazy(() => import('./pages/Publications'));
+const PublicationSubmissions = lazy(() => import('./pages/PublicationSubmissions'));
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -70,6 +72,8 @@ const App = () => {
               <Route path="search" element={<GlobalSearch />} />
               <Route path="email-communication" element={<EmailCommunication />} />
               <Route path="hall-of-fame" element={<HallOfFame />} />
+              <Route path="publications" element={<Publications />} />
+              <Route path="publications/:id/submissions" element={<PublicationSubmissions />} />
             </Route>
           </Routes>
         </Suspense>
