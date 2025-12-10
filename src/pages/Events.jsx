@@ -39,10 +39,31 @@ const Events = () => {
 
             if (error) throw error;
 
+            // Helper to get the most relevant event for a category
+            const getRelevantEvent = (category) => {
+                const categoryEvents = data?.filter(e => e.activity_category === category) || [];
+                if (categoryEvents.length === 0) return null;
+
+                // 1. Try to find a currently active event
+                const now = new Date();
+                const activeEvent = categoryEvents.find(e => {
+                    const start = new Date(e.start_date);
+                    const end = new Date(e.end_date);
+                    // Make end date inclusive of the full day
+                    end.setHours(23, 59, 59, 999);
+                    return now >= start && now <= end;
+                });
+
+                if (activeEvent) return activeEvent;
+
+                // 2. Fallback to the first event if no active event is found
+                return categoryEvents[0];
+            };
+
             const eventsByCategory = {
-                challenge: data?.find(e => e.activity_category === 'challenge') || null,
-                express: data?.find(e => e.activity_category === 'express') || null,
-                brainy: data?.find(e => e.activity_category === 'brainy') || null
+                challenge: getRelevantEvent('challenge'),
+                express: getRelevantEvent('express'),
+                brainy: getRelevantEvent('brainy')
             };
 
             setEvents(eventsByCategory);
