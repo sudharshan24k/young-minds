@@ -13,6 +13,7 @@ import FadeIn from '../components/ui/FadeIn';
 import '../styles/pages/Home.css';
 import homeData from '../data/home.json';
 import { getIcon } from '../utils/iconMapper';
+import RiddleWidget from '../components/hero/RiddleWidget';
 
 // Import images for production builds
 import creativeToolsImg from '../assets/images/decorative/creative_tools.png';
@@ -217,20 +218,20 @@ const Home = () => {
                 </div>
 
                 <div className="container-main relative z-10">
-                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                    <div className="grid lg:grid-cols-2 gap-16 items-start">
                         {/* Left Content */}
                         <FadeIn delay={0.2}>
                             <div>
                                 {/* Badge */}
                                 <motion.div
-                                    className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-6 py-3 rounded-full shadow-lg mb-8 border border-purple-100"
+                                    className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-8 py-4 rounded-full shadow-lg mb-8 border border-purple-100"
                                     whileHover={{ scale: 1.05 }}
                                 >
-                                    <StarIcon size={20} className="text-yellow-500" />
-                                    <span className="text-sm font-bold text-purple-600 tracking-wide uppercase">
+                                    <StarIcon size={24} className="text-yellow-500" />
+                                    <span className="text-xl font-bold text-purple-600 tracking-wide uppercase">
                                         {homeData.hero.welcome}
                                     </span>
-                                    <StarIcon size={20} className="text-yellow-500" />
+                                    <StarIcon size={24} className="text-yellow-500" />
                                 </motion.div>
 
                                 {/* Main Heading */}
@@ -306,14 +307,14 @@ const Home = () => {
                             </div>
                         </FadeIn>
 
-                        {/* Right Image */}
+                        {/* Right Content */}
                         <FadeIn delay={0.4}>
-                            <div className="relative flex items-center justify-center">
-                                {/* Main Hero Image */}
+                            <div className="relative w-full h-full flex flex-col justify-start"> (
+                                {/* Main Hero Image replaced with Riddle Widget */}
                                 <motion.div
-                                    className="relative z-10 rounded-3xl overflow-hidden shadow-2xl w-full aspect-[4/3] bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100"
+                                    className="relative z-10 w-full"
                                     animate={{
-                                        y: [0, -20, 0]
+                                        y: [0, -10, 0]
                                     }}
                                     transition={{
                                         duration: 6,
@@ -321,17 +322,7 @@ const Home = () => {
                                         ease: "easeInOut"
                                     }}
                                 >
-                                    <img
-                                        src={happyKidsCreatingImg}
-                                        alt="Happy kids creating art and learning"
-                                        className="w-full h-full object-cover"
-                                        fetchpriority="high"
-                                        loading="eager"
-                                        onError={(e) => {
-                                            // Hide image if it fails to load, show gradient background instead
-                                            e.target.style.display = 'none';
-                                        }}
-                                    />
+                                    <RiddleWidget />
                                 </motion.div>
 
                                 {/* Floating trophy illustration */}

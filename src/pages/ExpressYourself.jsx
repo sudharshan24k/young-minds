@@ -1,125 +1,153 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Pen, BookOpen, Sparkles, Trophy, CheckCircle, Lightbulb, Flag, PartyPopper } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Pen, BookOpen, Sparkles, Trophy, CheckCircle, Lightbulb, Flag, PartyPopper, Star, ArrowRight } from 'lucide-react';
 import FadeIn from '../components/ui/FadeIn';
 
 const ExpressYourself = () => {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('begin');
+    const [activeStage, setActiveStage] = useState(1);
 
-    const tabs = [
-        { id: 'begin', label: 'Begin small', icon: BookOpen },
-        { id: 'spark', label: 'Add a little spark', icon: Lightbulb },
-        { id: 'finish', label: 'Touch the finish line', icon: Flag },
-        { id: 'celebrate', label: 'Celebrate your achievement', icon: PartyPopper }
+    const stages = [
+        { id: 1, title: "Begin small", icon: BookOpen, color: "text-blue-500", bg: "bg-blue-100" },
+        { id: 2, title: "Add a little spark", icon: Lightbulb, color: "text-yellow-500", bg: "bg-yellow-100" },
+        { id: 3, title: "Touch the finish line", icon: Flag, color: "text-pink-500", bg: "bg-pink-100" },
+        { id: 4, title: "Celebrate your achievement", icon: PartyPopper, color: "text-purple-500", bg: "bg-purple-100" }
     ];
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 py-12 relative overflow-hidden">
-            {/* Decorative floating elements */}
-            <motion.div
-                className="absolute top-20 left-10 opacity-20 hidden lg:block"
-                animate={{ y: [0, -20, 0], rotate: [0, 10, 0] }}
-                transition={{ duration: 5, repeat: Infinity }}
-            >
+            {/* Decorative elements */}
+            <motion.div className="absolute top-20 left-10 opacity-20 hidden lg:block" animate={{ y: [0, -20, 0], rotate: [0, 10, 0] }} transition={{ duration: 5, repeat: Infinity }}>
                 <Pen size={80} className="text-pink-400" />
             </motion.div>
-            <motion.div
-                className="absolute bottom-20 right-10 opacity-20 hidden lg:block"
-                animate={{ y: [0, 20, 0], rotate: [0, -10, 0] }}
-                transition={{ duration: 6, repeat: Infinity, delay: 1 }}
-            >
+            <motion.div className="absolute bottom-20 right-10 opacity-20 hidden lg:block" animate={{ y: [0, 20, 0], rotate: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, delay: 1 }}>
                 <Sparkles size={60} className="text-purple-400" />
             </motion.div>
 
             <div className="container mx-auto px-4 relative z-10 max-w-6xl">
                 {/* Header */}
                 <FadeIn>
-                    <div className="text-center mb-12">
-                        <motion.div
-                            className="inline-block mb-6"
-                            animate={{ rotate: [0, -5, 5, 0] }}
-                            transition={{ duration: 3, repeat: Infinity }}
-                        >
+                    <div className="text-center mb-16">
+                        <motion.div className="inline-block mb-6" animate={{ rotate: [0, -5, 5, 0] }} transition={{ duration: 3, repeat: Infinity }}>
                             <Pen size={80} className="text-pink-600" />
                         </motion.div>
                         <h1 className="text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
                             Express Yourself
                         </h1>
+                        <p className="text-xl text-gray-700 leading-relaxed max-w-3xl mx-auto">
+                            The stage is set for your imagination. Click on the milestones below to explore your journey!
+                        </p>
                     </div>
                 </FadeIn>
 
-                {/* Welcome Section */}
+                {/* ROADMAP NAVIGATION */}
                 <FadeIn delay={0.2}>
-                    <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl border-2 border-purple-100 mb-12">
-                        <div className="text-center mb-8">
-                            <div className="inline-flex items-center gap-3 mb-4">
-                                <Sparkles className="text-purple-600" size={32} />
-                                <h2 className="text-3xl md:text-4xl font-black text-gray-800">
-                                    Welcome to Young Minds @ Edura
-                                </h2>
-                                <Sparkles className="text-pink-600" size={32} />
-                            </div>
-                            <p className="text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto mb-4">
-                                An online world where children's imagination takes center stage!
-                            </p>
-                            <p className="text-lg text-gray-600 leading-relaxed max-w-4xl mx-auto">
-                                We bring together young storytellers, poets, and budding writers — giving them the space, prompts, and recognition they deserve.
-                            </p>
+                    <div className="relative mb-24">
+                        {/* Curved Connector (Desktop) */}
+                        <div className="hidden md:block absolute top-1/2 left-0 w-full h-24 -translate-y-1/2 -z-10 overflow-visible pointer-events-none">
+                            <svg className="w-full h-full" viewBox="0 0 1200 100" fill="none" preserveAspectRatio="none">
+                                <defs>
+                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#D8B4FE" />
+                                    </marker>
+                                </defs>
+                                <path
+                                    d="M 150,50 C 450,50 750,50 1050,50"
+                                    stroke="#E9D5FF"
+                                    strokeWidth="4"
+                                    strokeDasharray="12 12"
+                                    markerEnd="url(#arrowhead)"
+                                    className="motion-safe:animate-pulse"
+                                />
+                            </svg>
                         </div>
 
-                        {/* Tabs Navigation */}
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-                            {tabs.map((tab) => {
-                                const Icon = tab.icon;
+                        {/* Interactive Step Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            {stages.map((stage) => {
+                                const Icon = stage.icon;
+                                const isActive = activeStage === stage.id;
+
                                 return (
                                     <motion.button
-                                        key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className={`p-4 rounded-xl font-bold transition-all border-2 ${activeTab === tab.id
-                                            ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white border-purple-500 shadow-lg'
-                                            : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-purple-300 hover:bg-purple-50'
+                                        key={stage.id}
+                                        onClick={() => setActiveStage(stage.id)}
+                                        className={`relative p-6 rounded-3xl transition-all duration-300 text-left w-full group ${isActive
+                                                ? "bg-white shadow-2xl scale-105 border-2 border-purple-200 ring-4 ring-purple-50 z-20"
+                                                : "bg-white/80 hover:bg-white shadow-lg border border-gray-100 opacity-70 hover:opacity-100 hover:scale-102 z-10"
                                             }`}
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
                                     >
-                                        <Icon className="mx-auto mb-2" size={24} />
-                                        <span className="text-sm">{tab.label}</span>
+                                        {/* Step Badge */}
+                                        <div className="mb-4 flex justify-center">
+                                            <div className={`px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${isActive ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-500"
+                                                }`}>
+                                                Step {stage.id}
+                                            </div>
+                                        </div>
+
+                                        {/* Icon Container */}
+                                        <div className={`mx-auto w-20 h-20 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-500 ${stage.bg} ${stage.color} ${isActive ? 'rotate-3 scale-110' : 'grayscale group-hover:grayscale-0'}`}>
+                                            <Icon size={40} />
+                                        </div>
+
+                                        {/* Title */}
+                                        <h3 className={`text-center font-bold text-lg leading-tight ${isActive ? "text-gray-900" : "text-gray-500 group-hover:text-gray-800"
+                                            }`}>
+                                            {stage.title}
+                                        </h3>
+
+                                        {/* Active Indicator Arrow */}
+                                        {isActive && (
+                                            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-white drop-shadow-sm">
+                                                <div className="w-0 h-0 border-l-[12px] border-l-transparent border-t-[12px] border-t-purple-200 border-r-[12px] border-r-transparent" />
+                                            </div>
+                                        )}
                                     </motion.button>
                                 );
                             })}
                         </div>
+                    </div>
+                </FadeIn>
 
-                        {/* Tab Content */}
+                {/* DYNAMIC CONTENT AREA */}
+                <div className="min-h-[500px]">
+                    <AnimatePresence mode="wait">
                         <motion.div
-                            key={activeTab}
+                            key={activeStage}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.3 }}
-                            className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 border-2 border-purple-200"
+                            className="bg-white rounded-3xl p-8 md:p-12 shadow-xl border-2 border-purple-50"
                         >
-                            {activeTab === 'begin' && (
+                            {/* STAGE 1: BEGIN SMALL */}
+                            {activeStage === 1 && (
                                 <div>
-                                    <h3 className="text-2xl font-black text-gray-800 mb-6 flex items-center gap-3">
-                                        <BookOpen className="text-purple-600" size={32} />
-                                        How we make creativity come alive?
-                                    </h3>
-                                    <ul className="space-y-4 text-gray-700">
-                                        <li className="flex gap-3">
-                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={20} />
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <div className="bg-blue-100 p-4 rounded-2xl">
+                                            <BookOpen className="text-blue-600" size={40} />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-3xl font-black text-gray-800">How we make creativity come alive?</h2>
+                                            <p className="text-blue-600 font-bold">Step 1: Introduction</p>
+                                        </div>
+                                    </div>
+                                    <ul className="space-y-6 text-lg text-gray-700">
+                                        <li className="flex gap-4 items-start">
+                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={24} />
                                             <span className="leading-relaxed">
                                                 Children can write stories, poems, essays, or even adapt their favorite classics or movies in their own words.
                                             </span>
                                         </li>
-                                        <li className="flex gap-3">
-                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={20} />
+                                        <li className="flex gap-4 items-start">
+                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={24} />
                                             <span className="leading-relaxed">
                                                 Every month, we compile top entries into a beautifully edited book with its own ISBN, available as both an eBook and print-on-demand copy on Amazon.
                                             </span>
                                         </li>
-                                        <li className="flex gap-3">
-                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={20} />
+                                        <li className="flex gap-4 items-start">
+                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={24} />
                                             <span className="leading-relaxed">
                                                 Each child's work is showcased on our website, giving them real recognition as young authors.
                                             </span>
@@ -128,241 +156,168 @@ const ExpressYourself = () => {
                                 </div>
                             )}
 
-                            {activeTab === 'spark' && (
+                            {/* STAGE 2: ADD A SPARK */}
+                            {activeStage === 2 && (
                                 <div>
-                                    <h3 className="text-2xl font-black text-gray-800 mb-6 flex items-center gap-3">
-                                        <Lightbulb className="text-yellow-500" size={32} />
-                                        Need a little spark to get started?
-                                    </h3>
-                                    <p className="text-gray-700 mb-6 font-semibold">Our platform offers:</p>
-                                    <ul className="space-y-3 text-gray-700 mb-8">
-                                        <li className="flex gap-3">
-                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={20} />
-                                            <span className="leading-relaxed">Writing prompts and themes to spark creativity</span>
-                                        </li>
-                                        <li className="flex gap-3">
-                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={20} />
-                                            <span className="leading-relaxed">Mini PowerPoint lessons and writing guides to help kids build stories step by step</span>
-                                        </li>
-                                        <li className="flex gap-3">
-                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={20} />
-                                            <span className="leading-relaxed">Editing support to refine their work before publication</span>
-                                        </li>
-                                        <li className="flex gap-3">
-                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={20} />
-                                            <span className="leading-relaxed">Collection of sample stories and poems written by children for inspiration</span>
-                                        </li>
-                                    </ul>
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <div className="bg-yellow-100 p-4 rounded-2xl">
+                                            <Lightbulb className="text-yellow-600" size={40} />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-3xl font-black text-gray-800">Need a little spark?</h2>
+                                            <p className="text-yellow-600 font-bold">Step 2: Inspiration & Prompts</p>
+                                        </div>
+                                    </div>
 
-                                    {/* Writing Prompts Section */}
-                                    <div className="bg-white rounded-xl p-6 border-2 border-purple-200 mt-6">
-                                        <h4 className="text-xl font-bold text-purple-800 mb-4">📝 Writing Prompts and Themes to Spark Creativity</h4>
+                                    <div className="mb-8 p-6 bg-yellow-50 rounded-2xl border border-yellow-100">
+                                        <h4 className="flex items-center gap-2 font-bold text-yellow-800 mb-4">
+                                            <Sparkles size={20} /> Our platform offers:
+                                        </h4>
+                                        <ul className="grid md:grid-cols-2 gap-4 text-gray-700">
+                                            <li className="flex gap-2"><CheckCircle size={18} className="text-green-600 shrink-0" /> Writing prompts and themes</li>
+                                            <li className="flex gap-2"><CheckCircle size={18} className="text-green-600 shrink-0" /> Mini lessons & guides</li>
+                                            <li className="flex gap-2"><CheckCircle size={18} className="text-green-600 shrink-0" /> Editing support</li>
+                                            <li className="flex gap-2"><CheckCircle size={18} className="text-green-600 shrink-0" /> Sample stories for inspiration</li>
+                                        </ul>
+                                    </div>
 
-                                        <div className="space-y-6">
-                                            {/* Ages 5-7 */}
-                                            <div className="border-l-4 border-pink-400 pl-4">
-                                                <h5 className="text-lg font-bold text-gray-800 mb-2">Ages 5–7</h5>
-                                                <p className="text-sm text-gray-600 mb-3 italic">Focus: Imagination, feelings, family, friendship, discovery</p>
-
-                                                <div className="space-y-3 text-sm">
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Imagination, fantasy:</span>
-                                                        <p className="text-gray-600 ml-4">The talking cat; If toys could talk; The chocolate slide; My pet dragon; A rainbow I could walk on; If I had wings; The day the colors disappeared; If I could visit another planet</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Friendship:</span>
-                                                        <p className="text-gray-600 ml-4">My best friend and I; Sharing my lunch; A kind surprise; Our secret mission</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Family and Belonging:</span>
-                                                        <p className="text-gray-600 ml-4">A day with my family; Our family song; Grandma's cookies; Helping at home</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Nature:</span>
-                                                        <p className="text-gray-600 ml-4">The talking tree; A walk in the rain; Colors of the garden</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Courage:</span>
-                                                        <p className="text-gray-600 ml-4">The brave little turtle; Try something new</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Emotions:</span>
-                                                        <p className="text-gray-600 ml-4">What makes me happy; When I felt scared; My favorite thing to do</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Hope:</span>
-                                                        <p className="text-gray-600 ml-4">I can learn anything; When I practiced until I got it right</p>
-                                                    </div>
-                                                </div>
+                                    <h3 className="text-2xl font-bold text-gray-800 mb-6">📝 Themes to Spark Creativity</h3>
+                                    <div className="space-y-6">
+                                        {/* Ages 5-7 */}
+                                        <div className="border-l-4 border-pink-400 pl-6 py-2 bg-gradient-to-r from-pink-50 to-transparent rounded-r-xl">
+                                            <h5 className="text-xl font-bold text-gray-800 mb-2">Ages 5–7</h5>
+                                            <p className="text-sm text-gray-600 mb-3 italic">Imagination, family, friendship</p>
+                                            <div className="grid md:grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-700 font-medium">
+                                                <p>• The talking cat</p>
+                                                <p>• If toys could talk</p>
+                                                <p>• My pet dragon</p>
+                                                <p>• A rainbow I could walk on</p>
+                                                <p>• Grandma's cookies</p>
+                                                <p>• Our secret mission</p>
                                             </div>
+                                        </div>
 
-                                            {/* Ages 8-10 */}
-                                            <div className="border-l-4 border-blue-400 pl-4">
-                                                <h5 className="text-lg font-bold text-gray-800 mb-2">Ages 8–10</h5>
-                                                <p className="text-sm text-gray-600 mb-3 italic">Focus: Kindness, curiosity, adventure, empathy, problem-solving</p>
-
-                                                <div className="space-y-3 text-sm">
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Imagination, fantasy:</span>
-                                                        <p className="text-gray-600 ml-4">The secret door at school; A day I turned invisible; Dream world</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Friendship:</span>
-                                                        <p className="text-gray-600 ml-4">Helping a friend in trouble; The new kid at school</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Family and Belonging:</span>
-                                                        <p className="text-gray-600 ml-4">A family adventure; My family's traditions</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Nature:</span>
-                                                        <p className="text-gray-600 ml-4">The adventure of a lost raindrop; Talking animals in the forest; The unending trek</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Courage:</span>
-                                                        <p className="text-gray-600 ml-4">Facing my fear; Standing up for someone</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Identity:</span>
-                                                        <p className="text-gray-600 ml-4">What makes me special; The best part of being me; The mask I wear</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Values:</span>
-                                                        <p className="text-gray-600 ml-4">Doing the right thing; Fairness at school</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Hope:</span>
-                                                        <p className="text-gray-600 ml-4">Trying again; When I made something better; Choosing to begin again</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Reflection:</span>
-                                                        <p className="text-gray-600 ml-4">The best day ever; A memory I'll never forget</p>
-                                                    </div>
-                                                </div>
+                                        {/* Ages 8-10 */}
+                                        <div className="border-l-4 border-blue-400 pl-6 py-2 bg-gradient-to-r from-blue-50 to-transparent rounded-r-xl">
+                                            <h5 className="text-xl font-bold text-gray-800 mb-2">Ages 8–10</h5>
+                                            <p className="text-sm text-gray-600 mb-3 italic">Adventure, empathy, problem-solving</p>
+                                            <div className="grid md:grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-700 font-medium">
+                                                <p>• The secret door at school</p>
+                                                <p>• A day I turned invisible</p>
+                                                <p>• Helping a friend in trouble</p>
+                                                <p>• The adventure of a lost raindrop</p>
+                                                <p>• Facing my fear</p>
+                                                <p>• What makes me special</p>
                                             </div>
+                                        </div>
 
-                                            {/* Ages 11-13 */}
-                                            <div className="border-l-4 border-purple-400 pl-4">
-                                                <h5 className="text-lg font-bold text-gray-800 mb-2">Ages 11–13</h5>
-                                                <p className="text-sm text-gray-600 mb-3 italic">Focus: Identity, friendship, growing up, fairness, reflection</p>
-
-                                                <div className="space-y-3 text-sm">
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Imagination, fantasy:</span>
-                                                        <p className="text-gray-600 ml-4">Worlds beyond the clouds; Magic in ordinary places; Escaping into another reality</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Friendship:</span>
-                                                        <p className="text-gray-600 ml-4">When friends disagree; True friendship; Trusting someone again</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Family and Belonging:</span>
-                                                        <p className="text-gray-600 ml-4">Family secrets; What home means to me</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Nature:</span>
-                                                        <p className="text-gray-600 ml-4">Secrets of the jungle; My connection with nature; The planet's cry; A world without green</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Courage:</span>
-                                                        <p className="text-gray-600 ml-4">Standing up for what's right; Not giving up; Silent courage</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Identity:</span>
-                                                        <p className="text-gray-600 ml-4">Who am I?; Finding my voice</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Values:</span>
-                                                        <p className="text-gray-600 ml-4">Controlling anger; Speaking out; Being fair to others; Equality and truth</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Hope:</span>
-                                                        <p className="text-gray-600 ml-4">Learning from mistakes; A time I changed; The beauty of failure</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-semibold text-gray-700">Reflection:</span>
-                                                        <p className="text-gray-600 ml-4">How can I handle sadness; A day I'll always remember; Looking back on my childhood; What I've learned so far</p>
-                                                    </div>
-                                                </div>
+                                        {/* Ages 11-13 */}
+                                        <div className="border-l-4 border-purple-400 pl-6 py-2 bg-gradient-to-r from-purple-50 to-transparent rounded-r-xl">
+                                            <h5 className="text-xl font-bold text-gray-800 mb-2">Ages 11–13</h5>
+                                            <p className="text-sm text-gray-600 mb-3 italic">Identity, justice, reflection</p>
+                                            <div className="grid md:grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-700 font-medium">
+                                                <p>• Worlds beyond the clouds</p>
+                                                <p>• Magic in ordinary places</p>
+                                                <p>• True friendship</p>
+                                                <p>• Family secrets</p>
+                                                <p>• Standing up for what's right</p>
+                                                <p>• Finding my voice</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
-                            {activeTab === 'finish' && (
+                            {/* STAGE 3: FINISH LINE */}
+                            {activeStage === 3 && (
                                 <div>
-                                    <h3 className="text-2xl font-black text-gray-800 mb-6 flex items-center gap-3">
-                                        <Flag className="text-blue-500" size={32} />
-                                        Finish your story, claim your glory
-                                    </h3>
-                                    <ul className="space-y-4 text-gray-700">
-                                        <li className="flex gap-3">
-                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={20} />
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <div className="bg-pink-100 p-4 rounded-2xl">
+                                            <Flag className="text-pink-600" size={40} />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-3xl font-black text-gray-800">Touch the finish line</h2>
+                                            <p className="text-pink-600 font-bold">Step 3: Submission</p>
+                                        </div>
+                                    </div>
+                                    <ul className="space-y-6 text-lg text-gray-700">
+                                        <li className="flex gap-4 items-start">
+                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={24} />
                                             <span className="leading-relaxed">
-                                                <strong>Upload your masterpiece:</strong> submit your writing in any format: text, PDF, Word doc, or even pictures of the drawings.
+                                                <strong>Upload your masterpiece:</strong> Submit your writing in any format: text, PDF, Word doc, or even pictures of your handwritten pages and drawings.
                                             </span>
                                         </li>
-                                        <li className="flex gap-3">
-                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={20} />
+                                        <li className="flex gap-4 items-start">
+                                            <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={24} />
                                             <span className="leading-relaxed">
-                                                <strong>Exhibit your talent on video:</strong> share storytelling, poetry recitals, or readings of your own work in any format.
+                                                <strong>Exhibit your talent on video:</strong> Share storytelling, poetry recitals, or readings of your own work in any format.
                                             </span>
                                         </li>
                                     </ul>
                                 </div>
                             )}
 
-                            {activeTab === 'celebrate' && (
+                            {/* STAGE 4: CELEBRATE */}
+                            {activeStage === 4 && (
                                 <div>
-                                    <h3 className="text-2xl font-black text-gray-800 mb-6 flex items-center gap-3">
-                                        <PartyPopper className="text-pink-500" size={32} />
-                                        What you achieve?
-                                    </h3>
-                                    <ul className="space-y-4 text-gray-700">
-                                        <li className="flex gap-3">
-                                            <Trophy className="text-yellow-500 flex-shrink-0 mt-1" size={20} />
-                                            <span className="leading-relaxed">
-                                                <strong>Top 10 entries get published:</strong> each month, the best works are selected for publishing in our quarterly eBook and given special mention on the website.
-                                            </span>
-                                        </li>
-                                        <li className="flex gap-3">
-                                            <Trophy className="text-yellow-500 flex-shrink-0 mt-1" size={20} />
-                                            <span className="leading-relaxed">
-                                                <strong>Be a YouTube Star:</strong> winning videos are featured on our official YouTube channel, giving children their own spotlight.
-                                            </span>
-                                        </li>
-                                        <li className="flex gap-3">
-                                            <Trophy className="text-yellow-500 flex-shrink-0 mt-1" size={20} />
-                                            <span className="leading-relaxed">
-                                                <strong>Participation matters:</strong> all participants get e-certificates and top two winners receive Amazon vouchers every month.
-                                            </span>
-                                        </li>
-                                        <li className="flex gap-3">
-                                            <Trophy className="text-yellow-500 flex-shrink-0 mt-1" size={20} />
-                                            <span className="leading-relaxed">
-                                                <strong>Get your work published in Young Minds @ Edura:</strong> Every 3 months, we release a curated anthology of selected works, complete with ISBN, available on Amazon and proudly showcased on our website.
-                                            </span>
-                                        </li>
-                                    </ul>
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <div className="bg-purple-100 p-4 rounded-2xl">
+                                            <PartyPopper className="text-purple-600" size={40} />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-3xl font-black text-gray-800">Celebrate your achievement</h2>
+                                            <p className="text-purple-600 font-bold">Step 4: Rewards & Recognition</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <div className="bg-yellow-50 p-6 rounded-2xl border border-yellow-100 flex gap-4">
+                                            <Trophy className="text-yellow-500 shrink-0" size={32} />
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 mb-2">Published Author</h4>
+                                                <p className="text-gray-600 text-sm">Top 10 entries get published in our quarterly eBook with its own ISBN.</p>
+                                            </div>
+                                        </div>
+                                        <div className="bg-red-50 p-6 rounded-2xl border border-red-100 flex gap-4">
+                                            <Star className="text-red-500 shrink-0" size={32} />
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 mb-2">YouTube Star</h4>
+                                                <p className="text-gray-600 text-sm">Winning videos are featured on our official YouTube channel.</p>
+                                            </div>
+                                        </div>
+                                        <div className="bg-green-50 p-6 rounded-2xl border border-green-100 flex gap-4">
+                                            <Trophy className="text-green-500 shrink-0" size={32} />
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 mb-2">Vouchers & Certificates</h4>
+                                                <p className="text-gray-600 text-sm">All get e-certificates. Top winners receive Amazon vouchers!</p>
+                                            </div>
+                                        </div>
+                                        <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100 flex gap-4">
+                                            <BookOpen className="text-blue-500 shrink-0" size={32} />
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 mb-2">Quarterly Anthology</h4>
+                                                <p className="text-gray-600 text-sm">A curated collection of works available on Amazon every 3 months.</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
+
+                            {/* Global CTA located inside the content area for flow */}
+                            <div className="mt-12 text-center pt-8 border-t border-gray-100">
+                                <motion.button
+                                    onClick={() => navigate('/events')}
+                                    className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-10 py-4 rounded-full text-lg font-bold hover:shadow-2xl transition-all inline-flex items-center gap-3 group"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    Start Your Journey Now
+                                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                </motion.button>
+                            </div>
                         </motion.div>
-
-                        {/* CTA Button */}
-                        <div className="mt-8 text-center">
-                            <motion.button
-                                onClick={() => navigate('/events')}
-                                className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-10 py-4 rounded-full text-lg font-bold hover:shadow-2xl transition-all inline-flex items-center gap-3 group"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                            >
-                                Start Your Writing Journey
-                                <Pen size={20} className="group-hover:translate-x-1 transition-transform" />
-                            </motion.button>
-                        </div>
-                    </div>
-                </FadeIn>
+                    </AnimatePresence>
+                </div>
             </div>
         </div>
     );
