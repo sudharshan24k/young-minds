@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Pen, BookOpen, Sparkles, Trophy, CheckCircle, Lightbulb, Flag, PartyPopper, Star, ArrowRight } from 'lucide-react';
+import { Pen, BookOpen, Sparkles, Trophy, CheckCircle, Lightbulb, Flag, PartyPopper, Star, ArrowRight, ChevronDown } from 'lucide-react';
 import FadeIn from '../components/ui/FadeIn';
 
 const ExpressYourself = () => {
     const navigate = useNavigate();
     const [activeStage, setActiveStage] = useState(1);
+    const [openAgeGroup, setOpenAgeGroup] = useState('5-7'); // Default open section
 
     const stages = [
         { id: 1, title: "Begin small", icon: BookOpen, color: "text-blue-500", bg: "bg-blue-100" },
@@ -74,8 +75,8 @@ const ExpressYourself = () => {
                                         key={stage.id}
                                         onClick={() => setActiveStage(stage.id)}
                                         className={`relative p-6 rounded-3xl transition-all duration-300 text-left w-full group ${isActive
-                                                ? "bg-white shadow-2xl scale-105 border-2 border-purple-200 ring-4 ring-purple-50 z-20"
-                                                : "bg-white/80 hover:bg-white shadow-lg border border-gray-100 opacity-70 hover:opacity-100 hover:scale-102 z-10"
+                                            ? "bg-white shadow-2xl scale-105 border-2 border-purple-200 ring-4 ring-purple-50 z-20"
+                                            : "bg-white/80 hover:bg-white shadow-lg border border-gray-100 opacity-70 hover:opacity-100 hover:scale-102 z-10"
                                             }`}
                                     >
                                         {/* Step Badge */}
@@ -182,48 +183,80 @@ const ExpressYourself = () => {
                                     </div>
 
                                     <h3 className="text-2xl font-bold text-gray-800 mb-6">📝 Themes to Spark Creativity</h3>
-                                    <div className="space-y-6">
-                                        {/* Ages 5-7 */}
-                                        <div className="border-l-4 border-pink-400 pl-6 py-2 bg-gradient-to-r from-pink-50 to-transparent rounded-r-xl">
-                                            <h5 className="text-xl font-bold text-gray-800 mb-2">Ages 5–7</h5>
-                                            <p className="text-sm text-gray-600 mb-3 italic">Imagination, family, friendship</p>
-                                            <div className="grid md:grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-700 font-medium">
-                                                <p>• The talking cat</p>
-                                                <p>• If toys could talk</p>
-                                                <p>• My pet dragon</p>
-                                                <p>• A rainbow I could walk on</p>
-                                                <p>• Grandma's cookies</p>
-                                                <p>• Our secret mission</p>
-                                            </div>
-                                        </div>
+                                    <div className="space-y-4">
+                                        {[
+                                            {
+                                                id: '5-7',
+                                                title: 'Ages 5–7',
+                                                focus: 'Imagination, family, friendship',
+                                                color: 'pink',
+                                                themes: ['The talking cat', 'If toys could talk', 'My pet dragon', 'A rainbow I could walk on', "Grandma's cookies", 'Our secret mission']
+                                            },
+                                            {
+                                                id: '8-10',
+                                                title: 'Ages 8–10',
+                                                focus: 'Adventure, empathy, problem-solving',
+                                                color: 'blue',
+                                                themes: ['The secret door at school', 'A day I turned invisible', 'Helping a friend in trouble', 'The adventure of a lost raindrop', 'Facing my fear', 'What makes me special']
+                                            },
+                                            {
+                                                id: '11-13',
+                                                title: 'Ages 11–13',
+                                                focus: 'Identity, justice, reflection',
+                                                color: 'purple',
+                                                themes: ['Worlds beyond the clouds', 'Magic in ordinary places', 'True friendship', 'Family secrets', "Standing up for what's right", 'Finding my voice']
+                                            }
+                                        ].map((group) => {
+                                            const isOpen = openAgeGroup === group.id;
+                                            const colorClasses = {
+                                                pink: 'border-pink-400 from-pink-50 text-pink-700',
+                                                blue: 'border-blue-400 from-blue-50 text-blue-700',
+                                                purple: 'border-purple-400 from-purple-50 text-purple-700'
+                                            };
 
-                                        {/* Ages 8-10 */}
-                                        <div className="border-l-4 border-blue-400 pl-6 py-2 bg-gradient-to-r from-blue-50 to-transparent rounded-r-xl">
-                                            <h5 className="text-xl font-bold text-gray-800 mb-2">Ages 8–10</h5>
-                                            <p className="text-sm text-gray-600 mb-3 italic">Adventure, empathy, problem-solving</p>
-                                            <div className="grid md:grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-700 font-medium">
-                                                <p>• The secret door at school</p>
-                                                <p>• A day I turned invisible</p>
-                                                <p>• Helping a friend in trouble</p>
-                                                <p>• The adventure of a lost raindrop</p>
-                                                <p>• Facing my fear</p>
-                                                <p>• What makes me special</p>
-                                            </div>
-                                        </div>
-
-                                        {/* Ages 11-13 */}
-                                        <div className="border-l-4 border-purple-400 pl-6 py-2 bg-gradient-to-r from-purple-50 to-transparent rounded-r-xl">
-                                            <h5 className="text-xl font-bold text-gray-800 mb-2">Ages 11–13</h5>
-                                            <p className="text-sm text-gray-600 mb-3 italic">Identity, justice, reflection</p>
-                                            <div className="grid md:grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-700 font-medium">
-                                                <p>• Worlds beyond the clouds</p>
-                                                <p>• Magic in ordinary places</p>
-                                                <p>• True friendship</p>
-                                                <p>• Family secrets</p>
-                                                <p>• Standing up for what's right</p>
-                                                <p>• Finding my voice</p>
-                                            </div>
-                                        </div>
+                                            return (
+                                                <div key={group.id} className="rounded-xl overflow-hidden shadow-sm border border-gray-100 bg-white">
+                                                    <button
+                                                        onClick={() => setOpenAgeGroup(isOpen ? null : group.id)}
+                                                        className={`w-full flex items-center justify-between p-4 text-left transition-all ${isOpen ? `bg-gradient-to-r ${colorClasses[group.color]} border-l-4` : 'hover:bg-gray-50'
+                                                            }`}
+                                                    >
+                                                        <div>
+                                                            <h5 className={`text-xl font-bold ${isOpen ? 'text-gray-900' : 'text-gray-700'}`}>
+                                                                {group.title}
+                                                            </h5>
+                                                            <p className="text-sm text-gray-500 italic">{group.focus}</p>
+                                                        </div>
+                                                        <ChevronDown
+                                                            size={24}
+                                                            className={`transition-transform duration-300 text-gray-400 ${isOpen ? 'rotate-180 text-gray-800' : ''}`}
+                                                        />
+                                                    </button>
+                                                    <AnimatePresence>
+                                                        {isOpen && (
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0 }}
+                                                                animate={{ height: 'auto', opacity: 1 }}
+                                                                exit={{ height: 0, opacity: 0 }}
+                                                                transition={{ duration: 0.3 }}
+                                                                className="overflow-hidden"
+                                                            >
+                                                                <div className="p-6 bg-gray-50 border-t border-gray-100">
+                                                                    <div className="grid md:grid-cols-2 gap-x-8 gap-y-3 text-gray-700 font-medium">
+                                                                        {group.themes.map((theme, i) => (
+                                                                            <div key={i} className="flex items-center gap-2">
+                                                                                <div className={`w-2 h-2 rounded-full bg-${group.color}-400`} />
+                                                                                {theme}
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}

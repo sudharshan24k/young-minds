@@ -39,6 +39,7 @@ const SubmitWork = lazy(() => import('./pages/SubmitWork'));
 const HallOfFame = lazy(() => import('./pages/HallOfFame'));
 const Certificates = lazy(() => import('./pages/Certificates'));
 const Publications = lazy(() => import('./pages/Publications'));
+const PublicationRules = lazy(() => import('./pages/PublicationRules'));
 
 // Admin App (Lazy load the entire admin section)
 const AdminApp = lazy(() => import('../admin/src/App'));
@@ -102,6 +103,7 @@ function App() {
                 <Route path="/hall-of-fame" element={<HallOfFame />} />
                 <Route path="/events" element={<Events />} />
                 <Route path="/publications" element={<Publications />} />
+                <Route path="/publication-rules" element={<PublicationRules />} />
                 <Route path="/submit-work" element={<SubmitWork />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Users, FileText, LogOut, Calendar, Image, BookOpen, Trophy, Award, MessageSquare, FileCheck, Search, Mail, Video, ChevronDown, ChevronRight, Briefcase, Sparkles, UserCircle } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, LogOut, Calendar, Image, BookOpen, Trophy, Award, MessageSquare, FileCheck, Search, Mail, Video, ChevronDown, ChevronRight, Briefcase, Sparkles, UserCircle, Plus } from 'lucide-react';
 
 const Layout = () => {
     const { signOut } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [expandedGroups, setExpandedGroups] = useState({
+        'publications': false,
         'search-communication': false,
         'user-management': false,
         'events-activities': false,
@@ -40,10 +41,15 @@ const Layout = () => {
             label: 'Dashboard'
         },
         {
-            type: 'single',
-            path: '/publications',
+            type: 'group',
+            id: 'publications',
+            label: 'Publications',
             icon: BookOpen,
-            label: 'Publications'
+            items: [
+                { path: '/create', icon: Plus, label: 'Create Publication' },
+                { path: '/manage', icon: BookOpen, label: 'Manage Publications' },
+                { path: '/assignments', icon: Users, label: 'Topic Assignments' }
+            ]
         },
         {
             type: 'group',

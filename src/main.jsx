@@ -10,7 +10,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ErrorBoundary>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <App />
       </Router>
     </ErrorBoundary>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Loader2, Plus, Calendar as CalendarIcon, Trash2, Eye, DollarSign } from 'lucide-react';
+import { Loader2, Plus, Calendar as CalendarIcon, Trash2, Eye, DollarSign, Filter } from 'lucide-react';
 
 const Events = () => {
     const [events, setEvents] = useState([]);
@@ -8,6 +8,12 @@ const Events = () => {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editingEvent, setEditingEvent] = useState(null);
+    const [filters, setFilters] = useState({
+        category: 'all',
+        type: 'all',
+        month: 'all',
+        year: 'all'
+    });
     const [formData, setFormData] = useState({
         title: '',
         event_type: 'competition',
@@ -284,6 +290,71 @@ const Events = () => {
                     {showForm ? 'Cancel' : 'Create Event'}
                 </button>
             </div>
+
+            {/* Filters */}
+            {!showForm && (
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-wrap gap-4 items-center animate-in fade-in slide-in-from-top-2">
+                    <div className="flex items-center gap-2 text-gray-500 font-medium">
+                        <Filter size={20} />
+                        <span>Filters:</span>
+                    </div>
+
+                    <select
+                        value={filters.category}
+                        onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                    >
+                        <option value="all">All Categories</option>
+                        <option value="challenge">Challenge Yourself</option>
+                        <option value="express">Express Yourself</option>
+                        <option value="brainy">Brainy Bites</option>
+                    </select>
+
+                    <select
+                        value={filters.type}
+                        onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                    >
+                        <option value="all">All Event Types</option>
+                        <option value="competition">Competition</option>
+                        <option value="workshop">Workshop</option>
+                        <option value="qna_session">Q&A Session</option>
+                    </select>
+
+                    <select
+                        value={filters.month}
+                        onChange={(e) => setFilters({ ...filters, month: e.target.value })}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                    >
+                        <option value="all">All Months</option>
+                        {Array.from({ length: 12 }, (_, i) => (
+                            <option key={i} value={i + 1}>
+                                {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select
+                        value={filters.year}
+                        onChange={(e) => setFilters({ ...filters, year: e.target.value })}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                    >
+                        <option value="all">All Years</option>
+                        {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 1 + i).map(year => (
+                            <option key={year} value={year}>{year}</option>
+                        ))}
+                    </select>
+
+                    {(filters.category !== 'all' || filters.type !== 'all' || filters.month !== 'all' || filters.year !== 'all') && (
+                        <button
+                            onClick={() => setFilters({ category: 'all', type: 'all', month: 'all', year: 'all' })}
+                            className="text-red-600 text-sm hover:underline font-medium ml-auto"
+                        >
+                            Clear Filters
+                        </button>
+                    )}
+                </div>
+            )}
 
             {/* Simple Form */}
             {showForm && (
@@ -676,16 +747,42 @@ const Events = () => {
 
             {/* Events List */}
             <div className="grid grid-cols-1 gap-4">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">All Events ({events.length})</h2>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                    {filters.category !== 'all' || filters.type !== 'all' || filters.month !== 'all' || filters.year !== 'all' ? 'Filtered Events' : 'All Events'}
+                    ({events.filter(event => {
+                        // Filter Logic
+                        const eventDate = new Date(event.start_date);
+                        const matchCategory = filters.category === 'all' || event.activity_category === filters.category;
+                        const matchType = filters.type === 'all' || (event.event_type || 'competition') === filters.type;
+                        const matchMonth = filters.month === 'all' || (eventDate.getMonth() + 1) === Number(filters.month);
+                        const matchYear = filters.year === 'all' || eventDate.getFullYear() === Number(filters.year);
+                        return matchCategory && matchType && matchMonth && matchYear;
+                    }).length})
+                </h2>
 
-                {events.length === 0 ? (
+                {events.filter(event => {
+                    // Filter Logic (Repeated for safe rendering, could be optimized with memo but fine for list size)
+                    const eventDate = new Date(event.start_date);
+                    const matchCategory = filters.category === 'all' || event.activity_category === filters.category;
+                    const matchType = filters.type === 'all' || (event.event_type || 'competition') === filters.type;
+                    const matchMonth = filters.month === 'all' || (eventDate.getMonth() + 1) === Number(filters.month);
+                    const matchYear = filters.year === 'all' || eventDate.getFullYear() === Number(filters.year);
+                    return matchCategory && matchType && matchMonth && matchYear;
+                }).length === 0 ? (
                     <div className="text-center py-16 text-gray-500">
                         <CalendarIcon size={64} className="mx-auto mb-4 opacity-30" />
-                        <p className="text-xl font-semibold">No events yet</p>
-                        <p>Create your first event to get started!</p>
+                        <p className="text-xl font-semibold">No events found</p>
+                        <p>Try adjusting your filters or create a new event.</p>
                     </div>
                 ) : (
-                    events.map((event) => {
+                    events.filter(event => {
+                        const eventDate = new Date(event.start_date);
+                        const matchCategory = filters.category === 'all' || event.activity_category === filters.category;
+                        const matchType = filters.type === 'all' || (event.event_type || 'competition') === filters.type;
+                        const matchMonth = filters.month === 'all' || (eventDate.getMonth() + 1) === Number(filters.month);
+                        const matchYear = filters.year === 'all' || eventDate.getFullYear() === Number(filters.year);
+                        return matchCategory && matchType && matchMonth && matchYear;
+                    }).map((event) => {
                         const categoryInfo = getCategoryLabel(event.activity_category);
                         const active = isEventActive(event);
 

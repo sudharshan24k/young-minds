@@ -47,7 +47,7 @@ const PageLoader = () => (
 const App = () => {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -72,7 +72,9 @@ const App = () => {
               <Route path="search" element={<GlobalSearch />} />
               <Route path="email-communication" element={<EmailCommunication />} />
               <Route path="hall-of-fame" element={<HallOfFame />} />
-              <Route path="publications" element={<Publications />} />
+              <Route path="create" element={<Publications activeView="create" />} />
+              <Route path="manage" element={<Publications activeView="manage" />} />
+              <Route path="assignments" element={<Publications activeView="assignments" />} />
               <Route path="publications/:id/submissions" element={<PublicationSubmissions />} />
             </Route>
           </Routes>

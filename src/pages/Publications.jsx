@@ -41,47 +41,134 @@ const Publications = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const [assignedTopics, setAssignedTopics] = useState({}); // pubId -> topic object
+
+    useEffect(() => {
+        fetchPublications();
+        if (user) fetchAssignedTopics();
+    }, [user]);
+
+    const fetchAssignedTopics = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('publication_topics')
+                .select('*')
+                .eq('assigned_user_id', user.id);
+
+            if (error) throw error;
+
+            const mapping = {};
+            data?.forEach(topic => {
+                mapping[topic.publication_id] = topic;
+            });
+            setAssignedTopics(mapping);
+        } catch (error) {
+            console.error('Error fetching assigned topics:', error);
+        }
+    };
+
+
+
+    // Handle Reservation/Join (Mock Payment)
+    const handleJoin = async () => {
         if (!user) {
             navigate('/login');
-            return;
-        }
-        if (!fileUrl) {
-            alert('Please provide a file URL');
             return;
         }
 
         setSubmitting(true);
         try {
-            // Check if max entries reached
-            const currentCount = selectedPub.publication_submissions?.[0]?.count || 0;
-            if (currentCount >= selectedPub.max_entries) {
-                alert('This publication has reached its maximum number of entries.');
+            // 1. Find next open topic
+            const { data: openTopics, error: fetchError } = await supabase
+                .from('publication_topics')
+                .select('*')
+                .eq('publication_id', selectedPub.id)
+                .is('assigned_user_id', null)
+                .order('order_index', { ascending: true })
+                .limit(1);
+
+            if (fetchError) throw fetchError;
+
+            if (!openTopics || openTopics.length === 0) {
+                alert('Sorry, all topics have been reserved!');
                 setSubmitting(false);
                 return;
             }
 
-            const { error } = await supabase
+            const topicToAssign = openTopics[0];
+
+            // 2. Assign to user (Optimistic lock ideally, but simple for now)
+            const { error: assignError } = await supabase
+                .from('publication_topics')
+                .update({
+                    assigned_user_id: user.id,
+                    status: 'assigned'
+                })
+                .eq('id', topicToAssign.id)
+                .is('assigned_user_id', null); // Safety check
+
+            if (assignError) throw assignError;
+
+            // 3. Create initial pending submission record linked to topic
+            const { error: subError } = await supabase
                 .from('publication_submissions')
                 .insert([{
                     publication_id: selectedPub.id,
                     user_id: user.id,
-                    file_url: fileUrl,
-                    status: 'pending',
-                    payment_status: 'pending' // In a real app, this would be handled by payment gateway
+                    file_url: null, // No file yet
+                    status: 'pending_submission', // New status for "Working on it"
+                    payment_status: 'paid', // Assumed paid on join
+                    topic_id: topicToAssign.id
                 }]);
 
+            if (subError) console.error('Error creating submission record:', subError);
+
+            alert(`Success! You have been assigned the topic: "${topicToAssign.title}".`);
+            fetchAssignedTopics();
+            fetchPublications();
+            setSelectedPub(null); // Close to refresh view or keep open? Close is safer.
+        } catch (error) {
+            console.error('Error joining publication:', error);
+            alert('Failed to join. Please try again.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleSubmitWork = async (e) => {
+        e.preventDefault();
+        if (!fileUrl) return;
+
+        setSubmitting(true);
+        try {
+            const userTopic = assignedTopics[selectedPub.id];
+
+            // Validate existing pending submission or create new?
+            // We should update the existing 'pending_submission' record to 'pending' (review)
+            // Or just insert if we didn't create one earlier.
+            // Let's assume we update.
+
+            const { error } = await supabase
+                .from('publication_submissions')
+                .update({
+                    file_url: fileUrl,
+                    status: 'pending', // Ready for review
+                    submitted_at: new Date().toISOString()
+                })
+                .eq('publication_id', selectedPub.id)
+                .eq('user_id', user.id);
+
             if (error) throw error;
+
             setSubmissionStatus('success');
             setTimeout(() => {
                 setSelectedPub(null);
                 setSubmissionStatus(null);
                 setFileUrl('');
-                fetchPublications(); // Refresh counts
+                fetchPublications();
             }, 2000);
         } catch (error) {
-            console.error('Error submitting entry:', error);
+            console.error('Error submitting work:', error);
             alert('Failed to submit entry');
         } finally {
             setSubmitting(false);
@@ -230,6 +317,35 @@ const Publications = () => {
                                 </div>
                             )}
 
+                            {/* ASSIGNED TOPIC VIEW */}
+                            {assignedTopics[selectedPub.id] ? (
+                                <div className="bg-green-50 p-5 rounded-xl border border-green-100">
+                                    <h4 className="font-bold text-green-800 mb-1">Your Assigned Chapter</h4>
+                                    <p className="text-2xl font-black text-green-900 mb-2">
+                                        "{assignedTopics[selectedPub.id].title}"
+                                    </p>
+                                    <div className="text-xs font-semibold text-green-700 uppercase tracking-widest">
+                                        Topic #{assignedTopics[selectedPub.id].order_index}
+                                    </div>
+                                    <p className="text-sm text-green-800 mt-4">
+                                        Please write your chapter based on this title and submit your link below.
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="bg-blue-50 p-5 rounded-xl border border-blue-100">
+                                    <h4 className="font-bold text-blue-800 mb-2">How it works</h4>
+                                    <p className="text-blue-900 text-sm mb-2">
+                                        1. Reserve your spot by paying the entry fee.
+                                    </p>
+                                    <p className="text-blue-900 text-sm mb-2">
+                                        2. You will be automatically assigned the next available Topic/Chapter.
+                                    </p>
+                                    <p className="text-blue-900 text-sm">
+                                        3. Write your story and come back here to submit your link!
+                                    </p>
+                                </div>
+                            )}
+
                             <div className="bg-purple-50 p-4 rounded-xl">
                                 <h4 className="font-bold text-purple-900 mb-2 flex items-center gap-2">
                                     <AlertCircle size={18} /> Guidelines
@@ -252,48 +368,54 @@ const Publications = () => {
                                 </div>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Document Link (Google Drive/Dropbox/OneDrive)
-                                    </label>
-                                    <input
-                                        type="url"
-                                        value={fileUrl}
-                                        onChange={(e) => setFileUrl(e.target.value)}
-                                        placeholder="https://..."
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                        required
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Share a link to your document. Ensure the link is accessible to anyone with the link.
-                                    </p>
-                                </div>
-
-                                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-sm text-blue-800">
-                                    <strong>Tip:</strong> You can upload your document to Google Drive, Dropbox, or OneDrive and share the link here.
-                                </div>
-
-                                {Number(selectedPub.cost) > 0 && (
-                                    <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100 text-sm text-yellow-800">
-                                        <strong>Note:</strong> Payment of ₹{selectedPub.cost} will be required after submission approval.
+                            {/* ACTION AREA */}
+                            {assignedTopics[selectedPub.id] ? (
+                                <form onSubmit={handleSubmitWork} className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Document Link (Google Drive/Dropbox/OneDrive)
+                                        </label>
+                                        <input
+                                            type="url"
+                                            value={fileUrl}
+                                            onChange={(e) => setFileUrl(e.target.value)}
+                                            placeholder="https://..."
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                            required
+                                        />
                                     </div>
-                                )}
-
-                                <div className="pt-2">
+                                    <div className="pt-2">
+                                        <ShinyButton
+                                            type="submit"
+                                            className="w-full"
+                                            disabled={submitting}
+                                        >
+                                            {submitting ? (
+                                                <span className="flex items-center gap-2 justify-center">
+                                                    <Loader2 className="animate-spin" size={16} /> Submitting...
+                                                </span>
+                                            ) : 'Submit Chapter'}
+                                        </ShinyButton>
+                                    </div>
+                                </form>
+                            ) : (
+                                <div className="pt-4">
                                     <ShinyButton
-                                        type="submit"
+                                        onClick={handleJoin}
                                         className="w-full"
                                         disabled={submitting}
                                     >
                                         {submitting ? (
                                             <span className="flex items-center gap-2 justify-center">
-                                                <Loader2 className="animate-spin" size={16} /> Submitting...
+                                                <Loader2 className="animate-spin" size={16} /> Processing...
                                             </span>
-                                        ) : 'Submit Entry'}
+                                        ) : Number(selectedPub.cost) > 0 ? `Pay ₹${selectedPub.cost} & Reserve Spot` : 'Join & Reserve Topic'}
                                     </ShinyButton>
+                                    <p className="text-xs text-center text-gray-500 mt-3">
+                                        You will be assigned a topic immediately after payment.
+                                    </p>
                                 </div>
-                            </form>
+                            )}
                         </div>
                     )}
                 </Modal>

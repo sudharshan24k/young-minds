@@ -262,9 +262,7 @@ const Home = () => {
                                 </p>
 
                                 {/* Description */}
-                                <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed max-w-xl">
-                                    {homeData.hero.description}
-                                </p>
+
 
                                 {/* CTAs */}
                                 <div className="flex flex-wrap gap-6">
@@ -323,6 +321,18 @@ const Home = () => {
                                     }}
                                 >
                                     <RiddleWidget />
+                                </motion.div>
+
+                                {/* Moved Hero Description - Filling the empty space */}
+                                <motion.div
+                                    className="mt-8 relative z-10"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.8, duration: 0.8 }}
+                                >
+                                    <p className="text-2xl md:text-3xl text-gray-800 font-black leading-tight text-left bg-white/50 backdrop-blur-sm p-6 rounded-3xl border border-white shadow-sm">
+                                        {homeData.hero.description}
+                                    </p>
                                 </motion.div>
 
                                 {/* Floating trophy illustration */}

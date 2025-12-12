@@ -30,7 +30,14 @@ const Header = () => {
                 { name: 'Monthly Events', path: '/events' },
             ]
         },
-        { name: 'Publications', path: '/publications' },
+        {
+            name: 'Publications',
+            path: '#', // Placeholder, dropdown trigger
+            dropdown: [
+                { name: 'Active Publications', path: '/publications' },
+                { name: 'Publication Rules', path: '/publication-rules' }
+            ]
+        },
         { name: 'Workshops', path: '/workshops' },
         { name: 'Gallery', path: '/gallery' },
         { name: 'Hall of Fame', path: '/hall-of-fame' },

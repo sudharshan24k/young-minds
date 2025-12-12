@@ -21,9 +21,9 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative"
+                            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col relative"
                         >
-                            <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                            <div className="p-6 border-b border-gray-100 flex justify-between items-center flex-none">
                                 <h2 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
                                     {title}
                                 </h2>
@@ -34,7 +34,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                                     <X size={24} className="text-gray-500" />
                                 </button>
                             </div>
-                            <div className="p-6">
+                            <div className="p-6 overflow-y-auto flex-1">
                                 {children}
                             </div>
                         </motion.div>
