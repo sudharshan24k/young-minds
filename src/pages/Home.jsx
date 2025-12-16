@@ -95,29 +95,7 @@ const Home = () => {
                         </div>
                     </div>
 
-                    {/* Quick Stats / Recent Activity Placeholder */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold text-gray-800">Your Activity</h2>
-                            <button onClick={() => navigate('/profile')} className="text-purple-600 font-medium hover:underline">
-                                View Full Profile
-                            </button>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-purple-50 rounded-xl p-6">
-                                <div className="text-3xl font-bold text-purple-600 mb-1">{profile?.level || 1}</div>
-                                <div className="text-gray-600 font-medium">Current Level</div>
-                            </div>
-                            <div className="bg-pink-50 rounded-xl p-6">
-                                <div className="text-3xl font-bold text-pink-600 mb-1">{profile?.xp || 0}</div>
-                                <div className="text-gray-600 font-medium">Total XP Earned</div>
-                            </div>
-                            <div className="bg-yellow-50 rounded-xl p-6">
-                                <div className="text-3xl font-bold text-yellow-600 mb-1">{profile?.streak_count || 0} 🔥</div>
-                                <div className="text-gray-600 font-medium">Day Streak</div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         );

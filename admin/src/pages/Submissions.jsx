@@ -26,11 +26,14 @@ const Submissions = () => {
                     title,
                     month_year
                 ),
-                profiles:user_id (
-                    full_name
+                user_id (
+                    full_name,
+                    email
                 )
             `)
             .order('created_at', { ascending: false });
+
+        console.log('Submissions fetch result:', { data, error });
 
         if (!error) {
             setSubmissions(data || []);
@@ -83,7 +86,7 @@ const Submissions = () => {
     };
 
     const handleFilterChange = (newFilters) => {
-        setFilters(newFilters);
+        setFilters(prev => ({ ...prev, ...newFilters }));
     };
 
     const handleGradeChange = async (id, grade) => {
@@ -253,7 +256,7 @@ const Submissions = () => {
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
                                                     <h3 className="font-bold text-gray-800 line-clamp-1">{submission.events?.title || 'Unknown Event'}</h3>
-                                                    <p className="text-sm text-gray-500">{submission.profiles?.full_name || 'Unknown User'}</p>
+                                                    <p className="text-sm text-gray-500">{submission.user_id?.full_name || 'Unknown User'}</p>
                                                     <p className="text-xs text-gray-400 mt-1">{new Date(submission.created_at).toLocaleDateString()}</p>
                                                 </div>
                                                 <div className="flex flex-col gap-2 items-end">

@@ -78,6 +78,20 @@ const Publications = () => {
 
         setSubmitting(true);
         try {
+            // 0. Check total topics first
+            const { count: totalTopics, error: countError } = await supabase
+                .from('publication_topics')
+                .select('*', { count: 'exact', head: true })
+                .eq('publication_id', selectedPub.id);
+
+            if (countError) throw countError;
+
+            if (totalTopics === 0) {
+                alert('Configuration Error: This publication has no topics defined. Please contact the administrator.');
+                setSubmitting(false);
+                return;
+            }
+
             // 1. Find next open topic
             const { data: openTopics, error: fetchError } = await supabase
                 .from('publication_topics')
@@ -90,7 +104,7 @@ const Publications = () => {
             if (fetchError) throw fetchError;
 
             if (!openTopics || openTopics.length === 0) {
-                alert('Sorry, all topics have been reserved!');
+                alert('Sorry, all topics have been reserved for this publication!');
                 setSubmitting(false);
                 return;
             }

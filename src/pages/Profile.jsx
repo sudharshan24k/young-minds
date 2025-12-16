@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { User, Phone, Mail, Save, Loader, School, MapPin, Palette, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
-import Leaderboard from '../components/Leaderboard';
 
 const Profile = () => {
     const { user, profile, loading } = useAuth();
@@ -30,10 +29,6 @@ const Profile = () => {
     const [enrollmentsLoading, setEnrollmentsLoading] = useState(true);
     const [submissions, setSubmissions] = useState([]);
     const [submissionsLoading, setSubmissionsLoading] = useState(true);
-    const [skills, setSkills] = useState([]);
-    const [skillsLoading, setSkillsLoading] = useState(true);
-    const [badges, setBadges] = useState([]);
-    const [badgesLoading, setBadgesLoading] = useState(true);
     const [invoices, setInvoices] = useState([]);
     const [invoicesLoading, setInvoicesLoading] = useState(true);
     const [registrations, setRegistrations] = useState([]);
@@ -57,10 +52,8 @@ const Profile = () => {
         if (user) {
             fetchEnrollments();
             fetchSubmissions();
-            fetchSkills();
-            fetchBadges();
-            fetchSkills();
-            fetchBadges();
+            fetchEnrollments();
+            fetchSubmissions();
             fetchInvoices();
             fetchRegistrations();
         }
@@ -68,22 +61,6 @@ const Profile = () => {
 
     // ... existing fetch functions ...
 
-    const fetchBadges = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('user_badges')
-                .select('*, badges(*)')
-                .eq('user_id', user.id)
-                .order('earned_at', { ascending: false });
-
-            if (error) throw error;
-            setBadges(data || []);
-        } catch (error) {
-            console.error('Error fetching badges:', error);
-        } finally {
-            setBadgesLoading(false);
-        }
-    };
 
     const fetchEnrollments = async () => {
         try {
@@ -119,22 +96,6 @@ const Profile = () => {
         }
     };
 
-    const fetchSkills = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('user_skills')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('points', { ascending: false });
-
-            if (error) throw error;
-            setSkills(data || []);
-        } catch (error) {
-            console.error('Error fetching skills:', error);
-        } finally {
-            setSkillsLoading(false);
-        }
-    };
 
     const fetchInvoices = async () => {
         try {
@@ -338,7 +299,6 @@ const Profile = () => {
                                             )}
                                         </label>
                                     </div>
-                                    {/* Gamification Stats Removed */}
                                 </div>
                             </div>
                         </div>
@@ -696,8 +656,8 @@ const Profile = () => {
                                                 {reg.events?.activity_category || 'Workshop'}
                                             </span>
                                             <span className={`text-xs font-medium px-2 py-1 rounded-md capitalize ${reg.status === 'attended' ? 'bg-green-100 text-green-700' :
-                                                    reg.status === 'registered' ? 'bg-blue-100 text-blue-700' :
-                                                        'bg-gray-100 text-gray-700'
+                                                reg.status === 'registered' ? 'bg-blue-100 text-blue-700' :
+                                                    'bg-gray-100 text-gray-700'
                                                 }`}>
                                                 {reg.status}
                                             </span>

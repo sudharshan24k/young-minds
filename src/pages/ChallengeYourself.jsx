@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, ArrowRight, Target, Palette, Pen, Video, Microscope, Camera, ChevronDown, ChevronUp } from 'lucide-react';
+
+import { Trophy, ArrowRight, Target, Palette, Pen, Video, Microscope, Camera, ChevronDown, ChevronUp, Loader2, Calendar } from 'lucide-react';
 import FadeIn from '../components/ui/FadeIn';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
+import EventCard from '../components/EventCard';
+import Modal from '../components/ui/Modal';
 
 const CategoryCard = ({ icon: Icon, title, tagline, description, formats, color, delay }) => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -45,14 +50,7 @@ const CategoryCard = ({ icon: Icon, title, tagline, description, formats, color,
                             <p className="text-gray-700 leading-relaxed mb-4 whitespace-pre-line">
                                 {description}
                             </p>
-                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
-                                <p className="text-sm font-semibold text-gray-700 mb-2">
-                                    📎 Accepted Formats:
-                                </p>
-                                <p className="text-sm text-gray-600 italic">
-                                    {formats}
-                                </p>
-                            </div>
+
                         </div>
                     </motion.div>
                 )}
@@ -63,6 +61,47 @@ const CategoryCard = ({ icon: Icon, title, tagline, description, formats, color,
 
 const ChallengeYourself = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const [activeEvent, setActiveEvent] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+
+    React.useEffect(() => {
+        fetchActiveEvent();
+    }, []);
+
+    const fetchActiveEvent = async () => {
+        try {
+            const now = new Date();
+            const monthYear = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+            const { data, error } = await supabase
+                .from('events')
+                .select('*')
+                .eq('month_year', monthYear)
+                .eq('activity_category', 'challenge')
+                .eq('status', 'active');
+
+            if (error) throw error;
+
+            if (data && data.length > 0) {
+                // Find currently active event based on dates
+                const current = data.find(e => {
+                    const start = new Date(e.start_date);
+                    const end = new Date(e.end_date);
+                    end.setHours(23, 59, 59, 999);
+                    return now >= start && now <= end;
+                });
+
+                // Fallback to first event if no specific date match (or if it's upcoming/just finished in this month)
+                setActiveEvent(current || data[0]);
+            }
+        } catch (error) {
+            console.error('Error fetching challenge event:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const categories = [
         {
@@ -260,7 +299,100 @@ const ChallengeYourself = () => {
                         </div>
                     </div>
                 </FadeIn>
+                {/* Live Event Section */}
+                {!loading && activeEvent && (
+                    <FadeIn delay={0.8}>
+                        <div className="mt-16 max-w-4xl mx-auto">
+                            <div className="text-center mb-8">
+                                <span className="inline-block px-4 py-2 bg-red-100 text-red-600 rounded-full font-bold text-sm mb-4 animate-pulse">
+                                    🔴 LIVE NOW
+                                </span>
+                                <h2 className="text-3xl font-black text-gray-800">
+                                    This Month's Challenge
+                                </h2>
+                            </div>
+                            <div className="h-[500px]"> {/* Fixed height container for card consistency */}
+                                <EventCard
+                                    event={activeEvent}
+                                    onClick={() => setSelectedEvent(activeEvent)}
+                                />
+                            </div>
+                        </div>
+                    </FadeIn>
+                )}
             </div>
+
+            {/* Event Detail Modal */}
+            {selectedEvent && (
+                <Modal
+                    isOpen={!!selectedEvent}
+                    onClose={() => setSelectedEvent(null)}
+                    title={selectedEvent.title}
+                >
+                    <div className="space-y-6">
+                        {/* Event Image */}
+                        {selectedEvent.image_url && (
+                            <img
+                                src={selectedEvent.image_url}
+                                alt={selectedEvent.title}
+                                className="w-full rounded-xl"
+                            />
+                        )}
+
+                        {/* Full Description */}
+                        <div>
+                            <h4 className="font-bold text-gray-800 mb-2">About This Challenge</h4>
+                            <p className="text-gray-600 leading-relaxed">{selectedEvent.description}</p>
+                        </div>
+
+                        {/* Guidelines */}
+                        {selectedEvent.guidelines && (
+                            <div className="bg-purple-50 p-4 rounded-xl">
+                                <h4 className="font-bold text-purple-900 mb-2">Guidelines</h4>
+                                <p className="text-purple-800 text-sm whitespace-pre-wrap">
+                                    {selectedEvent.guidelines}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Event Details */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <span className="text-sm font-medium text-gray-600">Start Date</span>
+                                <p className="font-bold text-gray-800">
+                                    {new Date(selectedEvent.start_date).toLocaleDateString()}
+                                </p>
+                            </div>
+                            <div>
+                                <span className="text-sm font-medium text-gray-600">End Date</span>
+                                <p className="font-bold text-gray-800">
+                                    {new Date(selectedEvent.end_date).toLocaleDateString()}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Participate Button */}
+                        {user ? (
+                            <button
+                                onClick={() => navigate('/submit-work', { state: { event: selectedEvent } })}
+                                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-xl font-bold hover:shadow-lg transition-all"
+                            >
+                                Submit Your Entry
+                            </button>
+                        ) : (
+                            <div className="text-center">
+                                <p className="text-gray-600 mb-4">Sign in to participate</p>
+                                <button
+                                    onClick={() => navigate('/login')}
+                                    className="bg-purple-600 text-white px-8 py-3 rounded-full font-bold hover:bg-purple-700 transition-colors"
+                                >
+                                    Sign In
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </Modal>
+            )}
         </div>
     );
 };

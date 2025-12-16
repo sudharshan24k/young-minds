@@ -68,8 +68,31 @@ const Workshops = () => {
             setSelectedWorkshopId(workshopId);
             setShowRegistrations(true);
         } catch (error) {
-            console.error('Error fetching registrations:', error);
-            alert('Failed to fetch registrations');
+            console.error('Error fetching registrations with profiles:', error);
+
+            // Fallback: Fetch without join
+            try {
+                const { data: rawData, error: rawError } = await supabase
+                    .from('event_registrations')
+                    .select('*')
+                    .eq('event_id', workshopId);
+
+                if (rawError) throw rawError;
+
+                // Map to structure expected by UI
+                const mappedData = (rawData || []).map(r => ({
+                    ...r,
+                    profiles: { full_name: 'Unknown (Fix Database)', phone_number: '-' }
+                }));
+
+                setRegistrations(mappedData);
+                setSelectedWorkshopId(workshopId);
+                setShowRegistrations(true);
+                alert('Loaded registrations, but user details are missing due to a database issue. Please run the migration script.');
+            } catch (secondError) {
+                console.error('Error fetching raw registrations:', secondError);
+                alert('Failed to fetch registrations');
+            }
         } finally {
             setLoading(false);
         }
@@ -266,7 +289,7 @@ const Workshops = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${reg.payment_status === 'paid' ? 'bg-green-100 text-green-800' :
-                                                    reg.payment_status === 'free' ? 'bg-gray-100 text-gray-800' : 'bg-yellow-100 text-yellow-800'
+                                                reg.payment_status === 'free' ? 'bg-gray-100 text-gray-800' : 'bg-yellow-100 text-yellow-800'
                                                 }`}>
                                                 {reg.payment_status}
                                             </span>

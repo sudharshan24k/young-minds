@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Loader2, ArrowLeft, CheckCircle, XCircle, FileText, Download, ExternalLink } from 'lucide-react';
+import { Loader2, ArrowLeft, CheckCircle, XCircle, FileText, Download, ExternalLink, Users } from 'lucide-react';
 
 const PublicationSubmissions = () => {
     const { id } = useParams();
@@ -30,7 +30,10 @@ const PublicationSubmissions = () => {
                 .from('publication_submissions')
                 .select(`
                     *,
-                    user:user_id (email)
+                    user_id (
+                        email,
+                        full_name
+                    )
                 `)
                 .eq('publication_id', id)
                 .order('created_at', { ascending: false });
@@ -112,7 +115,7 @@ const PublicationSubmissions = () => {
                                     <tr key={sub.id} className="hover:bg-gray-50 transition">
                                         <td className="px-6 py-4">
                                             <div className="text-sm font-medium text-gray-900">
-                                                {sub.user?.email || 'Unknown User'}
+                                                {sub.user_id?.email || 'Unknown User'}
                                             </div>
                                             <div className="text-xs text-gray-500">Topic ID: {sub.topic_id}</div>
                                         </td>
@@ -196,7 +199,7 @@ const PublicationSubmissions = () => {
                                     <tr key={reg.id} className="hover:bg-gray-50 transition">
                                         <td className="px-6 py-4">
                                             <div className="text-sm font-medium text-gray-900">
-                                                {reg.user?.email || 'Unknown User'}
+                                                {reg.user_id?.email || 'Unknown User'}
                                             </div>
                                             <div className="text-xs text-gray-500">ID: {reg.user_id.slice(0, 8)}</div>
                                         </td>

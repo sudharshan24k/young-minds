@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Mail, Users, FileText, Clock, Send, Plus, Trash2, Edit, Save, CheckCircle, AlertCircle, RefreshCw, Filter } from 'lucide-react';
+import { Mail, Users, FileText, Clock, Send, Plus, Trash2, Edit, Save, CheckCircle, AlertCircle, RefreshCw, Filter, Check, X, Search } from 'lucide-react';
 
 const EmailCommunication = () => {
     const [activeTab, setActiveTab] = useState('compose');
@@ -9,7 +9,11 @@ const EmailCommunication = () => {
     // Compose State
     const [recipientFilter, setRecipientFilter] = useState('all');
     const [selectedEventId, setSelectedEventId] = useState('');
-    const [recipientCount, setRecipientCount] = useState(0);
+    const [recipientCount, setRecipientCount] = useState(0); // Kept for count logic if needed, but driven by selection now
+    const [candidateRecipients, setCandidateRecipients] = useState([]);
+    const [selectedRecipientIds, setSelectedRecipientIds] = useState([]);
+    const [showRecipientModal, setShowRecipientModal] = useState(false);
+
     const [emailSubject, setEmailSubject] = useState('');
     const [emailBody, setEmailBody] = useState('');
     const [selectedTemplateId, setSelectedTemplateId] = useState('');
@@ -63,20 +67,36 @@ const EmailCommunication = () => {
     const calculateRecipients = async () => {
         setLoading(true);
         try {
-            let count = 0;
+            let users = [];
             if (recipientFilter === 'all') {
-                const { count: total } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-                count = total;
+                const { data } = await supabase.from('profiles').select('id, full_name, email');
+                users = data || [];
             } else if (recipientFilter === 'event_participants' && selectedEventId) {
-                const { count: total } = await supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('event_id', selectedEventId);
-                count = total;
+                // Fetch profiles via submissions
+                // Note: This relies on the new Relation we fixed or direct join
+                const { data } = await supabase
+                    .from('submissions')
+                    .select('user_id, profiles(id, full_name, email)')
+                    .eq('event_id', selectedEventId);
+
+                // Map to flatten profile structure
+                users = data?.map(s => s.profiles).filter(Boolean) || [];
+                // Deduplicate
+                users = Array.from(new Map(users.map(u => [u.id, u])).values());
+
             } else if (recipientFilter === 'winners') {
-                const { count: total } = await supabase.from('winners').select('*', { count: 'exact', head: true });
-                count = total;
+                const { data } = await supabase.from('winners').select('user_id, profiles(id, full_name, email)');
+                users = data?.map(w => w.profiles).filter(Boolean) || [];
+                users = Array.from(new Map(users.map(u => [u.id, u])).values());
             }
-            setRecipientCount(count || 0);
+
+            setCandidateRecipients(users);
+            setSelectedRecipientIds(users.map(u => u.id));
+            setRecipientCount(users.length); // Backwards compat
         } catch (error) {
             console.error('Error calculating recipients:', error);
+            setCandidateRecipients([]);
+            setSelectedRecipientIds([]);
         } finally {
             setLoading(false);
         }
@@ -97,20 +117,20 @@ const EmailCommunication = () => {
             return;
         }
 
-        if (recipientCount === 0) {
+        if (selectedRecipientIds.length === 0) {
             alert('No recipients selected');
             return;
         }
 
-        if (!confirm(`Are you sure you want to send this email to ${recipientCount} recipients?`)) return;
+        if (!confirm(`Are you sure you want to send this email to ${selectedRecipientIds.length} recipients?`)) return;
 
         setLoading(true);
         try {
             // Mock sending - just log it
             const { error } = await supabase.from('email_logs').insert([{
                 template_id: selectedTemplateId || null,
-                recipient_count: recipientCount,
-                filter_criteria: { filter: recipientFilter, eventId: selectedEventId },
+                recipient_count: selectedRecipientIds.length,
+                filter_criteria: { filter: recipientFilter, eventId: selectedEventId, custom_selection: selectedRecipientIds.length !== candidateRecipients.length },
                 status: 'sent',
                 sent_at: new Date()
             }]);
@@ -235,10 +255,116 @@ const EmailCommunication = () => {
                                 )}
                             </div>
                             <div className="bg-blue-50 text-blue-800 p-3 rounded-lg flex items-center justify-between">
-                                <span className="font-medium">Total Recipients:</span>
-                                <span className="text-xl font-bold">{loading ? '...' : recipientCount}</span>
+                                <div className="flex items-center gap-2">
+                                    <span className="font-medium">Total Recipients:</span>
+                                    <span className="text-xl font-bold">{loading ? '...' : selectedRecipientIds.length}</span>
+                                </div>
+                                <button
+                                    onClick={() => setShowRecipientModal(true)}
+                                    className="p-1 hover:bg-blue-200 rounded-full transition-colors"
+                                    title="Manage Recipients"
+                                >
+                                    <Plus size={20} />
+                                </button>
                             </div>
                         </div>
+
+                        {/* Recipient Selection Modal */}
+                        {showRecipientModal && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                                <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden shadow-xl">
+                                    <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                                        <h3 className="font-bold text-lg text-gray-800">Select Recipients</h3>
+                                        <button onClick={() => setShowRecipientModal(false)} className="text-gray-500 hover:text-gray-700">
+                                            <X size={20} />
+                                        </button>
+                                    </div>
+
+                                    <div className="p-4 border-b border-gray-100 flex gap-4">
+                                        <div className="flex-1 relative">
+                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                                            <input
+                                                type="text"
+                                                placeholder="Search users..."
+                                                className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                // Implement local search if needed, or just rely on scroll
+                                                onChange={(e) => {
+                                                    const term = e.target.value.toLowerCase();
+                                                    // Simple filter for the list view
+                                                    const items = document.querySelectorAll('.recipient-item');
+                                                    items.forEach(item => {
+                                                        const name = item.getAttribute('data-name').toLowerCase();
+                                                        const email = item.getAttribute('data-email').toLowerCase();
+                                                        if (name.includes(term) || email.includes(term)) {
+                                                            item.style.display = 'flex';
+                                                        } else {
+                                                            item.style.display = 'none';
+                                                        }
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => setSelectedRecipientIds(candidateRecipients.map(u => u.id))}
+                                                className="px-3 py-2 text-xs font-medium bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"
+                                            >
+                                                Select All
+                                            </button>
+                                            <button
+                                                onClick={() => setSelectedRecipientIds([])}
+                                                className="px-3 py-2 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
+                                            >
+                                                Deselect All
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                                        {candidateRecipients.map(user => (
+                                            <div
+                                                key={user.id}
+                                                data-name={user.full_name || ''}
+                                                data-email={user.email || ''}
+                                                className="recipient-item flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                                                onClick={() => {
+                                                    if (selectedRecipientIds.includes(user.id)) {
+                                                        setSelectedRecipientIds(prev => prev.filter(id => id !== user.id));
+                                                    } else {
+                                                        setSelectedRecipientIds(prev => [...prev, user.id]);
+                                                    }
+                                                }}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedRecipientIds.includes(user.id) ? 'bg-blue-600 border-blue-600' : 'border-gray-300'}`}>
+                                                        {selectedRecipientIds.includes(user.id) && <Check size={12} className="text-white" />}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-medium text-gray-900">{user.full_name || 'Unknown User'}</div>
+                                                        <div className="text-xs text-gray-500">{user.email}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {candidateRecipients.length === 0 && (
+                                            <div className="text-center py-8 text-gray-500">No users found.</div>
+                                        )}
+                                    </div>
+
+                                    <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
+                                        <div className="text-sm text-gray-600">
+                                            <strong>{selectedRecipientIds.length}</strong> recipients selected
+                                        </div>
+                                        <button
+                                            onClick={() => setShowRecipientModal(false)}
+                                            className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-sm"
+                                        >
+                                            Done
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <div className="flex justify-between items-center mb-4">

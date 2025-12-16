@@ -80,7 +80,6 @@ export const AuthProvider = ({ children }) => {
                         full_name: options.full_name,
                         phone_number: options.phone_number,
                         role: 'student',
-                        points: 0,
                         updated_at: new Date().toISOString()
                     })
                     .eq('id', data.user.id);

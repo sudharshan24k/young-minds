@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, DollarSign, FileText, ArrowRight, Clock } from 'lucide-react';
 
-const EventCard = ({ event, layout = 'grid' }) => {
+const EventCard = ({ event, layout = 'grid', onClick }) => {
     const navigate = useNavigate();
 
     const getStatusInfo = () => {
@@ -50,6 +50,11 @@ const EventCard = ({ event, layout = 'grid' }) => {
     };
 
     const handleAction = () => {
+        if (onClick) {
+            onClick(event);
+            return;
+        }
+
         const categoryRoutes = {
             'express': '/express',
             'challenge': '/challenge',

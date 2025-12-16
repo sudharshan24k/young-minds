@@ -103,13 +103,16 @@ const Publications = ({ activeView = 'create' }) => {
                     const newTopicsRaw = validTopics;
 
                     // 1. Fetch current topics to compare
+                    // 1. Fetch current topics to compare
                     const { data: currentTopics, error: fetchErr } = await supabase
                         .from('publication_topics')
                         .select('*')
                         .eq('publication_id', editingId)
                         .order('order_index', { ascending: true });
 
-                    if (!fetchErr && currentTopics) {
+                    if (fetchErr) throw fetchErr;
+
+                    if (currentTopics) {
                         const updates = [];
                         const inserts = [];
                         const deletions = [];
@@ -122,11 +125,14 @@ const Publications = ({ activeView = 'create' }) => {
                             const existing = currentTopics[i];
 
                             if (existing && newTitle) {
-                                // Update existing if changed
-                                if (existing.title !== newTitle) {
+                                // Update existing if changed (Title OR Order)
+                                if (existing.title !== newTitle || existing.order_index !== (i + 1)) {
                                     updates.push(
                                         supabase.from('publication_topics')
-                                            .update({ title: newTitle })
+                                            .update({
+                                                title: newTitle,
+                                                order_index: i + 1
+                                            })
                                             .eq('id', existing.id)
                                     );
                                 }
@@ -147,11 +153,28 @@ const Publications = ({ activeView = 'create' }) => {
                             }
                         }
 
-                        // 3. Execute Operations
-                        await Promise.all(updates);
-                        await Promise.all(deletions);
+                        // 3. Execute Operations with Error Checking
+                        // Run updates sequentially to prevent order_index collision race conditions
+                        const updateResults = [];
+                        for (const update of updates) {
+                            const result = await update;
+                            updateResults.push(result);
+                        }
+                        const deleteResults = await Promise.all(deletions);
+
+                        const errors = [
+                            ...updateResults.filter(r => r.error).map(r => r.error),
+                            ...deleteResults.filter(r => r.error).map(r => r.error)
+                        ];
+
+                        if (errors.length > 0) {
+                            console.error('Errors updating topics:', errors);
+                            throw new Error(`Failed to update ${errors.length} topics. Check console for details.`);
+                        }
+
                         if (inserts.length > 0) {
-                            await supabase.from('publication_topics').insert(inserts);
+                            const { error: insertError } = await supabase.from('publication_topics').insert(inserts);
+                            if (insertError) throw insertError;
                         }
                     }
                 }

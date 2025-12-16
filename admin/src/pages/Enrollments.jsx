@@ -17,16 +17,38 @@ const Enrollments = () => {
     }, []);
 
     const fetchEnrollments = async () => {
+        setLoading(true);
         try {
+            // Debugging: Try standard join first
+            console.log('Fetching enrollments...');
             const { data, error } = await supabase
                 .from('enrollments')
-                .select('*')
+                .select(`
+                    *,
+                    profiles (
+                        full_name,
+                        email,
+                        phone_number
+                    )
+                `)
                 .order('created_at', { ascending: false });
+
+            console.log('Enrollments fetch result:', { data, error });
 
             if (error) throw error;
             setEnrollments(data || []);
         } catch (error) {
             console.error('Error fetching enrollments:', error);
+            // Fallback: fetch without join if join fails (to at least show partial data)
+            if (error.code === 'PGRST200') { // Embedding resource error
+                try {
+                    const { data: fallbackData } = await supabase.from('enrollments').select('*');
+                    console.log('Fallback fetch success:', fallbackData);
+                    setEnrollments(fallbackData || []);
+                } catch (e) {
+                    console.error('Fallback failed:', e);
+                }
+            }
         } finally {
             setLoading(false);
         }
@@ -53,9 +75,12 @@ const Enrollments = () => {
 
     const filteredEnrollments = enrollments
         .filter(enrollment => {
-            // Search filter
-            const matchesSearch = enrollment.child_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                enrollment.parent_contact.toLowerCase().includes(searchTerm.toLowerCase());
+            // Search filter - check both direct fields and nested profile data
+            const matchesSearch =
+                enrollment.child_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                enrollment.parent_contact?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                enrollment.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                enrollment.profiles?.email?.toLowerCase().includes(searchTerm.toLowerCase());
 
             // Status filter
             const matchesStatus = filters.status === 'all' || enrollment.status === filters.status;

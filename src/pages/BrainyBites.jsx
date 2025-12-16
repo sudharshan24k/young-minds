@@ -1,12 +1,57 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Brain, ArrowRight, Lightbulb, BookOpen, Rocket } from 'lucide-react';
+import { Brain, ArrowRight, Lightbulb, BookOpen, Rocket, Loader2, Calendar } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import FadeIn from '../components/ui/FadeIn';
 import AboutSection from '../components/ui/AboutSection';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
+import EventCard from '../components/EventCard';
+import Modal from '../components/ui/Modal';
 
 const BrainyBites = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const [activeEvent, setActiveEvent] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+
+    useEffect(() => {
+        fetchActiveEvent();
+    }, []);
+
+    const fetchActiveEvent = async () => {
+        try {
+            const now = new Date();
+            const monthYear = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+            const { data, error } = await supabase
+                .from('events')
+                .select('*')
+                .eq('month_year', monthYear)
+                .eq('activity_category', 'brainy')
+                .eq('status', 'active');
+
+            if (error) throw error;
+
+            if (data && data.length > 0) {
+                // Find currently active event based on dates
+                const current = data.find(e => {
+                    const start = new Date(e.start_date);
+                    const end = new Date(e.end_date);
+                    end.setHours(23, 59, 59, 999);
+                    return now >= start && now <= end;
+                });
+
+                setActiveEvent(current || data[0]);
+            }
+        } catch (error) {
+            console.error('Error fetching brainy event:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const features = [
         { icon: '🎓', title: 'Interactive Workshops', description: 'Live sessions with experts' },
@@ -118,11 +163,95 @@ const BrainyBites = () => {
                     </div>
                 </FadeIn>
 
+                {/* Live Event Section */}
+                {!loading && activeEvent && (
+                    <FadeIn delay={0.8}>
+                        <div className="mt-16 max-w-4xl mx-auto mb-16">
+                            <div className="text-center mb-8">
+                                <span className="inline-block px-4 py-2 bg-red-100 text-red-600 rounded-full font-bold text-sm mb-4 animate-pulse">
+                                    🔴 LIVE NOW
+                                </span>
+                                <h2 className="text-3xl font-black text-gray-800">
+                                    This Month's Session
+                                </h2>
+                            </div>
+                            <div className="h-[500px]">
+                                <EventCard
+                                    event={activeEvent}
+                                    onClick={() => setSelectedEvent(activeEvent)}
+                                />
+                            </div>
+                        </div>
+                    </FadeIn>
+                )}
+
                 <AboutSection
                     title="About Brainy Bites"
                     content="Brainy Bites is our educational enrichment program featuring fascinating topics, fun facts, science experiments, and trivia. Each month brings new themes designed to spark curiosity and expand your knowledge. Learn something new while having fun!"
                 />
             </div>
+
+            {/* Event Detail Modal */}
+            {selectedEvent && (
+                <Modal
+                    isOpen={!!selectedEvent}
+                    onClose={() => setSelectedEvent(null)}
+                    title={selectedEvent.title}
+                >
+                    <div className="space-y-6">
+                        {/* Event Image */}
+                        {selectedEvent.image_url && (
+                            <img
+                                src={selectedEvent.image_url}
+                                alt={selectedEvent.title}
+                                className="w-full rounded-xl"
+                            />
+                        )}
+
+                        {/* Full Description */}
+                        <div>
+                            <h4 className="font-bold text-gray-800 mb-2">About This Session</h4>
+                            <p className="text-gray-600 leading-relaxed">{selectedEvent.description}</p>
+                        </div>
+
+                        {/* Event Details */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <span className="text-sm font-medium text-gray-600">Start Date</span>
+                                <p className="font-bold text-gray-800">
+                                    {new Date(selectedEvent.start_date).toLocaleDateString()}
+                                </p>
+                            </div>
+                            <div>
+                                <span className="text-sm font-medium text-gray-600">End Date</span>
+                                <p className="font-bold text-gray-800">
+                                    {new Date(selectedEvent.end_date).toLocaleDateString()}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Participate Button */}
+                        {user ? (
+                            <button
+                                onClick={() => navigate('/submit-work', { state: { event: selectedEvent } })}
+                                className="w-full bg-gradient-to-r from-green-600 to-teal-600 text-white py-3 px-6 rounded-xl font-bold hover:shadow-lg transition-all"
+                            >
+                                Register Now
+                            </button>
+                        ) : (
+                            <div className="text-center">
+                                <p className="text-gray-600 mb-4">Sign in to register</p>
+                                <button
+                                    onClick={() => navigate('/login')}
+                                    className="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition-colors"
+                                >
+                                    Sign In
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </Modal>
+            )}
         </div>
     );
 };
